@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..700&display=swap">
 <style>
 /* Layout: hoja de atlas. El mapa manda a la izquierda; a la derecha, una columna de lectura
-   que responde "¿cuánto es esto, de verdad?" con todo en la misma escala. */
+   que pone cada cifra en su contexto, con todo en la misma escala. */
 :root {
   --bg: #f4f6f8;
   --surface: #fdfdfe;
@@ -428,7 +428,7 @@ svg.map { width: 100%; height: auto; display: block; }
 <main class="wrap view" id="v-vivienda" hidden>
   <header class="top">
     <span class="eyebrow">Vivienda · datos oficiales hasta 2026</span>
-    <h1>Qué mueve el precio de la vivienda</h1>
+    <h1>Factores asociados al precio de la vivienda</h1>
     <p class="lede">El precio depende de cuánta gente busca casa, cuántas casas hay, cuánto cuesta construirlas y cuánto cuesta pedir un préstamo. Repasamos cada componente con datos oficiales, de uno en uno.</p>
   </header>
 
@@ -439,7 +439,7 @@ svg.map { width: 100%; height: auto; display: block; }
   <section class="paso" id="paso-mapa" hidden>
     <div class="pasohead">
       <span class="eyebrow" id="mapa-eyebrow"></span>
-      <h2>¿Dónde aprieta más?</h2>
+      <h2>Diferencias entre provincias</h2>
       <p class="resp">Cada provincia vive un mercado distinto. Empieza por la presión de hogares nuevos frente a viviendas terminadas y cambia de dato para ver el resto.</p>
     </div>
   <div class="controls">
@@ -1016,7 +1016,7 @@ function obraHTML(d) {
   const fiab = a => a >= 0.95 ? "Alta" : a >= 0.9 ? "Media" : "Baja";
   const p0 = P[0], pn = ult(P);
   return `<section class="lectura" aria-labelledby="obra-t">
-    <h3 id="obra-t">¿Cuánto se tarda en construir una vivienda?</h3>
+    <h3 id="obra-t">Plazos de construcción de una vivienda</h3>
     <div class="lect-grid">
       <article><h4>1. Antes de la obra: suelo y licencia</h4><p>Es la fase en la que pesa la regulación: planeamiento urbanístico, licencia y trámites. <strong>No hay una estadística oficial actualizada</strong> de cuánto dura. La del Ministerio sobre licencias llega, como mucho, a 2019–2020. Las estimaciones del sector hablan de 12 a 24 meses para conseguir una licencia (Consejo General de la Arquitectura Técnica) y de 12 a 14 meses en Madrid (Asprima), frente a un plazo legal de unos 3 meses. Son estimaciones, no estadística oficial, y no hay serie por años.</p></article>
       <article><h4>2. La obra: de empezar a terminar</h4><p>Con los datos del Ministerio de viviendas iniciadas y terminadas se puede estimar cuántos meses pasan, de forma típica, entre que una obra empieza y que termina:</p>
@@ -1176,7 +1176,7 @@ function datosPasos() {
 
 const PASOS = [
   { id: "precio", precios: true, corto: "El precio", eyebrow: "Punto de partida",
-    q: "¿Cuánto ha subido la vivienda frente a los sueldos?",
+    q: "Precio de la vivienda frente a los sueldos",
     resp: d => { const a = d.P.comparar[2008], b = d.P.comparar[2019];
       if (enReal()) return `Descontando la inflación, comprar una vivienda cuesta hoy un <strong>${pctE(Math.abs(a.real))} ${a.real < 0 ? "menos" : "más"} que en 2008</strong> y un <strong>${pctE(b.real)} más que en 2019</strong>. Los sueldos, en cambio, apenas han ganado poder de compra: ${signoE(a.sueldos_real)} desde 2008 y ${signoE(b.sueldos_real)} desde 2019.`;
       return `En relación con los sueldos, comprar una vivienda cuesta hoy <strong>casi lo mismo que en 2008</strong>, antes de la crisis. Lo que ha cambiado son los últimos años: <strong>desde 2019, la vivienda ha subido más que los sueldos</strong> (${signoE(b.vivienda)} frente a ${signoE(b.sueldos)}).`; },
@@ -1237,9 +1237,9 @@ const PASOS = [
     pie: "" },
 
   { id: "hogares", corto: "Hogares", eyebrow: "Componente 1 · Cuánta gente busca casa",
-    q: "¿Se forman más hogares de los que caben en las viviendas nuevas?",
+    q: "Hogares nuevos y viviendas terminadas",
     resp: d => { const L = d.L;
-      return `Ahora sí, con mucha diferencia. Entre ${d.H.anos[0]} y ${ult(d.H.anos)} se formaron <strong>${millones(d.sH)} de hogares</strong> y se terminaron <strong>${milesR(d.sV)} viviendas</strong>: ${nf1.format(d.sH / d.sV)} hogares nuevos por cada vivienda nueva. No siempre fue así: entre 2002 y 2008 se terminaban más viviendas que hogares nuevos (${milesR(L.b.v)} frente a ${milesR(L.b.h)} al año) y entre 2012 y 2020 las dos cifras eran bajas y parecidas (${milesR(L.c.v)} y ${milesR(L.c.h)}).`; },
+      return `Entre ${d.H.anos[0]} y ${ult(d.H.anos)} se formaron <strong>${millones(d.sH)} de hogares</strong> y se terminaron <strong>${milesR(d.sV)} viviendas</strong>: ${nf1.format(d.sH / d.sV)} hogares nuevos por cada vivienda nueva. No siempre fue así: entre 2002 y 2008 se terminaban más viviendas que hogares nuevos (${milesR(L.b.v)} frente a ${milesR(L.b.h)} al año) y entre 2012 y 2020 las dos cifras eran bajas y parecidas (${milesR(L.c.v)} y ${milesR(L.c.h)}).`; },
     expl: d => `Cada hogar ocupa, por definición, una vivienda. Así que esos ${millones(d.sH)} de hogares sí encontraron casa: unas ${milesR(d.sV)} eran nuevas y el resto, unas ${milesR(d.sH - d.sV)}, eran viviendas que ya existían y pasaron a usarse como residencia habitual (pisos vacíos, segundas residencias, pisos turísticos que vuelven a alquilarse o viviendas divididas). Cuando la demanda tiene que cubrirse con casas ya existentes, compite por ellas y el precio sube. Lo que esta cifra no ve son los hogares que no llegan a formarse, como los jóvenes que querrían independizarse y no pueden.`,
     lectura: () => `<section class="lectura" aria-labelledby="def-hogar">
         <h3 id="def-hogar">Qué es un hogar</h3>
@@ -1263,9 +1263,9 @@ const PASOS = [
     pie: "Hogares nuevos: hasta 2020, variación anual de las viviendas principales estimada por el Ministerio de Vivienda (cada vivienda principal es un hogar); desde 2021, estadística del INE. El salto de 2011 se debe al ajuste de la estimación al censo de ese año. El dato de 2021 es dudoso: el INE da 283.000 hogares nuevos y el Ministerio, unos 125.000 (lo explicamos en el paso siguiente)." },
 
   { id: "origen", corto: "Origen de los hogares", eyebrow: "Componente 1 · Cuánta gente busca casa",
-    q: "¿De dónde salen los hogares nuevos?",
+    q: "Origen de los hogares nuevos",
     resp: d => { const O = d.O;
-      return `Desde ${O.a1}, sobre todo de la llegada de población desde el extranjero: aporta de media <strong>${milesR(O.extMed)} hogares al año</strong>. En cambio, la población que ya vivía aquí apenas suma, porque hay más defunciones que nacimientos.`; },
+      return `Desde ${O.a1}, la mayor parte del crecimiento de hogares procede de la llegada de población desde el extranjero, que aporta de media <strong>${milesR(O.extMed)} hogares al año</strong>. La aportación de la población residente es pequeña, porque hay más defunciones que nacimientos.`; },
     expl: d => { const O = d.O, F = d.R.origen.flujos, a = d.R.origen.ult_mig, sl = d.R.origen.saldo;
       return `La inmigración incluye a cualquier persona que llega del extranjero, de cualquier país, <strong>también españoles</strong>. En ${a} llegaron ${millones(F.inmigraciones_total[a])} de personas; ${milesR(F.inmigraciones_espanoles[a])} tenían nacionalidad española y ${milesR(F.inmigraciones_nacidos_espana[a])} habían nacido en España y volvían. En el mismo año se fueron ${milesR(F.emigraciones_total[a])}, así que la población creció en ${milesR(sl.total[a])} personas por la migración. Los españoles se van y vuelven en cifras parecidas: su saldo fue de ${(sl.espanoles[a] >= 0 ? "+" : "−") + milesR(Math.abs(sl.espanoles[a]))}.`; },
     lectura: d => { const R = d.R.origen, L = d.R.largo;
@@ -1324,8 +1324,8 @@ const PASOS = [
 
   { id: "construccion", corto: "Construcción", eyebrow: "Componente 2 · Cuántas viviendas se hacen",
     lectura: d => obraHTML(d) + normasHTML(),
-    q: "¿Por qué se construye tan poco?",
-    resp: d => `Porque la construcción no se ha recuperado del desplome de 2008. En ${d.C.anos[d.iPico]} se terminaron <strong>${milesR(d.tot[d.iPico])}</strong> viviendas; en ${d.C.anos[d.iMin]}, <strong>${milesR(d.tot[d.iMin])}</strong>; en ${ult(d.C.anos)}, <strong>${milesR(ult(d.tot))}</strong>.`,
+    q: "Evolución de la construcción de viviendas",
+    resp: d => `La construcción sigue por debajo de los niveles anteriores a 2008. En ${d.C.anos[d.iPico]} se terminaron <strong>${milesR(d.tot[d.iPico])}</strong> viviendas; en ${d.C.anos[d.iMin]}, <strong>${milesR(d.tot[d.iMin])}</strong>; en ${ult(d.C.anos)}, <strong>${milesR(ult(d.tot))}</strong>.`,
     expl: d => `Una vivienda que se empieza hoy se termina dentro de dos o tres años. Las obras que se inician sí están subiendo: ${milesR(d.ultIni)} en ${ult(d.C.anos)}${d.desdeIni ? `, la cifra más alta desde ${d.desdeIni}` : ""}, y ${milesR(d.C.ytd_ini)} ${hastaMes(d.C.ult_mes)} (${signoE(varPct(d.C.ytd_ini_prev, d.C.ytd_ini))} que un año antes). Aun así, siguen por debajo de los hogares que se forman cada año.`,
     det: d => `<p><strong>Terminadas libres:</strong> certificados de fin de obra de los Colegios de Aparejadores. <strong>Protegidas:</strong> calificaciones definitivas de los planes estatales y autonómicos, que llegan con cierto retraso respecto a la obra. <strong>Iniciadas libres:</strong> certificados de inicio de obra. Fuente: Ministerio de Vivienda. Datos mensuales disponibles hasta ${MES_CORTO[+d.C.ult_mes.slice(5, 7) - 1]} de ${d.C.ult_mes.slice(0, 4)}.</p>
       <p><strong>Qué no dice:</strong> no recoge rehabilitaciones ni cambios de uso (por ejemplo, locales convertidos en viviendas).</p>`,
@@ -1336,8 +1336,8 @@ const PASOS = [
       aria: "Viviendas terminadas e iniciadas por año desde 1991" }) },
 
   { id: "costes", precios: true, corto: "Coste de construir", eyebrow: "Componente 3 · Qué cuesta construir",
-    q: "¿Hay manos y suelo para construir más?",
-    resp: d => `Faltan manos. En la construcción trabajan <strong>${millones(ult(d.K.ocupados) * 1000)} de personas</strong>, frente a ${millones(d.K.ocupados[d.ik(2008)] * 1000)} en 2008.`,
+    q: "Empleo y suelo en la construcción",
+    resp: d => `En la construcción trabajan <strong>${millones(ult(d.K.ocupados) * 1000)} de personas</strong>, frente a ${millones(d.K.ocupados[d.ik(2008)] * 1000)} en 2008.`,
     expl: d => `El sector perdió más de la mitad del empleo entre 2008 y ${d.aMin}, cuando tocó fondo con ${milesR(d.oMin * 1000)} trabajadores, y desde entonces ha recuperado una parte. ${textoSuelo(d)}`,
     det: d => `<p><strong>Trabajadores:</strong> ocupados en la construcción según la Encuesta de Población Activa (INE), media anual. Incluye obra civil y reformas, no solo vivienda nueva. ${ult(d.K.anos)}: media de ${d.K.ocup_parcial} trimestres. La serie con la clasificación de sectores actual empieza en 2008; los años anteriores usan otra clasificación y no son comparables.</p>
       <p><strong>Suelo:</strong> precio medio de las parcelas de suelo urbano vendidas (Ministerio de Vivienda). Es una media de lo que se vende cada trimestre, no un índice a calidad constante, y cambia según dónde se venda suelo.</p>
@@ -1351,9 +1351,9 @@ const PASOS = [
     pie: "Millones de personas. *Media de los trimestres publicados." },
 
   { id: "credito", precios: true, corto: "Crédito", eyebrow: "Componente 4 · Lo que cuesta el dinero",
-    q: "¿Influye lo que cuesta una hipoteca?",
+    q: "Coste del crédito hipotecario",
     resp: d => { const R = interesReal(d), k = R.iMin;
-      return `Marca el ritmo, pero no explica la subida de fondo. Entre ${R.a0} y ${R.a1} la inflación superó al interés de las hipotecas (en ${d.Cr.anos[k]}, ${nf1.format(d.Cr.inflacion[k])}\u00a0% frente a ${nf1.format(d.Cr.interes[k])}\u00a0%), así que endeudarse salió muy barato. Con la subida de tipos, el interés volvió a ponerse a la altura de la inflación. Aun así, las hipotecas cayeron un ${pctE(-d.caeH)} en ${d.anoCaeH} y el precio siguió subiendo.`; },
+      return `Los datos muestran relación con el ritmo de compras, pero no con toda la subida de fondo. Entre ${R.a0} y ${R.a1} la inflación superó al interés de las hipotecas (en ${d.Cr.anos[k]}, ${nf1.format(d.Cr.inflacion[k])}\u00a0% frente a ${nf1.format(d.Cr.interes[k])}\u00a0%), lo que abarató el crédito en términos reales. Con la subida de tipos, el interés volvió a ponerse a la altura de la inflación. Aun así, las hipotecas cayeron un ${pctE(-d.caeH)} en ${d.anoCaeH} y el precio siguió subiendo.`; },
     expl: d => `Con los tipos de nuevo a la baja, en ${d.aH} se firmaron ${milesR(d.hU)} hipotecas sobre vivienda${d.desdeH ? `, la cifra más alta desde ${d.desdeH}` : ""}. Un crédito más barato permite pagar más por la misma casa: si no hay más viviendas, una parte de ese abaratamiento acaba en el precio.`,
     det: d => `<p>Estadística de Hipotecas del INE: tipo de interés medio al inicio de las hipotecas sobre vivienda, y número de hipotecas sobre vivienda inscritas cada año. Datos disponibles hasta ${MES_CORTO[+d.Cr.ult.slice(5, 7) - 1]} de ${d.Cr.ult.slice(0, 4)}. Las inscripciones en el registro van uno o dos meses por detrás de la firma. El número de hipotecas está disponible desde 2003; el tipo de interés medio con el método actual, solo desde 2009.</p>
       <p><strong>Qué no dice:</strong> muchas compras se pagan sin hipoteca, sobre todo las de inversores y no residentes, así que el crédito explica solo una parte de la demanda.</p>`,
@@ -1374,8 +1374,8 @@ const PASOS = [
     pie: "*Media de los meses publicados." },
 
   { id: "compradores", corto: "Otros compradores", eyebrow: "Componente 5 · Quién compra",
-    q: "¿Cuánto pesan los no residentes, las empresas y los pisos turísticos?",
-    resp: () => `En el conjunto de España, menos de lo que suele decirse. En la costa y las islas, mucho más.`,
+    q: "Compras de no residentes y empresas, y pisos turísticos",
+    resp: () => `En el conjunto de España su peso es reducido; en la costa y las islas es considerablemente mayor.`,
     expl: d => `Las compras de empresas llegaron al ${pct(d.eMax[1])} en ${d.eMax[0]}, cuando bancos y fondos compraron vivienda barata tras la crisis. En ${d.eU[0]} fueron el ${pct(d.eU[1])}, y esa cifra incluye promotoras y sociedades familiares, no solo fondos. Las compras de no residentes y los pisos turísticos se concentran en ${nombre(d.top("no_residentes").cod)}, Málaga, Baleares y Canarias, donde sí compiten con quien busca casa para vivir.`,
     det: () => `<p><strong>Compras de extranjeros y de no residentes:</strong> últimos 12 meses (${periodoU4T(D.u4t)}), Ministerio de Vivienda a partir de escrituras notariales. <strong>Empresas:</strong> compraventas de vivienda en las que el comprador es una persona jurídica (INE, solo dato nacional). <strong>Pisos turísticos:</strong> viviendas anunciadas en las grandes plataformas sobre el total de viviendas del censo (INE, ${periodoMes(D.capas.turisticas.periodo)}).</p>
       <p><strong>Qué no dice:</strong> "extranjero" no es "especulador". Los extranjeros que viven en España compran sobre todo su propia casa; lo más parecido a inversión o segunda residencia es la compra de no residentes. Las barras de compras y la de pisos turísticos usan denominadores distintos: compras en un caso y viviendas en el otro.</p>`,
@@ -1389,10 +1389,10 @@ const PASOS = [
       ], 50, "Todas las barras usan la misma escala, de 0 a 50 %. En naranja, la provincia con el valor más alto.");
     } },
 
-  { id: "mapa", corto: "Dónde aprieta", eyebrow: "Por provincia" },
+  { id: "mapa", corto: "Por provincia", eyebrow: "Por provincia" },
 
   { id: "resumen", corto: "Resumen", eyebrow: "Qué dicen los datos",
-    q: "Qué mueve el precio, en resumen",
+    q: "Resumen de los datos",
     resp: () => `Ningún factor lo explica solo, pero no todos pesan lo mismo.`,
     lista: d => [
       ["Pesa en toda España", "Se forman muchos más hogares que viviendas", `${nf1.format(d.sH / d.sV)} hogares nuevos por cada vivienda terminada entre ${d.H.anos[0]} y ${ult(d.H.anos)}. Desde ${d.O.a1}, la mayoría se debe a la llegada de población del extranjero, que incluye a españoles que vuelven.`],
@@ -1486,29 +1486,29 @@ new MutationObserver(repintarTema).observe(document.documentElement, { attribute
 /* ---------- secciones del sitio ---------- */
 const SECCIONES = [
   { id: "vivienda", nombre: "Vivienda", lista: true,
-    pregunta: "¿Qué mueve el precio? Hogares, construcción, costes, crédito y compradores, componente a componente." },
+    pregunta: "Factores asociados al precio: hogares, construcción, costes, crédito y compradores, componente a componente." },
   { id: "inmigracion", nombre: "Inmigración",
-    pregunta: "¿Cuánta gente llega y se va, cuántos trabajan y cotizan, y qué dicen de verdad las cifras de delitos?",
+    pregunta: "Flujos migratorios, afiliación a la Seguridad Social y estadísticas de condenas, con sus definiciones y limitaciones.",
     preguntas: ["Llegadas, salidas y saldo neto por año y provincia", "Extranjeros afiliados a la Seguridad Social y en qué sectores trabajan", "Condenados por nacionalidad, teniendo en cuenta edad y sexo", "Expulsiones decididas frente a las que se ejecutan"],
     fuentes: ["INE: Estadística Continua de Población y Estadística de Migraciones", "Seguridad Social: afiliación de extranjeros", "INE: Estadística de Condenados", "Ministerio del Interior: balance de inmigración irregular"] },
   { id: "pensiones", nombre: "Pensiones",
-    pregunta: "¿Cuánto cuestan hoy, cuánto costarán y a cuánta gente no le llega?",
+    pregunta: "Gasto actual y proyectado en pensiones, cuantías por provincia y sexo, y fuentes de financiación.",
     preguntas: ["Gasto en pensiones sobre el PIB y su proyección hasta 2050", "Pensión media por provincia y por sexo", "Pensiones por debajo del salario mínimo", "Cuánto se paga con cotizaciones y cuánto con transferencias del Estado"],
     fuentes: ["Seguridad Social: estadísticas de pensiones contributivas", "AIReF: opiniones sobre sostenibilidad del sistema", "Comisión Europea: Ageing Report"] },
   { id: "salarios", nombre: "Salarios y coste de vida",
-    pregunta: "¿Vivimos mejor o peor que hace ocho años?",
+    pregunta: "Evolución de salarios y precios, y poder de compra por provincia.",
     preguntas: ["Salario medio y mediano frente a los precios", "Subida del salario mínimo y de la cesta de la compra", "Poder de compra real por provincia"],
     fuentes: ["INE: Encuesta de Estructura Salarial y salarios de la EPA", "INE: Índice de Precios de Consumo", "BOE: salario mínimo interprofesional"] },
   { id: "empleo", nombre: "Empleo y economía",
-    pregunta: "¿Cuánto crecemos, cuánto paro hay y cuánto debemos?",
+    pregunta: "Crecimiento del PIB, desempleo y deuda pública.",
     preguntas: ["Paro total y juvenil por provincia", "Crecimiento del PIB comparado con la zona euro", "Deuda y déficit públicos"],
     fuentes: ["INE: Encuesta de Población Activa", "INE: Contabilidad Nacional", "Banco de España y Eurostat"] },
   { id: "igualdad", nombre: "Igualdad",
-    pregunta: "¿Cuánto cobran menos las mujeres, por qué, y cómo cambia con la edad y el tipo de trabajo?",
+    pregunta: "Diferencias salariales y de pensiones entre mujeres y hombres por edad, jornada y tipo de trabajo, y factores que las explican.",
     preguntas: ["Brecha salarial por hora y anual, y qué parte explica la jornada", "Brecha en pensiones", "Empleo a tiempo parcial y cuidados", "Víctimas de violencia de género por provincia"],
     fuentes: ["INE: Encuesta de Estructura Salarial", "Seguridad Social: pensiones por sexo", "INE: Estadística de Violencia Doméstica y Violencia de Género", "Ministerio de Igualdad: Delegación del Gobierno contra la Violencia de Género"] },
   { id: "salud", nombre: "Salud pública",
-    pregunta: "¿Cuánto se espera para operarse o ver a un especialista, y cuánto se gasta en cada comunidad?",
+    pregunta: "Listas de espera, gasto sanitario público y personal sanitario por comunidad.",
     preguntas: ["Listas de espera quirúrgicas y de consultas por comunidad", "Gasto sanitario público por habitante", "Médicos y enfermeras por habitante"],
     fuentes: ["Ministerio de Sanidad: Sistema de Información de Listas de Espera", "Ministerio de Sanidad: Estadística de Gasto Sanitario Público", "INE y Ministerio de Sanidad: profesionales sanitarios"] },
 ];
@@ -1538,7 +1538,7 @@ function pintarSeccion(s) {
       <p class="lede">${s.pregunta}</p>
     </header>
     <div class="prep">
-      <div><h3>Qué va a responder</h3><ul>${s.preguntas.map(p => `<li>${p}</li>`).join("")}</ul></div>
+      <div><h3>Qué incluirá</h3><ul>${s.preguntas.map(p => `<li>${p}</li>`).join("")}</ul></div>
       <div class="src"><h3>Fuentes previstas</h3><ul>${s.fuentes.map(f => `<li>${f}</li>`).join("")}</ul></div>
     </div>
     <p class="note">Todavía no hay datos publicados en esta sección. Mientras tanto puedes consultar <a href="#vivienda">Vivienda</a>.</p>`;

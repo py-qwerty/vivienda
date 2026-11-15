@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..700&display=swap">
 <style>
 /* Layout: hoja de atlas. El mapa manda a la izquierda; a la derecha, una columna de lectura
-   que responde "¿cuánto es esto, de verdad?" con todo en la misma escala. */
+   que pone cada cifra en su contexto, con todo en la misma escala. */
 :root {
   --bg: #f4f6f8;
   --surface: #fdfdfe;
@@ -428,7 +428,7 @@ svg.map { width: 100%; height: auto; display: block; }
 <main class="wrap view" id="v-vivienda" hidden>
   <header class="top">
     <span class="eyebrow">Vivienda · datos oficiales hasta 2026</span>
-    <h1>Qué mueve el precio de la vivienda</h1>
+    <h1>Factores asociados al precio de la vivienda</h1>
     <p class="lede">El precio depende de cuánta gente busca casa, cuántas casas hay, cuánto cuesta construirlas y cuánto cuesta pedir un préstamo. Repasamos cada componente con datos oficiales, de uno en uno.</p>
   </header>
 
@@ -439,7 +439,7 @@ svg.map { width: 100%; height: auto; display: block; }
   <section class="paso" id="paso-mapa" hidden>
     <div class="pasohead">
       <span class="eyebrow" id="mapa-eyebrow"></span>
-      <h2>¿Dónde aprieta más?</h2>
+      <h2>Diferencias entre provincias</h2>
       <p class="resp">Cada provincia vive un mercado distinto. Empieza por la presión de hogares nuevos frente a viviendas terminadas y cambia de dato para ver el resto.</p>
     </div>
   <div class="controls">
@@ -872,29 +872,29 @@ new MutationObserver(repintarTema).observe(document.documentElement, { attribute
 /* ---------- secciones del sitio ---------- */
 const SECCIONES = [
   { id: "vivienda", nombre: "Vivienda", lista: true,
-    pregunta: "¿Qué mueve el precio? Hogares, construcción, costes, crédito y compradores, componente a componente." },
+    pregunta: "Factores asociados al precio: hogares, construcción, costes, crédito y compradores, componente a componente." },
   { id: "inmigracion", nombre: "Inmigración",
-    pregunta: "¿Cuánta gente llega y se va, cuántos trabajan y cotizan, y qué dicen de verdad las cifras de delitos?",
+    pregunta: "Flujos migratorios, afiliación a la Seguridad Social y estadísticas de condenas, con sus definiciones y limitaciones.",
     preguntas: ["Llegadas, salidas y saldo neto por año y provincia", "Extranjeros afiliados a la Seguridad Social y en qué sectores trabajan", "Condenados por nacionalidad, teniendo en cuenta edad y sexo", "Expulsiones decididas frente a las que se ejecutan"],
     fuentes: ["INE: Estadística Continua de Población y Estadística de Migraciones", "Seguridad Social: afiliación de extranjeros", "INE: Estadística de Condenados", "Ministerio del Interior: balance de inmigración irregular"] },
   { id: "pensiones", nombre: "Pensiones",
-    pregunta: "¿Cuánto cuestan hoy, cuánto costarán y a cuánta gente no le llega?",
+    pregunta: "Gasto actual y proyectado en pensiones, cuantías por provincia y sexo, y fuentes de financiación.",
     preguntas: ["Gasto en pensiones sobre el PIB y su proyección hasta 2050", "Pensión media por provincia y por sexo", "Pensiones por debajo del salario mínimo", "Cuánto se paga con cotizaciones y cuánto con transferencias del Estado"],
     fuentes: ["Seguridad Social: estadísticas de pensiones contributivas", "AIReF: opiniones sobre sostenibilidad del sistema", "Comisión Europea: Ageing Report"] },
   { id: "salarios", nombre: "Salarios y coste de vida",
-    pregunta: "¿Vivimos mejor o peor que hace ocho años?",
+    pregunta: "Evolución de salarios y precios, y poder de compra por provincia.",
     preguntas: ["Salario medio y mediano frente a los precios", "Subida del salario mínimo y de la cesta de la compra", "Poder de compra real por provincia"],
     fuentes: ["INE: Encuesta de Estructura Salarial y salarios de la EPA", "INE: Índice de Precios de Consumo", "BOE: salario mínimo interprofesional"] },
   { id: "empleo", nombre: "Empleo y economía",
-    pregunta: "¿Cuánto crecemos, cuánto paro hay y cuánto debemos?",
+    pregunta: "Crecimiento del PIB, desempleo y deuda pública.",
     preguntas: ["Paro total y juvenil por provincia", "Crecimiento del PIB comparado con la zona euro", "Deuda y déficit públicos"],
     fuentes: ["INE: Encuesta de Población Activa", "INE: Contabilidad Nacional", "Banco de España y Eurostat"] },
   { id: "igualdad", nombre: "Igualdad",
-    pregunta: "¿Cuánto cobran menos las mujeres, por qué, y cómo cambia con la edad y el tipo de trabajo?",
+    pregunta: "Diferencias salariales y de pensiones entre mujeres y hombres por edad, jornada y tipo de trabajo, y factores que las explican.",
     preguntas: ["Brecha salarial por hora y anual, y qué parte explica la jornada", "Brecha en pensiones", "Empleo a tiempo parcial y cuidados", "Víctimas de violencia de género por provincia"],
     fuentes: ["INE: Encuesta de Estructura Salarial", "Seguridad Social: pensiones por sexo", "INE: Estadística de Violencia Doméstica y Violencia de Género", "Ministerio de Igualdad: Delegación del Gobierno contra la Violencia de Género"] },
   { id: "salud", nombre: "Salud pública",
-    pregunta: "¿Cuánto se espera para operarse o ver a un especialista, y cuánto se gasta en cada comunidad?",
+    pregunta: "Listas de espera, gasto sanitario público y personal sanitario por comunidad.",
     preguntas: ["Listas de espera quirúrgicas y de consultas por comunidad", "Gasto sanitario público por habitante", "Médicos y enfermeras por habitante"],
     fuentes: ["Ministerio de Sanidad: Sistema de Información de Listas de Espera", "Ministerio de Sanidad: Estadística de Gasto Sanitario Público", "INE y Ministerio de Sanidad: profesionales sanitarios"] },
 ];
@@ -924,7 +924,7 @@ function pintarSeccion(s) {
       <p class="lede">${s.pregunta}</p>
     </header>
     <div class="prep">
-      <div><h3>Qué va a responder</h3><ul>${s.preguntas.map(p => `<li>${p}</li>`).join("")}</ul></div>
+      <div><h3>Qué incluirá</h3><ul>${s.preguntas.map(p => `<li>${p}</li>`).join("")}</ul></div>
       <div class="src"><h3>Fuentes previstas</h3><ul>${s.fuentes.map(f => `<li>${f}</li>`).join("")}</ul></div>
     </div>
     <p class="note">Todavía no hay datos publicados en esta sección. Mientras tanto puedes consultar <a href="#vivienda">Vivienda</a>.</p>`;

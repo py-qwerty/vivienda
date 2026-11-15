@@ -288,6 +288,33 @@ function estudiosHTML() {
     </div></section>`;
 }
 
+function analisisHTML(d) {
+  const P = propAlquiler(), B = P.bde, N = D.inversion.parque_n, E = D.empresas;
+  const g = id => P.grupos.find(x => x.id === id).viviendas;
+  const mercado = P.tot - g("publica"), mas10 = B.mas10_max_pct / 100 * mercado;
+  const gt = g("empresas") + mas10, gtAlq = 100 * gt / mercado, gtParque = 100 * gt / N;
+  const eMax = E.reduce((a, b) => b[1] > a[1] ? b : a), eU = ult(E);
+  const desde21 = E.filter(e => e[0] >= 2021).map(e => e[1]);
+  const suelo = RC.precio.crisis.suelo.slice(0, 4), sube19 = RC.precio.comparar[2019].vivienda;
+  const brecha = d.sH - d.sV, anos = `${d.H.anos[0]} y ${ult(d.H.anos)}`;
+  const art = (t, x) => `<article><h4>${t}</h4><p>${x}</p></article>`;
+  return `<section class="lectura" aria-labelledby="ana-t">
+    <h3 id="ana-t">Análisis final: los grandes tenedores y el precio de la vivienda</h3>
+    <p class="note">Contrastamos lo que muestran los datos de esta página con las dos lecturas posibles: que los grandes tenedores influyen de forma importante en el precio, o que su impacto en el problema de la vivienda es pequeño. Por «grandes tenedores» sumamos las empresas privadas que alquilan vivienda y los particulares con más de 10 viviendas, lo que da un máximo, porque no todas las empresas superan ese umbral.</p>
+    <div class="lect-grid">
+      ${art("1 · Tamaño", `Juntos tendrían como máximo unas <strong>${milesR(gt)} viviendas en alquiler</strong>: hasta el ${pct(gtAlq)} del alquiler de mercado y el ${pct(gtParque)} del parque total. El ${pct(100 - gtAlq)} restante del alquiler de mercado es de particulares con 10 viviendas o menos. El Banco de España describe el mercado como dominado por pequeños propietarios.`)}
+      ${art("2 · Momento", `Las empresas hicieron más compras cuando el precio estaba en mínimos: el ${pct(eMax[1])} de las compras en ${eMax[0]}, cerca del punto más bajo de la crisis (${suelo}). Desde 2021, cuando el precio ha subido con más fuerza (${signoE(sube19)} desde 2019, sin descontar la inflación), su porcentaje se ha mantenido entre el ${pct(Math.min(...desde21))} y el ${pct(Math.max(...desde21))}. A escala nacional, la subida reciente no coincide con un aumento de sus compras.`)}
+      ${art("3 · Comparación con otros factores", `Entre ${anos} se formaron unos ${milesR(brecha)} hogares más que viviendas terminadas. Esa diferencia, acumulada en ${d.H.anos.length} años, es ${brecha >= gt ? "mayor que" : "comparable a"} todo el alquiler que tendrían los grandes tenedores. La construcción sigue lejos de los niveles anteriores a 2008. Son factores que afectan a todo el país.`)}
+      ${art("4 · Dónde sí pueden pesar", `El peso medio esconde diferencias grandes. En Barcelona, las empresas tenían alrededor del 25 % del alquiler en 2018, según el Banco de España, y los particulares con varias viviendas superan el 60 % del alquiler de particulares en las capitales canarias, Palma y Barcelona. En los barrios con más pisos turísticos de Barcelona, el estudio citado estima un efecto en el alquiler de hasta el 7 %. Donde un propietario o un tipo de uso concentra mucha oferta, su influencia en el precio local puede ser mayor.`)}
+      ${art("5 · Lo que no se puede medir", "No hay datos oficiales del peso de los grandes tenedores por barrio, de los precios que cobran frente a los pequeños propietarios, de cuántas viviendas compran para revender ni de las que mantienen vacías. Sin esos datos, no se puede cuantificar su efecto en el precio a ninguna escala.")}
+    </div>
+    <div class="aviso">
+      <div class="aviso-cab"><span class="chip-aviso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>Lo que permiten concluir los datos</span>
+        <h3>Peso pequeño a escala nacional; posible efecto en mercados locales concretos</h3></div>
+      <p>Con los datos disponibles, los grandes tenedores tienen una parte pequeña del parque y del alquiler, su actividad de compra no aumentó cuando el precio subió con más fuerza, y el desajuste entre hogares nuevos y viviendas nuevas es de un tamaño mayor. Estos datos no apuntan a que sean la causa principal de la subida del precio en el conjunto de España. Los datos sí son compatibles con un efecto relevante en barrios y ciudades donde concentran mucha oferta, pero no hay información oficial suficiente para medir su tamaño. Esta conclusión puede cambiar si se publican datos de propiedad por barrio o de precios según el tipo de propietario.</p>
+    </div></section>`;
+}
+
 function regulacionHTML() {
   const ESTADO = { vigente: "Vigente", derogada: "Derogada", anulada_parte: "Anulada en parte" };
   const fecha = f => `${MES_CORTO[+f.slice(5, 7) - 1]} ${f.slice(0, 4)}`;
@@ -627,7 +654,7 @@ const PASOS = [
     expl: d => { const S = D.inversion.propiedad.serie_particulares, i = S.anos.length - 1;
       const T = D.inversion.propiedad.serie_serpavi, tot = T.colectiva.map((v, k) => v + T.unifamiliar[k]), k1 = T.anos.indexOf(2020);
       return `Las viviendas alquiladas por particulares que recoge el Ministerio de Vivienda pasaron de ${milesR(tot[0])} en ${T.anos[0]} a ${milesR(ult(tot))} en ${ult(T.anos)}. Solo hay dos años con el reparto entre quien alquila una vivienda y quien alquila varias: entre ${S.anos[0]} y ${S.anos[i]}, las de particulares con dos o más pasaron de ${milesR(S.varias[0])} a ${milesR(S.varias[i])} (${signoE(varPct(S.varias[0], S.varias[i]))}), y las de quienes alquilan una sola, de ${milesR(S.uno[0])} a ${milesR(S.uno[i])} (${signoE(varPct(S.uno[0], S.uno[i]))}).`; },
-    lectura: d => parqueHTML() + propiedadHTML() + definicionesHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML(),
+    lectura: d => parqueHTML() + propiedadHTML() + definicionesHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML() + analisisHTML(d),
     det: () => `<p><strong>Propiedad del alquiler:</strong> ${D.inversion.propiedad.fuente_txt}. <strong>Viviendas vacías:</strong> INE, Censo 2021 cruzado con el consumo eléctrico.</p>
       <p><strong>Qué no dice:</strong> ninguna estadística oficial mide la especulación como tal, es decir, cuántas viviendas se compran para revenderlas con beneficio. Los datos de esta página son aproximaciones: quién es propietario y cuántas viviendas no se usan.</p>`,
     chart: (d, el) => {

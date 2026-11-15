@@ -201,6 +201,29 @@ function propAlquiler() {
   return { ...P, tot, pct };
 }
 
+function parqueHTML() {
+  const P = propAlquiler(), N = D.inversion.parque_n, V = D.inversion.vacias_n, B = P.bde;
+  const g = id => P.grupos.find(x => x.id === id).viviendas, sp = v => 100 * v / N;
+  const alq = P.tot, resto = N - alq - V;
+  const mas10 = B.mas10_max_pct / 100 * (P.tot - g("publica"));
+  setTimeout(() => { const el = $("c-parque"); if (el) barrasH(el, [
+    { etq: "Alquiladas por particulares con una sola vivienda alquilada", vals: [{ v: sp(g("uno")), c: C1, quien: `${milesR(g("uno"))} viviendas` }] },
+    { etq: "Alquiladas por particulares con dos o más", vals: [{ v: sp(g("varias")), c: C2, quien: `${milesR(g("varias"))} viviendas` }] },
+    { etq: "Alquiladas por empresas privadas (fondos, SOCIMI, promotoras, sociedades…)", vals: [{ v: sp(g("empresas")), c: C3, quien: `${milesR(g("empresas"))} viviendas` }] },
+    { etq: "Vivienda pública y social", vals: [{ v: sp(g("publica")), c: C4, quien: `${milesR(g("publica"))} viviendas` }] },
+    { etq: "Vacías", vals: [{ v: sp(V), c: "var(--muted)", quien: `${milesR(V)} viviendas` }] },
+  ], 20, `Porcentaje sobre el total de ${millones(N)} de viviendas del Censo 2021. Escala de 0 a 20 %. El resto, un ${pct(sp(resto))}, son viviendas en las que vive su propietario, segundas residencias y otros usos.`); });
+  return `<section class="lectura" aria-labelledby="parque-t">
+    <h3 id="parque-t">Peso sobre el parque total de viviendas</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>España tiene <strong>${millones(N)} de viviendas</strong>. Las alquiladas como residencia habitual son unos ${millones(alq)}, el ${pct(sp(alq))}. Las que alquilan las empresas privadas, incluidos los fondos, son el <strong>${pct(sp(g("empresas")))} del parque</strong>.</p>
+        <div class="chart" id="c-parque"></div></article>
+      <article><h4>Los fondos, dentro de las empresas</h4><p>Ninguna estadística oficial separa a los fondos del resto de empresas. Como referencia, sin carácter oficial: ${P.fondos_no_oficial.map(f => `${f.quien}, ${f.mas_de ? "más de " : ""}${milesR(f.viviendas)} viviendas en alquiler (${pct(sp(f.viviendas))} del parque; <a href="${f.fuente}" target="_blank" rel="noopener">${f.fuente_txt}</a>)`).join("; ")}.</p></article>
+      <article><h4>Particulares con más de 10 viviendas</h4><p>Con el máximo del ${B.mas10_max_pct} % del alquiler de mercado que estima la Agencia Tributaria para ${B.mas10_anyo}, serían como mucho unas ${milesR(mas10)} viviendas, el ${pct(sp(mas10))} del parque.</p></article>
+      <article><h4>Qué no dice</h4><p>Mezcla años: el parque es del Censo 2021 y el reparto del alquiler, de 2023. Solo cuenta las viviendas que las empresas tienen alquiladas; no hay datos oficiales de las que tienen vacías, en venta o en construcción. El peso nacional puede ser mucho mayor en barrios o ciudades concretos.</p></article>
+    </div></section>`;
+}
+
 function comprasHTML(d) {
   const p = PASOS_TODOS.compradores;
   setTimeout(() => { const el = $("c-compras"); if (el) p.chart_compras(d, el); });
@@ -616,7 +639,7 @@ const PASOS = [
       const T = D.inversion.propiedad.serie_serpavi, tot = T.colectiva.map((v, k) => v + T.unifamiliar[k]), k1 = T.anos.indexOf(2020);
       return `Las viviendas alquiladas por particulares que recoge el Ministerio de Vivienda pasaron de ${milesR(tot[0])} en ${T.anos[0]} a ${milesR(ult(tot))} en ${ult(T.anos)}. Solo hay dos años con el reparto entre quien alquila una vivienda y quien alquila varias: entre ${S.anos[0]} y ${S.anos[i]}, las de particulares con dos o más pasaron de ${milesR(S.varias[0])} a ${milesR(S.varias[i])} (${signoE(varPct(S.varias[0], S.varias[i]))}), y las de quienes alquilan una sola, de ${milesR(S.uno[0])} a ${milesR(S.uno[i])} (${signoE(varPct(S.uno[0], S.uno[i]))}).`; },
     exp_compras: d => `Las compras de empresas llegaron al ${pct(d.eMax[1])} en ${d.eMax[0]}, cuando bancos y fondos compraron vivienda tras la crisis. Esa cifra incluye promotoras y sociedades familiares, no solo fondos. Las compras de no residentes y los pisos turísticos se concentran en ${nombre(d.top("no_residentes").cod)}, Málaga, Baleares y Canarias.`,
-    lectura: d => propiedadHTML() + comprasHTML(d) + definicionesHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML(),
+    lectura: d => parqueHTML() + propiedadHTML() + comprasHTML(d) + definicionesHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML(),
     det: () => `<p><strong>Compras de extranjeros y de no residentes:</strong> últimos 12 meses (${periodoU4T(D.u4t)}), Ministerio de Vivienda a partir de escrituras notariales. <strong>Empresas:</strong> compraventas de vivienda en las que el comprador es una persona jurídica (INE, solo dato nacional). <strong>Pisos turísticos:</strong> viviendas anunciadas en las grandes plataformas sobre el total de viviendas del censo (INE, ${periodoMes(D.capas.turisticas.periodo)}). <strong>Propiedad del alquiler:</strong> ${D.inversion.propiedad.fuente_txt}. <strong>Viviendas vacías:</strong> INE, Censo 2021 cruzado con el consumo eléctrico.</p>
       <p><strong>Qué no dice:</strong> ninguna estadística oficial mide la especulación como tal, es decir, cuántas viviendas se compran para revenderlas con beneficio. Los datos de esta página son aproximaciones: quién compra, quién es propietario y cuántas viviendas no se usan. "Extranjero" no equivale a "inversor": los extranjeros que viven en España compran sobre todo su propia casa. Las barras de compras y la de pisos turísticos usan denominadores distintos: compras en un caso y viviendas en el otro.</p>`,
     chart: (d, el) => {

@@ -357,7 +357,8 @@ vac = valores("pct_viviendas_vacias", "2021")
 vac_n = valores("viviendas_vacias", "2021")
 inv = json.loads((BASE / "data/inversion.json").read_text(encoding="utf-8"))
 inv.update({"propiedad": json.loads((BASE / "data/propiedad_alquiler.json").read_text(encoding="utf-8")),
-            "vacias_n": vac_n["nacional"]})
+            "vacias_n": vac_n["nacional"],
+            "parque_n": valores("viviendas_censo", "2021")["nacional"]})
 datos["inversion"] = inv
 datos["capas"]["vacias"] = vac
 

@@ -141,5 +141,20 @@
   "fuente_txt": "Banco de España, Informe Anual 2023, capítulo 4",
   "fuente_2018": "https://www.bde.es/f/webbde/SES/Secciones/Publicaciones/InformesBoletinesRevistas/ArticulosAnaliticos/19/T3/descargar/Fich/be1903-art25.pdf",
   "fuente_2018_txt": "Banco de España, Boletín Económico 3/2019, a partir de una encuesta del CIS de 2018"
- }
+ },
+ "fondos_no_oficial": [
+  {
+   "quien": "Blackstone, el mayor fondo",
+   "viviendas": 19638,
+   "fuente": "https://www.infobae.com/espana/2026/04/27/quienes-son-los-grandes-tenedores-de-vivienda-en-espana-bancos-y-fondos-estadounidenses-devoran-la-oferta-de-alquiler-residencial/",
+   "fuente_txt": "Civio a partir de los registros de fianzas, recogido por Infobae"
+  },
+  {
+   "quien": "los grandes propietarios institucionales en conjunto",
+   "viviendas": 110000,
+   "mas_de": true,
+   "fuente": "https://www.infobae.com/espana/2026/04/27/quienes-son-los-grandes-tenedores-de-vivienda-en-espana-bancos-y-fondos-estadounidenses-devoran-la-oferta-de-alquiler-residencial/",
+   "fuente_txt": "Atlas Real Estate Analytics, recogido por Infobae"
+  }
+ ]
 }

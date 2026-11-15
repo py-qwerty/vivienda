@@ -1,0 +1,101 @@
+{
+ "eri": {
+  "anyo": 2024,
+  "compraventas": 636909,
+  "hipotecas": 435328,
+  "pj_pct": 10.88,
+  "pj_max": [
+   "2014",
+   22.11
+  ],
+  "pj_ccaa": [
+   [
+    "Canarias",
+    16.53
+   ],
+   [
+    "Castilla-La Mancha",
+    14.2
+   ],
+   [
+    "Comunidad de Madrid",
+    14.14
+   ],
+   [
+    "Cataluña",
+    12.54
+   ]
+  ],
+  "ext_compras": 14.6,
+  "ext_hipotecas": 7.51,
+  "fuente": "https://www.registradores.org/actualidad/portal-estadistico-registral/estadisticas-de-propiedad",
+  "fuente_txt": "Colegio de Registradores, Estadística Registral Inmobiliaria, Anuario 2024"
+ },
+ "normas": [
+  {
+   "fecha": "2009-10",
+   "nombre": "Ley 11/2009 de SOCIMI",
+   "cambio": "Crea las Sociedades Anónimas Cotizadas de Inversión en el Mercado Inmobiliario (SOCIMI), sociedades cotizadas dedicadas a comprar inmuebles para alquilarlos, con un régimen fiscal propio.",
+   "estado": "vigente",
+   "fuente": "https://www.boe.es/eli/es/l/2009/10/26/11",
+   "fuente_txt": "BOE"
+  },
+  {
+   "fecha": "2012-12",
+   "nombre": "Ley 16/2012: tipo cero del Impuesto sobre Sociedades para las SOCIMI",
+   "cambio": "Las SOCIMI pasan a tributar al 0 % en el Impuesto sobre Sociedades a cambio de repartir la mayor parte de sus beneficios como dividendos, que tributan en manos de los accionistas.",
+   "estado": "vigente",
+   "fuente": "https://www.boe.es/eli/es/l/2012/12/27/16",
+   "fuente_txt": "BOE"
+  },
+  {
+   "fecha": "2013-09",
+   "nombre": "Ley 14/2013: visado de residencia por inversión («golden visa»)",
+   "cambio": "Concede un visado de residencia a los extranjeros de fuera de la UE que inviertan al menos 500.000 euros en inmuebles en España.",
+   "estado": "derogada",
+   "fuente": "https://www.boe.es/eli/es/l/2013/09/27/14",
+   "fuente_txt": "BOE"
+  },
+  {
+   "fecha": "2023-05",
+   "nombre": "Ley 12/2023 por el derecho a la vivienda",
+   "cambio": "Define al gran tenedor (más de 10 viviendas, o más de 1.500 m² de uso residencial; las comunidades pueden bajar el umbral a 5 en zonas tensionadas). En las zonas de mercado tensionado, limita la renta de los nuevos contratos: los grandes tenedores no pueden superar el índice de referencia de precios. Permite a los ayuntamientos un recargo de hasta el 150 % del IBI en viviendas vacías durante más de dos años.",
+   "estado": "vigente",
+   "fuente": "https://www.boe.es/eli/es/l/2023/05/24/12",
+   "fuente_txt": "BOE"
+  },
+  {
+   "fecha": "2025-04",
+   "nombre": "Ley Orgánica 1/2025: fin de la golden visa y permiso de la comunidad para pisos turísticos",
+   "cambio": "Suprime el visado por inversión inmobiliaria desde el 3 de abril de 2025 (se mantienen las solicitudes ya presentadas). Reforma la Ley de Propiedad Horizontal: abrir un piso turístico en un edificio pasa a necesitar la aprobación expresa de la comunidad de propietarios.",
+   "estado": "vigente",
+   "fuente": "https://www.boe.es/eli/es/lo/2025/01/02/1",
+   "fuente_txt": "BOE"
+  },
+  {
+   "fecha": "2025-07",
+   "nombre": "Registro único de arrendamientos de corta duración (Real Decreto 1312/2024)",
+   "cambio": "Obliga a inscribir los alquileres turísticos y de temporada en un registro estatal para poder anunciarlos.",
+   "estado": "anulada_parte",
+   "estado_nota": "El Tribunal Supremo anuló en mayo de 2026 el procedimiento estatal de registro por falta de competencias del Estado; se mantiene la ventanilla digital.",
+   "fuente": "https://www.boe.es/eli/es/rd/2024/12/23/1312",
+   "fuente_txt": "BOE"
+  },
+  {
+   "fecha": "2026-05",
+   "nombre": "Reglamento (UE) 2024/1028 sobre alquileres de corta duración",
+   "cambio": "Obliga a las plataformas a compartir datos de actividad con las autoridades y a mostrar el número de registro allí donde exista.",
+   "estado": "vigente",
+   "fuente": "https://eur-lex.europa.eu/eli/reg/2024/1028/oj/spa",
+   "fuente_txt": "EUR-Lex"
+  }
+ ],
+ "estudios": [
+  {
+   "titulo": "Pisos turísticos en Barcelona",
+   "texto": "Un estudio sobre Barcelona estima que, de media, la actividad de Airbnb subió los alquileres un 1,9 % y los precios de compraventa un 4,6 %. En los barrios con más actividad turística, el efecto en el alquiler llega al 7 %.",
+   "fuente": "https://doi.org/10.1016/j.jue.2020.103278",
+   "fuente_txt": "García-López, Jofre-Monseny, Martínez-Mazza y Segú, Journal of Urban Economics (2020)"
+  }
+ ]
+}

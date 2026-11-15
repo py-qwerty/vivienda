@@ -1,0 +1,68 @@
+{
+ "revisado": "2026-11-15",
+ "ambito": "Territorio de régimen fiscal común (sin País Vasco ni Navarra). Alquiler de vivienda habitual; excluye el alquiler turístico.",
+ "anyo": 2023,
+ "grupos": [
+  {
+   "id": "uno",
+   "nombre": "Particulares con una sola vivienda alquilada",
+   "viviendas": 1213439
+  },
+  {
+   "id": "varias",
+   "nombre": "Particulares con dos o más viviendas alquiladas",
+   "viviendas": 1357406
+  },
+  {
+   "id": "empresas",
+   "nombre": "Empresas y otras personas jurídicas privadas",
+   "viviendas": 223552
+  },
+  {
+   "id": "publica",
+   "nombre": "Vivienda pública y social (estimación)",
+   "viviendas": 300000
+  }
+ ],
+ "particulares_2016": 1900883,
+ "particulares_2023": 2570845,
+ "crec_uno": 30.4,
+ "crec_varias": 39.9,
+ "ciudades_varias": [
+  [
+   "Las Palmas de Gran Canaria",
+   64.9
+  ],
+  [
+   "Santa Cruz de Tenerife",
+   64.6
+  ],
+  [
+   "Palma",
+   63.1
+  ],
+  [
+   "Barcelona",
+   60.8
+  ],
+  [
+   "Madrid",
+   56.4
+  ],
+  [
+   "Valencia",
+   55.0
+  ],
+  [
+   "Málaga",
+   51.6
+  ],
+  [
+   "Sevilla",
+   46.8
+  ]
+ ],
+ "fuente": "https://www.dsca.gob.es/sites/default/files/prensa/Informe%201%20Multiarrendadores.pdf",
+ "fuente_txt": "Ministerio de Derechos Sociales, Consumo y Agenda 2030 y CSIC, «Un mercado dominado por multiarrendadores» (2026), a partir del Panel de Hogares IRPF 2023 (INE y Agencia Tributaria) y del Informe Anual 2023 del Banco de España",
+ "nota": "El propio informe lo presenta como una aproximación: no existe una estadística oficial de la propiedad de las viviendas en alquiler. La cifra de empresas procede de una estimación del Banco de España y la de vivienda pública es una cifra redondeada."
+}

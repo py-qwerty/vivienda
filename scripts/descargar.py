@@ -23,6 +23,8 @@ DESCARGAS = {
     "ine/ipva_59058.json": INE.format(59058, 20),
     # INE Transmisiones de derechos de la propiedad: % compraventas según transmitente y titular (anual, nacional)
     "ine/etdp_50272.json": INE.format(50272, 40),
+    # INE Censo 2021: viviendas por intensidad de uso según consumo eléctrico (vacías), provincias y municipios
+    "ine/censo_consumo_59531.json": INE.format(59531, 1),
 }
 DESCARGAS.update(componentes.DESCARGAS)
 

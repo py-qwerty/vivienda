@@ -194,6 +194,89 @@ function normasHTML() {
     </div></section>`;
 }
 
+/* ---- inversión y especulación ---- */
+function propAlquiler() {
+  const P = D.inversion.propiedad, tot = suma(P.grupos.map(g => g.viviendas)), pct = {};
+  P.grupos.forEach(g => pct[g.id] = 100 * g.viviendas / tot);
+  return { ...P, tot, pct };
+}
+
+function definicionesHTML() {
+  const art = (t, x) => `<article><h4>${t}</h4><p>${x}</p></article>`;
+  return `<section class="lectura" aria-labelledby="def-inv">
+    <h3 id="def-inv">Definiciones</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>Ninguno de estos términos, salvo <strong>gran tenedor</strong>, es una categoría estadística. Los definimos para saber qué mide cada dato y qué no.</p></article>
+      ${art("Especulación", "Comprar una vivienda para obtener un beneficio con la subida de su precio y venderla, no para vivir en ella ni alquilarla de forma estable. No hay una estadística oficial que la mida directamente.")}
+      ${art("Inversión en alquiler", "Comprar una vivienda para obtener una renta alquilándola. La hacen particulares, sociedades familiares, empresas y fondos.")}
+      ${art("«Fondo buitre»", "Término coloquial, sin definición legal, para los fondos que compran activos con problemas con descuento. En España se popularizó entre 2012 y 2016, cuando fondos internacionales compraron carteras de viviendas y créditos de bancos rescatados, y también viviendas públicas.")}
+      ${art("SOCIMI", "Sociedad cotizada dedicada a comprar inmuebles para alquilarlos. Tiene un régimen fiscal propio: no paga el Impuesto sobre Sociedades si reparte la mayor parte de sus beneficios como dividendos.")}
+      ${art("Gran tenedor", "Figura legal de la Ley 12/2023: quien tiene más de 10 viviendas, o más de 1.500 m² de uso residencial. En zonas de mercado tensionado, las comunidades pueden bajar el umbral a 5 viviendas.")}
+      ${art("Persona jurídica", "Cualquier empresa o entidad con personalidad propia: promotoras, bancos, fondos, SOCIMI, sociedades familiares o cooperativas. Es la categoría que usan las estadísticas de compras.")}
+    </div></section>`;
+}
+
+function propiedadHTML() {
+  const P = propAlquiler(), E = D.inversion.eri;
+  const fila = (id, c) => { const g = P.grupos.find(x => x.id === id); return { etq: g.nombre, vals: [{ v: P.pct[id], c, quien: `${milesR(g.viviendas)} viviendas` }] }; };
+  setTimeout(() => { const el = $("c-prop"); if (el) barrasH(el, [fila("uno", C1), fila("varias", C2), fila("empresas", C3), fila("publica", C4)], 50, "Porcentaje sobre el total de viviendas en alquiler de vivienda habitual. Misma escala, de 0 a 50 %."); });
+  return `<section class="lectura" aria-labelledby="prop-t">
+    <h3 id="prop-t">Quién es propietario de las viviendas en alquiler</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>No existe una estadística oficial de la propiedad de las viviendas en alquiler. La mejor aproximación disponible combina los datos fiscales de los particulares (Panel de Hogares del IRPF, ${P.anyo}) con una estimación del Banco de España para las empresas. Cubre unas ${millones(P.tot)} de viviendas alquiladas como residencia habitual.</p>
+        <div class="chart" id="c-prop"></div></article>
+      <article><h4>Particulares con varias viviendas</h4><p>Entre 2016 y ${P.anyo}, las viviendas alquiladas por particulares pasaron de ${millones(P.particulares_2016)} a ${millones(P.particulares_2023)} de viviendas. Las de quienes tienen una sola crecieron un ${pct(P.crec_uno)}; las de quienes tienen dos o más, un ${pct(P.crec_varias)}.</p></article>
+      <article><h4>Por ciudades</h4><p>Porcentaje de las viviendas alquiladas por particulares que pertenecen a quien tiene dos o más: ${P.ciudades_varias.map(([c, v]) => `${c} ${pct(v)}`).join(", ")}.</p></article>
+      <article><h4>Compras de empresas</h4><p>Según los Registradores, las personas jurídicas hicieron el ${pct(E.pj_pct)} de las compras de vivienda en ${E.anyo}, frente a un máximo del ${pct(E.pj_max[1])} a comienzos de ${E.pj_max[0]}. Por comunidades, el porcentaje más alto está en ${E.pj_ccaa.map(([c, v]) => `${c} (${pct(v)})`).join(", ")}.</p></article>
+    </div>
+    <div class="aviso">
+      <div class="aviso-cab"><span class="chip-aviso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>Qué no dice este reparto</span>
+        <h3>«Dos o más viviendas» no es lo mismo que «gran tenedor»</h3></div>
+      <p>El grupo de particulares con dos o más viviendas alquiladas incluye desde quien alquila dos pisos hasta quien alquila decenas: el informe no separa a los que superan las 10 viviendas, que es el umbral legal de gran tenedor. ${P.nota} No incluye País Vasco ni Navarra, que tienen su propia hacienda. <a href="${P.fuente}" target="_blank" rel="noopener">Fuente: informe del Ministerio de Consumo y el CSIC</a>.</p>
+    </div></section>`;
+}
+
+function vaciasHTML() {
+  const V = D.capas.vacias, pr = V.prov, cods = Object.keys(pr).sort((a, b) => pr[b] - pr[a]);
+  const fila = c => ({ etq: nombre(c), vals: [{ v: pr[c], c: C2, quien: "" }] });
+  setTimeout(() => { const el = $("c-vac"); if (el) barrasH(el, [{ etq: "España", vals: [{ v: V.nacional, c: C1, quien: "" }] }, ...cods.slice(0, 5).map(fila), ...cods.slice(-3).map(fila)], 50, "Cinco provincias con el porcentaje más alto y tres con el más bajo. Misma escala, de 0 a 50 %."); });
+  return `<section class="lectura" aria-labelledby="vac-t">
+    <h3 id="vac-t">Viviendas vacías</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>En el Censo de 2021 había <strong>${millones(D.inversion.vacias_n)} de viviendas vacías</strong>, el ${pct(V.nacional)} del total. El porcentaje es mayor en provincias del interior con población envejecida y menor en las grandes áreas urbanas. El mapa del paso «Por provincia» las muestra todas.</p>
+        <div class="chart" id="c-vac"></div></article>
+      <article class="ancho"><p><strong>Qué no dice:</strong> el INE considera vacía una vivienda con un consumo eléctrico muy bajo o nulo durante el año. Ese grupo incluye viviendas en venta o en obras, herencias sin repartir, viviendas en mal estado y también las que su propietario mantiene sin uso. El dato no permite saber cuántas están vacías por cada motivo, ni cuántas están donde hay más demanda.</p></article>
+    </div></section>`;
+}
+
+function estudiosHTML() {
+  const E = D.inversion.eri;
+  return `<section class="lectura" aria-labelledby="est-t">
+    <h3 id="est-t">Efecto en el precio: qué dicen los estudios</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>No hay una estimación oficial de cuánto influyen los grandes propietarios o los fondos en el precio de la vivienda a escala nacional. Los estudios disponibles miden efectos en mercados concretos.</p></article>
+      ${D.inversion.estudios.map(e => `<article><h4>${e.titulo}</h4><p>${e.texto} <a href="${e.fuente}" target="_blank" rel="noopener">${e.fuente_txt}</a>.</p></article>`).join("")}
+      <article><h4>Compras con recursos propios</h4><p>Los extranjeros hicieron el ${pct(E.ext_compras)} de las compras de vivienda en ${E.anyo}, pero solo el ${pct(E.ext_hipotecas)} de las hipotecas: una parte mayor compra sin financiación. No hay una estadística oficial del total de compras pagadas sin hipoteca.</p></article>
+      <article><h4>Escala nacional y escala local</h4><p>Los mismos datos pueden dar lecturas distintas según la escala: un porcentaje pequeño en el conjunto de España puede ser alto en un barrio o una ciudad concretos. Por eso esta sección muestra siempre España y las provincias con los valores más altos.</p></article>
+    </div></section>`;
+}
+
+function regulacionHTML() {
+  const ESTADO = { vigente: "Vigente", derogada: "Derogada", anulada_parte: "Anulada en parte" };
+  const fecha = f => `${MES_CORTO[+f.slice(5, 7) - 1]} ${f.slice(0, 4)}`;
+  return `<section class="lectura" aria-labelledby="reg-t">
+    <h3 id="reg-t">Regulación de la inversión en vivienda</h3>
+    <p class="note">Normas estatales y europeas sobre quién puede comprar, cómo tributa y qué puede hacer con la vivienda, ordenadas por fecha. No incluye normas autonómicas ni municipales, como las declaraciones de zonas tensionadas o las limitaciones locales de pisos turísticos.</p>
+    <ol class="normas">${D.inversion.normas.map(n => `<li>
+      <span class="nfecha num">${fecha(n.fecha)}</span>
+      <div class="ncuerpo">
+        <div class="nchips"><span class="nchip est-${n.estado}">${ESTADO[n.estado]}</span></div>
+        <h4>${n.nombre}</h4>
+        <p>${n.cambio}${n.estado_nota ? ` <em>${n.estado_nota}</em>` : ""}</p>
+        <a href="${n.fuente}" target="_blank" rel="noopener">Fuente: ${n.fuente_txt}</a>
+      </div></li>`).join("")}</ol></section>`;
+}
+
 /* ---- aviso: el dato de 2021 es dudoso ---- */
 function avisoDuda(d) {
   const Q = d.R.origen.duda;
@@ -509,12 +592,14 @@ const PASOS = [
     },
     pie: "*Media de los meses publicados." },
 
-  { id: "compradores", corto: "Otros compradores", eyebrow: "Componente 4 · Quién compra",
-    q: "Compras de no residentes y empresas, y pisos turísticos",
-    resp: () => `En el conjunto de España su peso es reducido; en la costa y las islas es considerablemente mayor.`,
-    expl: d => `Las compras de empresas llegaron al ${pct(d.eMax[1])} en ${d.eMax[0]}, cuando bancos y fondos compraron vivienda barata tras la crisis. En ${d.eU[0]} fueron el ${pct(d.eU[1])}, y esa cifra incluye promotoras y sociedades familiares, no solo fondos. Las compras de no residentes y los pisos turísticos se concentran en ${nombre(d.top("no_residentes").cod)}, Málaga, Baleares y Canarias, donde sí compiten con quien busca casa para vivir.`,
-    det: () => `<p><strong>Compras de extranjeros y de no residentes:</strong> últimos 12 meses (${periodoU4T(D.u4t)}), Ministerio de Vivienda a partir de escrituras notariales. <strong>Empresas:</strong> compraventas de vivienda en las que el comprador es una persona jurídica (INE, solo dato nacional). <strong>Pisos turísticos:</strong> viviendas anunciadas en las grandes plataformas sobre el total de viviendas del censo (INE, ${periodoMes(D.capas.turisticas.periodo)}).</p>
-      <p><strong>Qué no dice:</strong> "extranjero" no es "especulador". Los extranjeros que viven en España compran sobre todo su propia casa; lo más parecido a inversión o segunda residencia es la compra de no residentes. Las barras de compras y la de pisos turísticos usan denominadores distintos: compras en un caso y viviendas en el otro.</p>`,
+  { id: "compradores", corto: "Inversión y especulación", eyebrow: "Componente 4 · Quién compra y quién es propietario",
+    q: "Inversión y especulación: compras, propiedad del alquiler y regulación",
+    resp: d => { const P = propAlquiler();
+      return `En ${d.eU[0]}, las empresas hicieron el <strong>${pct(d.eU[1])} de las compras de vivienda</strong>. En el alquiler de vivienda habitual, las empresas privadas tienen alrededor del <strong>${pct(P.pct.empresas)} de las viviendas</strong> y los particulares con dos o más viviendas alquiladas, el <strong>${pct(P.pct.varias)}</strong>.`; },
+    expl: d => `Las compras de empresas llegaron al ${pct(d.eMax[1])} en ${d.eMax[0]}, cuando bancos y fondos compraron vivienda tras la crisis. Esa cifra incluye promotoras y sociedades familiares, no solo fondos. Las compras de no residentes y los pisos turísticos se concentran en ${nombre(d.top("no_residentes").cod)}, Málaga, Baleares y Canarias.`,
+    lectura: d => definicionesHTML() + propiedadHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML(),
+    det: () => `<p><strong>Compras de extranjeros y de no residentes:</strong> últimos 12 meses (${periodoU4T(D.u4t)}), Ministerio de Vivienda a partir de escrituras notariales. <strong>Empresas:</strong> compraventas de vivienda en las que el comprador es una persona jurídica (INE, solo dato nacional). <strong>Pisos turísticos:</strong> viviendas anunciadas en las grandes plataformas sobre el total de viviendas del censo (INE, ${periodoMes(D.capas.turisticas.periodo)}). <strong>Propiedad del alquiler:</strong> ${D.inversion.propiedad.fuente_txt}. <strong>Viviendas vacías:</strong> INE, Censo 2021 cruzado con el consumo eléctrico.</p>
+      <p><strong>Qué no dice:</strong> ninguna estadística oficial mide la especulación como tal, es decir, cuántas viviendas se compran para revenderlas con beneficio. Los datos de esta página son aproximaciones: quién compra, quién es propietario y cuántas viviendas no se usan. "Extranjero" no equivale a "inversor": los extranjeros que viven en España compran sobre todo su propia casa. Las barras de compras y la de pisos turísticos usan denominadores distintos: compras en un caso y viviendas en el otro.</p>`,
     chart: (d, el) => {
       const tN = d.top("no_residentes"), tE = d.top("extranjeros"), tT = d.top("turisticas");
       barrasH(el, [
@@ -522,7 +607,7 @@ const PASOS = [
         { etq: "Compras de extranjeros no residentes", vals: [{ v: D.capas.no_residentes.nacional, c: C1, quien: "España" }, { v: tN.v, c: C2, quien: nombre(tN.cod) }] },
         { etq: `Compras hechas por empresas (${d.eU[0]}, solo hay dato nacional)`, vals: [{ v: d.eU[1], c: C1, quien: "España" }] },
         { etq: "Viviendas anunciadas como piso turístico", vals: [{ v: D.capas.turisticas.nacional, c: C1, quien: "España" }, { v: tT.v, c: C2, quien: nombre(tT.cod) }] },
-      ], 50, "Todas las barras usan la misma escala, de 0 a 50 %. En naranja, la provincia con el valor más alto.");
+      ], 50, "Todas las barras usan la misma escala, de 0 a 50 %. En naranja, la provincia con el valor más alto.");
     } },
 
   { id: "mapa", corto: "Por provincia", eyebrow: "Por provincia" },
@@ -531,13 +616,14 @@ const PASOS = [
     q: "Resumen de los datos",
     resp: () => `Ningún factor lo explica solo, pero no todos pesan lo mismo.`,
     lista: d => [
-      ["Pesa en toda España", "Se forman muchos más hogares que viviendas", `${nf1.format(d.sH / d.sV)} hogares nuevos por cada vivienda terminada entre ${d.H.anos[0]} y ${ult(d.H.anos)}. Desde ${d.O.a1}, la mayoría se debe a la llegada de población del extranjero, que incluye a españoles que vuelven.`],
-      ["Pesa en toda España", "Se construye mucho menos que antes de 2008", `${milesR(ult(d.tot))} viviendas terminadas en ${ult(d.C.anos)}, frente a ${milesR(d.tot[d.iPico])} en ${d.C.anos[d.iPico]}, y con un ${pctE(-varPct(d.K.ocupados[d.ik(2008)], ult(d.K.ocupados)))} menos de trabajadores.`],
+      ["En toda España", "Se forman muchos más hogares que viviendas", `${nf1.format(d.sH / d.sV)} hogares nuevos por cada vivienda terminada entre ${d.H.anos[0]} y ${ult(d.H.anos)}. Desde ${d.O.a1}, la mayoría se debe a la llegada de población del extranjero, que incluye a españoles que vuelven.`],
+      ["En toda España", "Se construye mucho menos que antes de 2008", `${milesR(ult(d.tot))} viviendas terminadas en ${ult(d.C.anos)}, frente a ${milesR(d.tot[d.iPico])} en ${d.C.anos[d.iPico]}, y con un ${pctE(-varPct(d.K.ocupados[d.ik(2008)], ult(d.K.ocupados)))} menos de trabajadores.`],
       ["Acelera o frena", "El precio del dinero", (() => { const R = interesReal(d); return `El interés pasó del ${nf1.format(d.Cr.interes[d.iMinInt])}\u00a0% al ${nf1.format(d.Cr.interes[d.iMaxInt])}\u00a0%, pero entre ${R.a0} y ${R.a1} la inflación fue mayor, así que el crédito salió barato. Cambió el ritmo de compras, no la tendencia del precio.`; })()],
-      ["Pesa en zonas concretas", "Compradores no residentes y pisos turísticos", `${pct(D.capas.no_residentes.nacional)} de las compras y ${pct(D.capas.turisticas.nacional)} de las viviendas en España, pero hasta ${pct(d.top("no_residentes").v)} de las compras en ${nombre(d.top("no_residentes").cod)}.`],
-      ["Pesa menos que tras la crisis", "Empresas compradoras", `${pct(d.eU[1])} de las compras en ${d.eU[0]}, frente al ${pct(d.eMax[1])} de ${d.eMax[0]}.`],
+      ["Mayor en zonas concretas", "Compradores no residentes y pisos turísticos", `${pct(D.capas.no_residentes.nacional)} de las compras y ${pct(D.capas.turisticas.nacional)} de las viviendas en España, pero hasta ${pct(d.top("no_residentes").v)} de las compras en ${nombre(d.top("no_residentes").cod)}.`],
+      ["Menor que tras la crisis", "Empresas compradoras", `${pct(d.eU[1])} de las compras en ${d.eU[0]}, frente al ${pct(d.eMax[1])} de ${d.eMax[0]}.`],
+      ["Propiedad del alquiler", "Particulares con varias viviendas", (() => { const P = propAlquiler(); return `Tienen el ${pct(P.pct.varias)} de las viviendas en alquiler; las empresas privadas, el ${pct(P.pct.empresas)}, y quienes alquilan una sola vivienda, el ${pct(P.pct.uno)}.`; })()],
     ],
-    det: () => `<p><strong>Lo que estos datos no miden:</strong> los plazos para conceder licencias y aprobar suelo, la normativa de cada comunidad y ayuntamiento, el coste de los materiales desde 2024 y cuántas viviendas vacías hay en cada zona. Todos influyen y no hay una estadística oficial actualizada que permita medirlos con el mismo detalle.</p>` },
+    det: () => `<p><strong>Lo que estos datos no miden:</strong> los plazos para conceder licencias y aprobar suelo, la normativa de cada comunidad y ayuntamiento, el coste de los materiales desde 2024, por qué están vacías las viviendas vacías y cuántas compras se hacen para revender. Todos influyen y no hay una estadística oficial actualizada que permita medirlos con el mismo detalle.</p>` },
 ];
 
 function coberturaHTML() {

@@ -45,6 +45,15 @@ FUENTES = [
                      "(promotoras, sociedades familiares, bancos, fondos, SOCIMIs...), no solo fondos."},
 ]
 
+FUENTES.append(
+    {"id": "ine_censo_consumo", "organismo": "INE",
+     "nombre": "Censo de Población y Viviendas 2021: viviendas por intensidad de uso a partir del consumo eléctrico",
+     "url": "https://www.ine.es/jaxi/Tabla.htm?tpx=59531",
+     "origen_datos": "Censo 2021 cruzado con el consumo eléctrico anual de cada vivienda",
+     "limitaciones": "Una vivienda cuenta como vacía si su consumo eléctrico es muy bajo o nulo durante el año. "
+                     "No distingue entre viviendas en venta, en obras, de herencias sin repartir, en ruina "
+                     "o retenidas por su propietario. Dato de un solo momento (2021)."})
+
 INDICADORES = [
     ("compras_total", "Compraventas de vivienda", "número", "mivau_transacciones",
      "Número total de compraventas de vivienda escrituradas."),
@@ -74,6 +83,16 @@ FUENTES += componentes.FUENTES
 INDICADORES += componentes.INDICADORES
 
 filas = []  # (indicador, ambito, codigo, periodo, tipo_periodo, valor)
+
+
+INDICADORES += [
+    ("viviendas_censo", "Viviendas (Censo 2021)", "número", "ine_censo_consumo",
+     "Total de viviendas del Censo 2021."),
+    ("viviendas_vacias", "Viviendas vacías (Censo 2021)", "número", "ine_censo_consumo",
+     "Viviendas con consumo eléctrico muy bajo o nulo durante el año."),
+    ("pct_viviendas_vacias", "% de viviendas vacías (Censo 2021)", "%", "ine_censo_consumo",
+     "Viviendas vacías sobre el total de viviendas."),
+]
 
 
 def add(ind, territorios, periodo, tipo, valor):
@@ -197,12 +216,38 @@ def cargar_etdp():
         add("pct_compras_persona_juridica", [("nacional", "00")], str(ano), "año", v)
 
 
+def cargar_censo_vacias():
+    tot, vac = {}, {}
+    for s in series_ine("ine/censo_consumo_59531.json"):
+        md = s["MetaData"]
+        cat = next((m["Nombre"] for m in md if m.get("T3_Variable") == "Consumo eléctrico"), None)
+        if cat not in ("Viviendas totales", "Viviendas vacías") or not s["Data"]:
+            continue
+        t0 = md[0]
+        if t0.get("T3_Variable") == "Provincias":
+            terr = [("provincia", t0["Codigo"])]
+        elif t0.get("T3_Variable") == "Total Nacional":
+            terr = [("nacional", "00")]
+        else:
+            continue
+        v = s["Data"][-1]["Valor"]
+        if not terr or v is None:
+            continue
+        (tot if cat == "Viviendas totales" else vac)[tuple(terr)] = v
+    for terr, t in tot.items():
+        if terr in vac and t:
+            add("viviendas_censo", list(terr), "2021", "año", t)
+            add("viviendas_vacias", list(terr), "2021", "año", vac[terr])
+            add("pct_viviendas_vacias", list(terr), "2021", "año", 100 * vac[terr] / t)
+
+
 # ---------- Construcción ----------
 def construir():
     ult4 = cargar_mivau()
     cargar_vte()
     cargar_ipva()
     cargar_etdp()
+    cargar_censo_vacias()
     componentes.cargar(RAW, add)
 
     # quitar duplicados exactos (p. ej. Melilla aparece repetida en el INE)

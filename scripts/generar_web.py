@@ -311,7 +311,8 @@ for ind, nombre in [("precio_compra_indice", "Precio de compra de vivienda (INE)
                     ("ocupados_construccion", "Trabajadores de la construcción (EPA)"), ("suelo_precio_m2", "Precio del suelo"),
                     ("hipotecas_viviendas", "Hipotecas sobre vivienda"), ("interes_hipotecas", "Interés de las hipotecas"),
                     ("compras_total", "Compras por nacionalidad del comprador"), ("pct_compras_persona_juridica", "Compras de empresas"),
-                    ("alquiler_indice", "Precio del alquiler (INE)"), ("vut_pct", "Pisos turísticos (INE)")]:
+                    ("alquiler_indice", "Precio del alquiler (INE)"), ("vut_pct", "Pisos turísticos (INE)"),
+                    ("pct_viviendas_vacias", "Viviendas vacías (Censo 2021)")]:
     r = con.execute("SELECT min(periodo), max(periodo) FROM observaciones WHERE indicador_id=? AND ambito='nacional' AND tipo_periodo NOT IN ('ultimos_12_meses','variacion')", (ind,)).fetchone()
     cobertura.append({"serie": nombre, "desde": r[0][:4], "hasta": r[1][:7] if len(r[1]) >= 7 else r[1]})
 datos["cobertura"] = cobertura
@@ -350,6 +351,15 @@ datos["recorrido"] = {
 }
 
 datos["normas"] = json.loads((BASE / "data/normas.json").read_text(encoding="utf-8"))
+
+# ---------- Inversión y especulación ----------
+vac = valores("pct_viviendas_vacias", "2021")
+vac_n = valores("viviendas_vacias", "2021")
+inv = json.loads((BASE / "data/inversion.json").read_text(encoding="utf-8"))
+inv.update({"propiedad": json.loads((BASE / "data/propiedad_alquiler.json").read_text(encoding="utf-8")),
+            "vacias_n": vac_n["nacional"]})
+datos["inversion"] = inv
+datos["capas"]["vacias"] = vac
 
 geo = json.loads((BASE / "data/geo_provincias.json").read_text(encoding="utf-8"))
 geo_min = {"frame": geo["frame"], "ccaa": geo["ccaa"], "prov": {k: v["d"] for k, v in geo["prov"].items()}}

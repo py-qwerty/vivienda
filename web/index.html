@@ -116,6 +116,7 @@ a { color: var(--accent); text-underline-offset: 2px; }
 .pasos a[aria-current="step"] .n { background: var(--surface); color: var(--ink); }
 .paso { display: grid; gap: 20px; }
 .pasohead { display: grid; gap: 8px; max-width: 760px; }
+.subpaso { display: grid; gap: 18px; margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--line); }
 .pasohead h2 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); line-height: 1.08; }
 .resp { font-size: 1.12rem; color: var(--ink); max-width: 64ch; }
 .resp strong { font-weight: 650; }
@@ -1022,7 +1023,7 @@ function obraHTML(d) {
       <article><h4>2. La obra: de empezar a terminar</h4><p>Con los datos del Ministerio de viviendas iniciadas y terminadas se puede estimar cuántos meses pasan, de forma típica, entre que una obra empieza y que termina:</p>
         <div class="tabla"><table class="num obra"><thead><tr><th scope="col">Periodo</th><th scope="col">Tiempo de obra típico</th><th scope="col">Fiabilidad</th></tr></thead>
         <tbody>${P.map(x => `<tr><th scope="row">${x.desde}–${x.hasta}</th><td><strong>~${x.meses} meses</strong></td><td>${fiab(x.ajuste)}</td></tr>`).join("")}</tbody></table></div></article>
-      <article><h4>Qué se ve</h4><p>Las obras tardan más que hace una década: de unos ${p0.meses} meses en ${p0.desde}–${p0.hasta} a unos ${pn.meses} en ${pn.desde}–${pn.hasta}. Encaja con la falta de trabajadores que vemos en el paso siguiente. El último periodo tiene una fiabilidad ${fiab(pn.ajuste).toLowerCase()}, así que su cifra es orientativa.</p></article>
+      <article><h4>Qué se ve</h4><p>Las obras tardan más que hace una década: de unos ${p0.meses} meses en ${p0.desde}–${p0.hasta} a unos ${pn.meses} en ${pn.desde}–${pn.hasta}. Coincide en el tiempo con la evolución del empleo en el sector, que se ve más abajo. El último periodo tiene una fiabilidad ${fiab(pn.ajuste).toLowerCase()}, así que su cifra es orientativa.</p></article>
     </div>
     <div class="aviso">
       <div class="aviso-cab"><span class="chip-aviso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>Ojo al interpretarlo</span>
@@ -1250,7 +1251,7 @@ const PASOS = [
           <article><h4>No cuenta</h4><p>Residencias de mayores, cuarteles, conventos o cárceles. No son viviendas familiares, así que quedan fuera de esta estadística.</p></article>
         </div></section>`,
     det: () => `<p><strong>Hogares:</strong> desde 2021, diferencia entre el 1 de enero de cada año y el 1 de enero siguiente (INE, Estadística Continua de Población, que empieza en 2021). De 2002 a 2020, variación de las viviendas principales que estima el Ministerio de Vivienda a partir de los censos de 2001, 2011 y 2021. Son fuentes distintas, por eso el gráfico marca el cambio. <strong>Viviendas:</strong> libres terminadas (certificados de fin de obra) más protegidas (calificaciones definitivas), del Ministerio de Vivienda.</p>
-      <p><strong>Qué no dice:</strong> la comparación mide presión sobre las viviendas que ya existen, no un déficit exacto. Tampoco cuenta la demanda de quienes no llegan a formar un hogar. En el paso siguiente vemos de dónde salen estos hogares nuevos.</p>`,
+      <p><strong>Qué no dice:</strong> la comparación mide presión sobre las viviendas que ya existen, no un déficit exacto. Tampoco cuenta la demanda de quienes no llegan a formar un hogar. Más abajo se desglosa el origen de estos hogares nuevos.</p>`,
     chart: (d, el) => { const L = d.R.largo, i11 = L.anos.indexOf(2011), i21 = L.fuente.indexOf("ine");
       grafico(el, { tipo: "barras", alto: 300, x: L.anos,
       series: [{ n: "Hogares nuevos", v: L.hogares, c: C2 }, { n: "Viviendas terminadas", v: L.viviendas, c: C1 }],
@@ -1260,7 +1261,7 @@ const PASOS = [
       tipExtra: i => (L.hogares[i] > 0 ? `<span class="tx">${nf1.format(L.hogares[i] / L.viviendas[i])} hogares por vivienda · ${L.fuente[i] === "ine" ? "hogares: INE" : "hogares: estimación del Ministerio"}</span>` : "") +
         (d.R.origen.duda && L.anos[i] === d.R.origen.duda.ano ? `<span class="tx">Dato dudoso: el Ministerio estima ${milesR(d.R.origen.duda.mivau.total)}</span>` : ""),
       aria: "Hogares nuevos frente a viviendas terminadas por año desde 2002" }); },
-    pie: "Hogares nuevos: hasta 2020, variación anual de las viviendas principales estimada por el Ministerio de Vivienda (cada vivienda principal es un hogar); desde 2021, estadística del INE. El salto de 2011 se debe al ajuste de la estimación al censo de ese año. El dato de 2021 es dudoso: el INE da 283.000 hogares nuevos y el Ministerio, unos 125.000 (lo explicamos en el paso siguiente)." },
+    pie: "Hogares nuevos: hasta 2020, variación anual de las viviendas principales estimada por el Ministerio de Vivienda (cada vivienda principal es un hogar); desde 2021, estadística del INE. El salto de 2011 se debe al ajuste de la estimación al censo de ese año. El dato de 2021 es dudoso: el INE da 283.000 hogares nuevos y el Ministerio, unos 125.000 (se explica más abajo)." },
 
   { id: "origen", corto: "Origen de los hogares", eyebrow: "Componente 1 · Cuánta gente busca casa",
     q: "Origen de los hogares nuevos",
@@ -1322,7 +1323,7 @@ const PASOS = [
         tipFmt: v => (v < 0 ? "−" : "") + nf0.format(Math.abs(v)), aria: "Saldo migratorio con el extranjero por nacionalidad desde 2008" }); },
     pie: "Arriba: la línea negra es el total de hogares nuevos, lo que suman las barras por encima de cero menos lo que restan las de debajo; cada parte está convertida en hogares con el tamaño medio del hogar de ese año. Abajo: llegadas menos salidas al extranjero, en personas. Antes de 2008 no hay saldo migratorio oficial por nacionalidad, y desde 2021 el INE usa un método nuevo, no exactamente comparable con el anterior." },
 
-  { id: "construccion", corto: "Construcción", eyebrow: "Componente 2 · Cuántas viviendas se hacen",
+  { id: "construccion", corto: "Construcción y costes", eyebrow: "Componente 2 · Cuántas viviendas se hacen y qué cuesta hacerlas",
     lectura: d => obraHTML(d) + normasHTML(),
     q: "Evolución de la construcción de viviendas",
     resp: d => `La construcción sigue por debajo de los niveles anteriores a 2008. En ${d.C.anos[d.iPico]} se terminaron <strong>${milesR(d.tot[d.iPico])}</strong> viviendas; en ${d.C.anos[d.iMin]}, <strong>${milesR(d.tot[d.iMin])}</strong>; en ${ult(d.C.anos)}, <strong>${milesR(ult(d.tot))}</strong>.`,
@@ -1335,7 +1336,7 @@ const PASOS = [
       y: { fmt: v => v === 0 ? "0" : nf0.format(v / 1000) + " mil" }, ml: 54, tipFmt: v => nf0.format(v),
       aria: "Viviendas terminadas e iniciadas por año desde 1991" }) },
 
-  { id: "costes", precios: true, corto: "Coste de construir", eyebrow: "Componente 3 · Qué cuesta construir",
+  { id: "costes", precios: true, corto: "Coste de construir", eyebrow: "Componente 2 · Qué cuesta construir",
     q: "Empleo y suelo en la construcción",
     resp: d => `En la construcción trabajan <strong>${millones(ult(d.K.ocupados) * 1000)} de personas</strong>, frente a ${millones(d.K.ocupados[d.ik(2008)] * 1000)} en 2008.`,
     expl: d => `El sector perdió más de la mitad del empleo entre 2008 y ${d.aMin}, cuando tocó fondo con ${milesR(d.oMin * 1000)} trabajadores, y desde entonces ha recuperado una parte. ${textoSuelo(d)}`,
@@ -1350,7 +1351,7 @@ const PASOS = [
       aria: "Ocupados en la construcción por año" }),
     pie: "Millones de personas. *Media de los trimestres publicados." },
 
-  { id: "credito", precios: true, corto: "Crédito", eyebrow: "Componente 4 · Lo que cuesta el dinero",
+  { id: "credito", precios: true, corto: "Crédito", eyebrow: "Componente 3 · Lo que cuesta el dinero",
     q: "Coste del crédito hipotecario",
     resp: d => { const R = interesReal(d), k = R.iMin;
       return `Los datos muestran relación con el ritmo de compras, pero no con toda la subida de fondo. Entre ${R.a0} y ${R.a1} la inflación superó al interés de las hipotecas (en ${d.Cr.anos[k]}, ${nf1.format(d.Cr.inflacion[k])}\u00a0% frente a ${nf1.format(d.Cr.interes[k])}\u00a0%), lo que abarató el crédito en términos reales. Con la subida de tipos, el interés volvió a ponerse a la altura de la inflación. Aun así, las hipotecas cayeron un ${pctE(-d.caeH)} en ${d.anoCaeH} y el precio siguió subiendo.`; },
@@ -1373,7 +1374,7 @@ const PASOS = [
     },
     pie: "*Media de los meses publicados." },
 
-  { id: "compradores", corto: "Otros compradores", eyebrow: "Componente 5 · Quién compra",
+  { id: "compradores", corto: "Otros compradores", eyebrow: "Componente 4 · Quién compra",
     q: "Compras de no residentes y empresas, y pisos turísticos",
     resp: () => `En el conjunto de España su peso es reducido; en la costa y las islas es considerablemente mayor.`,
     expl: d => `Las compras de empresas llegaron al ${pct(d.eMax[1])} en ${d.eMax[0]}, cuando bancos y fondos compraron vivienda barata tras la crisis. En ${d.eU[0]} fueron el ${pct(d.eU[1])}, y esa cifra incluye promotoras y sociedades familiares, no solo fondos. Las compras de no residentes y los pisos turísticos se concentran en ${nombre(d.top("no_residentes").cod)}, Málaga, Baleares y Canarias, donde sí compiten con quien busca casa para vivir.`,
@@ -1428,6 +1429,14 @@ function coberturaHTML() {
       { serie: "Tiempo de obra (estimado)", desde: String(RC.obra.periodos[0].desde), hasta: RC.obra.ult_mes }].map(c => `<tr${+c.desde > 2001 ? ' class="hueco"' : ""}><th scope="row">${c.serie}</th><td>${c.desde}</td><td>${c.hasta.replace("-T", " T").replace(/^(\d{4})-(\d{2})$/, (m, a, mm) => MES_CORTO[+mm - 1].slice(0, 3) + " " + a)}</td><td>${notas[c.serie] || ""}</td></tr>`).join("")}</tbody></table></div></section>`;
 }
 
+// Pasos que se muestran dentro de otro, como apartado, para acortar el recorrido.
+const UNIDOS = { origen: "hogares", costes: "construccion" };
+for (const [hijo, padre] of Object.entries(UNIDOS)) {
+  const h = PASOS.splice(PASOS.findIndex(p => p.id === hijo), 1)[0];
+  const p = PASOS.find(x => x.id === padre);
+  (p.subs = p.subs || []).push(h);
+}
+
 let pasoActual = "precio";
 
 function pintarIndicePasos() {
@@ -1437,6 +1446,7 @@ function pintarIndicePasos() {
 }
 
 function mostrarPaso(id) {
+  if (UNIDOS[id]) id = UNIDOS[id];
   const i = Math.max(0, PASOS.findIndex(p => p.id === id));
   const p = PASOS[i];
   pasoActual = p.id;
@@ -1463,9 +1473,17 @@ function mostrarPaso(id) {
       h += `<p class="expl">${p.expl(d)}</p>`;
       if (p.lectura) h += p.lectura(d);
       h += `<details><summary>Cómo se calcula y qué no dice</summary>${p.det(d)}</details>`;
+      (p.subs || []).forEach((s, k) => {
+        h += `<section class="subpaso" id="sub-${s.id}"><div class="pasohead"><h2>${s.q}${s.precios && enReal() ? '<span class="modo">Sin inflación</span>' : ""}</h2><p class="resp">${s.resp(d)}</p></div>`;
+        h += `<figure class="panel chartcard"><div class="chart" id="c-sub-${k}"></div>${s.pie != null ? `<figcaption>${s.pie}</figcaption>` : ""}</figure>`;
+        h += `<p class="expl">${s.expl(d)}</p>`;
+        if (s.lectura) h += s.lectura(d);
+        h += `<details><summary>Cómo se calcula y qué no dice</summary>${s.det(d)}</details></section>`;
+      });
     }
     $("paso-gen").innerHTML = h;
     if (p.chart) p.chart(d, $("c-paso"));
+    (p.subs || []).forEach((s, k) => s.chart && s.chart(d, $(`c-sub-${k}`)));
     if (p.lista) pintarFuentes();
   }
   const ant = PASOS[i - 1], sig = PASOS[i + 1];

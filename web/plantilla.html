@@ -1,0 +1,964 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>En proporción</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,400..700&display=swap">
+<style>
+/* Layout: hoja de atlas. El mapa manda a la izquierda; a la derecha, una columna de lectura
+   que responde "¿cuánto es esto, de verdad?" con todo en la misma escala. */
+:root {
+  --bg: #f4f6f8;
+  --surface: #fdfdfe;
+  --ink: #101317;
+  --ink-2: #47505b;
+  --muted: #7b838e;
+  --line: #e0e4e9;
+  --line-strong: #c6ccd4;
+  --accent: #1c5cab;
+  --accent-soft: #e3edf9;
+  --nat: #8a919b;
+  /* rampa secuencial: 0 = casi nada, se funde con la superficie */
+  --r1: #e9f1fb; --r2: #b7d3f6; --r3: #86b6ef; --r4: #5598e7; --r5: #2a78d6; --r6: #1c5cab; --r7: #0d366b;
+  /* series categóricas: azul, naranja, aguamarina (orden validado para daltonismo) */
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --band: #eef1f5;
+  --warn-fondo: #fff8e8; --warn-borde: #e8c46a; --warn-texto: #7a5300;
+  --dn: #d64545; --dm: #e3e6ea; --dp: #1c5cab;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1013; --surface: #161a1f; --ink: #eef0f3; --ink-2: #b9c0c9; --muted: #8b939d;
+    --line: #262c33; --line-strong: #39414b; --accent: #6da7ec; --accent-soft: #1a2a3f; --nat: #8b939d;
+    --r1: #1c2633; --r2: #1d3a60; --r3: #1c5cab; --r4: #2a78d6; --r5: #5598e7; --r6: #9ec5f4; --r7: #e4effc;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --band: #1d2228;
+    --warn-fondo: #241f12; --warn-borde: #6f5a22; --warn-texto: #f2c75c;
+    --dn: #e66767; --dm: #2c323a; --dp: #6da7ec;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1013; --surface: #161a1f; --ink: #eef0f3; --ink-2: #b9c0c9; --muted: #8b939d;
+  --line: #262c33; --line-strong: #39414b; --accent: #6da7ec; --accent-soft: #1a2a3f; --nat: #8b939d;
+  --r1: #1c2633; --r2: #1d3a60; --r3: #1c5cab; --r4: #2a78d6; --r5: #5598e7; --r6: #9ec5f4; --r7: #e4effc;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --band: #1d2228;
+  --warn-fondo: #241f12; --warn-borde: #6f5a22; --warn-texto: #f2c75c;
+  --dn: #e66767; --dm: #2c323a; --dp: #6da7ec;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2, h3 { font-stretch: 78%; font-weight: 650; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 4.6vw, 3.1rem); line-height: 1.02; }
+h2 { font-size: 1.45rem; line-height: 1.15; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+/* Cabecera del sitio y navegación entre secciones */
+.site { max-width: 1180px; margin: 0 auto 28px; display: flex; align-items: center; gap: 12px 20px; flex-wrap: nowrap; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.brand { font-stretch: 75%; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.brand span { color: var(--accent); }
+.nav { flex: 1 1 0; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; }
+.nav a {
+  display: block; padding: 8px 12px; border-radius: 8px; color: var(--ink-2); text-decoration: none;
+  font-size: 0.92rem; font-weight: 550; white-space: nowrap; position: relative;
+}
+.nav a:hover { color: var(--ink); background: var(--surface); }
+.nav a[aria-current="page"] { color: var(--ink); }
+.nav a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 2px; background: var(--accent); }
+.nav a .wip { display: inline-block; width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--muted); margin-left: 6px; vertical-align: 2px; }
+
+/* Portada */
+.secs { display: grid; border-top: 1px solid var(--line); }
+.secs a {
+  display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) auto; gap: 8px 24px; align-items: baseline;
+  padding: 18px 4px; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none;
+}
+.secs a:hover { background: var(--surface); }
+.secs a:hover h2 { color: var(--accent); }
+.secs h2 { font-size: 1.35rem; }
+.secs p { color: var(--ink-2); }
+.secs .fig { color: var(--ink); font-weight: 600; }
+.chip { font-size: 0.75rem; font-weight: 600; border-radius: 999px; padding: 3px 10px; white-space: nowrap; border: 1px solid var(--line-strong); color: var(--muted); }
+.chip.ok { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+/* Recorrido por pasos */
+.pasos { overflow-x: auto; scrollbar-width: none; margin-inline: -4px; scroll-margin-top: 12px; }
+.pasos::-webkit-scrollbar { display: none; }
+.pasos ol { list-style: none; margin: 0; padding: 0 4px; display: flex; gap: 6px; }
+.pasos a {
+  display: flex; align-items: center; gap: 8px; white-space: nowrap; text-decoration: none; color: var(--ink-2);
+  font-size: 0.88rem; font-weight: 550; padding: 7px 12px 7px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface);
+}
+.pasos a:hover { color: var(--ink); border-color: var(--line-strong); }
+.pasos .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); font-size: 0.75rem; color: var(--muted); }
+.pasos a[aria-current="step"] { color: var(--surface); background: var(--ink); border-color: var(--ink); }
+.pasos a[aria-current="step"] .n { background: var(--surface); color: var(--ink); }
+.paso { display: grid; gap: 20px; }
+.pasohead { display: grid; gap: 8px; max-width: 760px; }
+.pasohead h2 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); line-height: 1.08; }
+.resp { font-size: 1.12rem; color: var(--ink); max-width: 64ch; }
+.resp strong { font-weight: 650; }
+.expl { color: var(--ink-2); max-width: 68ch; font-size: 1rem; }
+.chartcard { margin: 0; padding: 18px 18px 12px; display: grid; gap: 8px; }
+.chartcard figcaption { font-size: 0.8rem; color: var(--muted); }
+details { max-width: 760px; border-top: 1px solid var(--line); padding-top: 12px; color: var(--ink-2); font-size: 0.92rem; }
+details summary { cursor: pointer; color: var(--ink); font-weight: 600; }
+details[open] summary { margin-bottom: 8px; }
+details p + p { margin-top: 8px; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.85rem; color: var(--ink-2); margin-bottom: 6px; }
+.leyenda span { display: inline-flex; align-items: center; gap: 7px; }
+.leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.leyenda i.ln { height: 3px; width: 16px; border-radius: 2px; }
+.cwrap { position: relative; }
+.cwrap svg { display: block; }
+.chart .grid line { stroke: var(--line); }
+.chart .base { stroke: var(--line-strong); }
+.chart .refl { stroke: var(--muted); stroke-width: 1; }
+.chart .axis text { font-size: 11px; fill: var(--muted); font-family: var(--font); font-variant-numeric: tabular-nums; }
+.chart .fin { font-size: 12px; font-weight: 600; fill: var(--ink-2); font-family: var(--font); font-variant-numeric: tabular-nums; }
+.chart .bl { font-size: 11px; fill: var(--ink-2); font-family: var(--font); font-variant-numeric: tabular-nums; }
+.chart .nota { font-size: 11.5px; fill: var(--ink-2); font-family: var(--font); }
+.chart .ring { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.5; }
+.chart .pt { stroke: var(--surface); stroke-width: 2; }
+.chart .cur { stroke: var(--line-strong); }
+.chart .ctip { top: 0; transform: translateY(-4px); gap: 2px; font-size: 0.8rem; white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+.chart .ctip span { display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
+.chart .ctip span i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.chart .ctip .tx { color: var(--muted); }
+.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.duo h4 { margin: 0 0 6px; font-size: 0.9rem; font-weight: 600; color: var(--ink-2); }
+.pila-graf { display: grid; gap: 28px; }
+.pila-graf h4 { margin: 0 0 6px; font-size: 0.9rem; font-weight: 600; color: var(--ink-2); }
+.hb { display: grid; gap: 16px; }
+.hbrow { display: grid; gap: 6px; }
+.hblab { font-weight: 600; font-size: 0.95rem; }
+.hbline { display: grid; grid-template-columns: minmax(0, 1fr) 4.2rem minmax(0, 11rem); gap: 10px; align-items: center; font-size: 0.88rem; }
+.hbtrack { height: 12px; background: var(--bg); border-radius: 3px; position: relative; overflow: hidden; }
+.hbtrack i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
+.hbval { text-align: right; font-weight: 600; }
+.hbwho { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.concl { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--line); max-width: 860px; }
+.concl li { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 8px 24px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.concl h3 { font-size: 1.15rem; }
+.concl p { color: var(--ink-2); margin-top: 2px; }
+.tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line); padding-top: 16px; }
+.pbtn { font: inherit; font-weight: 600; font-size: 0.95rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 16px; cursor: pointer; }
+.pbtn:hover { border-color: var(--ink-2); }
+.pbtn.next { background: var(--ink); color: var(--surface); border-color: var(--ink); margin-left: auto; }
+.ppos { color: var(--muted); font-size: 0.85rem; }
+@media (max-width: 640px) {
+  .concl li { grid-template-columns: minmax(0, 1fr); }
+  .hbline { grid-template-columns: minmax(0, 1fr) 3.6rem; }
+  .hbwho { grid-column: 1 / -1; margin-top: -4px; font-size: 0.8rem; }
+  .chartcard { padding: 14px 10px 10px; }
+  .ppos { display: none; }
+}
+
+/* Paso 1: año de partida, franja de crisis y lectura */
+.basebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 0.88rem; color: var(--ink-2); margin-bottom: 10px; }
+.seg.mini { padding: 3px; border-radius: 10px; }
+.seg.mini button { padding: 5px 12px; font-size: 0.86rem; }
+.baseres { color: var(--ink-2); }
+.baseres strong { color: var(--ink); font-weight: 650; }
+.chart .banda { fill: var(--band); }
+.chart .corte { stroke: var(--muted); stroke-width: 1; }
+.chart .cortet { font-size: 10.5px; fill: var(--muted); font-family: var(--font); }
+.tabla table.cob { min-width: 640px; }
+.tabla table.obra { min-width: 0; width: 100%; }
+.tabla table.ocho { min-width: 820px; }
+.tres { margin: 4px 0 6px; padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); font-size: 0.93rem; }
+.tabla table.ocho thead th { white-space: normal; vertical-align: bottom; max-width: 9rem; }
+.tabla table.ocho small { margin-left: 0; }
+.tabla table.cob td:last-child, .tabla table.cob th:first-child, .tabla table.cob thead th:last-child { text-align: left; }
+.tabla table.cob td:last-child { color: var(--muted); font-size: 0.85rem; padding-left: 12px; }
+.tabla tr.hueco td:nth-child(2) { color: var(--ink); font-weight: 650; }
+.chart .bandat { font-size: 11.5px; font-weight: 600; fill: var(--ink-2); font-family: var(--font); }
+.lectura { display: grid; gap: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+.lectura h3 { font-size: 1.2rem; }
+.lect-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 28px; }
+.lect-grid .ancho { grid-column: 1 / -1; }
+.lect-grid article { display: grid; gap: 6px; align-content: start; }
+.lect-grid h4 { margin: 0; font-size: 0.98rem; font-weight: 650; }
+.lect-grid p { color: var(--ink-2); font-size: 0.93rem; max-width: 70ch; }
+.tabla { overflow-x: auto; margin-top: 6px; }
+.tabla table { border-collapse: collapse; font-size: 0.9rem; min-width: 520px; }
+.tabla th, .tabla td { padding: 8px 14px 8px 0; text-align: right; border-bottom: 1px solid var(--line); }
+.tabla th:first-child { text-align: left; }
+.tabla thead th { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+.tabla tbody th { font-weight: 650; }
+.tabla small { font-weight: 400; color: var(--muted); margin-left: 4px; }
+.tabla tr.dest td, .tabla tr.dest th { background: var(--accent-soft); }
+.tabla tr.dest td:first-child, .tabla tr.dest th:first-child { padding-left: 8px; }
+.tabla tbody th { padding-left: 8px; }
+@media (max-width: 900px) { .lect-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.rank .tr.div::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line-strong); }
+.track.div::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--line-strong); }
+.modo-x { display: inline-block; font-size: 0.72rem; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 8px; margin-left: 8px; vertical-align: 2px; }
+
+/* Aviso de dato dudoso */
+.aviso { display: grid; gap: 12px; padding: 18px 20px; border: 1px solid var(--warn-borde); background: var(--warn-fondo); border-radius: var(--radius); }
+.aviso-cab { display: grid; gap: 8px; }
+.aviso h3 { font-size: 1.15rem; }
+.aviso p { color: var(--ink-2); font-size: 0.93rem; max-width: 78ch; }
+.chip-aviso { justify-self: start; display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--warn-texto); border: 1px solid var(--warn-borde); border-radius: 999px; padding: 3px 10px 3px 8px; background: var(--surface); }
+.chip-aviso svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso .tabla tbody th { padding-left: 0; }
+
+/* Normas */
+.normas { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--line); }
+.normas li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 6px 20px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.nfecha { color: var(--muted); font-size: 0.85rem; font-weight: 600; padding-top: 2px; }
+.ncuerpo { display: grid; gap: 5px; }
+.ncuerpo h4 { margin: 0; font-size: 1rem; font-weight: 650; }
+.ncuerpo p { color: var(--ink-2); font-size: 0.92rem; max-width: 80ch; }
+.ncuerpo em { font-style: normal; color: var(--muted); }
+.ncuerpo a { font-size: 0.82rem; }
+.nchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.nchip { font-size: 0.72rem; font-weight: 600; border: 1px solid var(--line-strong); border-radius: 999px; padding: 2px 9px; color: var(--ink-2); }
+.nchip.est-vigente { border-color: var(--accent); color: var(--accent); }
+.nchip.est-pendiente, .nchip.est-anulada_parte { border-color: var(--warn-borde); color: var(--warn-texto); background: var(--warn-fondo); }
+.nchip.est-no_aprobada { border-style: dashed; color: var(--muted); }
+.nchip.est-criterio_judicial { color: var(--ink-2); }
+.nchip.ral { border-color: var(--dn); color: var(--dn); }
+@media (max-width: 640px) { .normas li { grid-template-columns: minmax(0, 1fr); } }
+
+/* Secciones en preparación */
+.prep { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+.prep ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; color: var(--ink-2); }
+.prep .src li { font-size: 0.9rem; }
+@media (max-width: 640px) {
+  .secs a { grid-template-columns: minmax(0, 1fr) auto; }
+  .secs a p { grid-column: 1 / -1; }
+}
+
+/* Cabecera */
+.top { display: grid; gap: 10px; max-width: 760px; }
+.lede { color: var(--ink-2); font-size: 1.05rem; max-width: 62ch; }
+
+/* Controles */
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.seg button {
+  font: inherit; font-size: 0.92rem; font-weight: 550; color: var(--ink-2); background: transparent;
+  border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+}
+.seg button:hover { color: var(--ink); background: var(--bg); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.scale { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--ink-2); }
+.scale button {
+  font: inherit; font-size: 0.85rem; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line-strong);
+  padding: 6px 12px; cursor: pointer;
+}
+.scale button:first-of-type { border-radius: 8px 0 0 8px; }
+.scale button:last-of-type { border-radius: 0 8px 8px 0; margin-left: -1px; }
+.scale button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); border-color: var(--accent); position: relative; }
+.scale button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Rejilla principal */
+.main { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.mapcard { padding: 22px 22px 18px; display: grid; gap: 14px; position: relative; }
+.headline { display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; }
+.big { font-size: 2.6rem; font-weight: 650; font-stretch: 78%; line-height: 1; }
+.headline p { color: var(--ink-2); max-width: 46ch; flex: 1 1 260px; }
+.period { font-size: 0.82rem; color: var(--muted); }
+
+.mapbox { position: relative; }
+svg.map { width: 100%; height: auto; display: block; }
+.prov { stroke: var(--surface); stroke-width: 0.7; vector-effect: non-scaling-stroke; cursor: pointer; transition: fill 0.35s ease; }
+.prov:focus { outline: none; }
+.ccaa { fill: none; stroke: var(--ink-2); stroke-opacity: 0.45; stroke-width: 0.9; vector-effect: non-scaling-stroke; pointer-events: none; }
+.frame { fill: none; stroke: var(--line-strong); stroke-width: 1; vector-effect: non-scaling-stroke; pointer-events: none; }
+.hl { fill: none; stroke: var(--ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; pointer-events: none; }
+.sel { fill: none; stroke: var(--ink); stroke-width: 2.6; vector-effect: non-scaling-stroke; pointer-events: none; }
+.hit { fill: transparent; cursor: pointer; }
+.dotmark { fill: none; stroke: var(--ink-2); stroke-width: 1; vector-effect: non-scaling-stroke; pointer-events: none; }
+.maplabel { font-size: 11px; fill: var(--muted); pointer-events: none; }
+
+.tip {
+  position: absolute; pointer-events: none; z-index: 5; min-width: 180px; max-width: 240px;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 10px 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12); font-size: 0.85rem; display: grid; gap: 2px;
+}
+.tip strong { font-size: 0.95rem; }
+.tip .v { font-size: 1.25rem; font-weight: 650; font-stretch: 85%; }
+.tip .c { color: var(--muted); }
+
+.legend { display: flex; gap: 18px; align-items: end; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); }
+.legend .bar { flex: 1 1 260px; max-width: 420px; display: grid; gap: 4px; }
+.legend .grad { height: 10px; border-radius: 3px; }
+.legend .ticks { position: relative; height: 16px; }
+.legend .ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.legend .ticks span:first-child { transform: none; }
+.legend .ticks span:last-child { transform: translateX(-100%); }
+.legend .na { display: flex; gap: 6px; align-items: center; }
+.legend .na i { width: 14px; height: 10px; border-radius: 2px; border: 1px solid var(--line-strong); background: repeating-linear-gradient(45deg, transparent 0 3px, var(--line-strong) 3px 4px); }
+.note { font-size: 0.85rem; color: var(--ink-2); }
+
+/* Ficha */
+.detail { padding: 22px; display: grid; gap: 18px; }
+.detail header { display: grid; gap: 2px; }
+.detail .sub { color: var(--muted); font-size: 0.88rem; }
+.back { justify-self: start; font: inherit; font-size: 0.82rem; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.rows { display: grid; gap: 14px; }
+.row { display: grid; gap: 5px; }
+.row .lab { display: flex; justify-content: space-between; gap: 12px; font-size: 0.9rem; }
+.row .lab b { font-weight: 650; }
+.track { position: relative; height: 10px; background: var(--bg); border-radius: 3px; }
+.track .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 3px; transition: width 0.35s ease; }
+.track .nat { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); border-radius: 1px; }
+.row .cmp { font-size: 0.8rem; color: var(--muted); }
+.scalecap { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+.callout { border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 6px; }
+.callout .one { font-size: 1.35rem; font-stretch: 80%; font-weight: 600; line-height: 1.2; }
+.keyline { display: flex; gap: 14px; font-size: 0.8rem; color: var(--muted); flex-wrap: wrap; }
+.keyline span { display: inline-flex; align-items: center; gap: 6px; }
+.keyline i { width: 14px; height: 2px; display: inline-block; }
+
+.chart { position: relative; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.grid line { stroke: var(--line); }
+.axis text, .chart text { font-size: 10px; fill: var(--muted); font-family: var(--font); }
+.ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.ctip { position: absolute; top: 0; pointer-events: none; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 8px; font-size: 0.78rem; white-space: nowrap; display: grid; }
+
+/* Ranking */
+.rank { padding: 22px; display: grid; gap: 16px; }
+.rank header { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.rank ol { list-style: none; margin: 0; padding: 0; columns: 2 380px; column-gap: 32px; }
+.rank li { break-inside: avoid; }
+.rank li button {
+  width: 100%; font: inherit; color: inherit; background: none; border: 0; border-radius: 6px; cursor: pointer;
+  display: grid; grid-template-columns: 1.6rem minmax(0, 9.5rem) minmax(0, 1fr) 3.6rem; gap: 10px; align-items: center;
+  padding: 5px 6px; text-align: left; font-size: 0.88rem;
+}
+.rank li button:hover, .rank li button.on { background: var(--bg); }
+.rank li button.on .nm { font-weight: 650; }
+.rank .pos { color: var(--muted); font-size: 0.78rem; text-align: right; }
+.rank .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank .tr { height: 8px; background: var(--bg); border-radius: 2px; position: relative; }
+.rank li button:hover .tr, .rank li button.on .tr { background: var(--line); }
+.rank .tr i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; }
+.rank .tr b { position: absolute; top: -2px; bottom: -2px; width: 1.5px; background: var(--ink); opacity: 0.55; }
+.rank .val { text-align: right; }
+.rank .na { color: var(--muted); font-size: 0.8rem; }
+
+/* Empresas */
+.firms { padding: 22px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 28px; align-items: center; }
+.firms .txt { display: grid; gap: 12px; }
+.firms .big { font-size: 3rem; }
+
+/* Notas */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.notes article { display: grid; gap: 6px; align-content: start; font-size: 0.9rem; color: var(--ink-2); }
+.notes article h3 { color: var(--ink); }
+.sources { font-size: 0.85rem; color: var(--ink-2); display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 16px; }
+.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
+@media (max-width: 900px) {
+  .main, .firms { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .mapcard, .detail, .rank, .firms { padding: 16px; }
+  .seg button { padding: 7px 10px; font-size: 0.86rem; }
+  .big { font-size: 2.1rem; }
+  .rank li button { grid-template-columns: 1.4rem minmax(0, 7.5rem) minmax(0, 1fr) 3.2rem; gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Selector de tema */
+.tema {
+  display: inline-flex; align-items: center; gap: 7px; flex: none;
+  font: inherit; font-size: 0.85rem; font-weight: 550; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px 6px 9px; cursor: pointer;
+}
+.tema:hover { color: var(--ink); border-color: var(--line-strong); }
+.tema svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.tema .sol { display: none; }
+:root[data-theme="dark"] .tema .sol { display: block; }
+:root[data-theme="dark"] .tema .luna { display: none; }
+@media (max-width: 640px) { .tema span { display: none; } .tema { padding: 7px; } }
+</style>
+
+<script>
+/* Tema: oscuro por defecto; se recuerda la elección de cada lector */
+(function () {
+  let t = "dark";
+  try { t = localStorage.getItem("tema") || "dark"; } catch (e) {}
+  document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+})();
+</script>
+
+<header class="site">
+  <a class="brand" href="#inicio">En proporción<span>.</span></a>
+  <nav class="nav" aria-label="Secciones"><ul id="nav"></ul></nav>
+  <button type="button" class="tema" id="tema" aria-label="Cambiar entre modo claro y oscuro">
+    <svg class="luna" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+    <svg class="sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+    <span id="tema-t"></span>
+  </button>
+</header>
+
+<main class="wrap view" id="v-inicio" hidden></main>
+<main class="wrap view" id="v-seccion" hidden></main>
+
+<main class="wrap view" id="v-vivienda" hidden>
+  <header class="top">
+    <span class="eyebrow">Vivienda · datos oficiales hasta 2026</span>
+    <h1>Qué mueve el precio de la vivienda</h1>
+    <p class="lede">El precio depende de cuánta gente busca casa, cuántas casas hay, cuánto cuesta construirlas y cuánto cuesta pedir un préstamo. Repasamos cada componente con datos oficiales, de uno en uno.</p>
+  </header>
+
+  <nav class="pasos" aria-label="Pasos del recorrido"><ol id="pasos"></ol></nav>
+
+  <section class="paso" id="paso-gen" aria-live="polite"></section>
+
+  <section class="paso" id="paso-mapa" hidden>
+    <div class="pasohead">
+      <span class="eyebrow" id="mapa-eyebrow"></span>
+      <h2>¿Dónde aprieta más?</h2>
+      <p class="resp">Cada provincia vive un mercado distinto. Empieza por la presión de hogares nuevos frente a viviendas terminadas y cambia de dato para ver el resto.</p>
+    </div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Dato que muestra el mapa" id="capas"></div>
+    <div class="scale" role="group" aria-label="Escala de color">
+      <span>Escala</span>
+      <button type="button" id="esc-comun" aria-pressed="true">Común 0–50 %</button>
+      <button type="button" id="esc-capa" aria-pressed="false">Ajustada al dato</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <section class="panel mapcard" aria-labelledby="titulo-capa">
+      <div class="headline">
+        <span class="big num" id="big"></span>
+        <p><span id="frase"></span> <span class="period" id="periodo"></span></p>
+      </div>
+      <div class="mapbox" id="mapbox">
+        <svg class="map" id="mapa" viewBox="4 32 796 562" role="img" aria-labelledby="titulo-capa">
+          <title id="titulo-capa">Mapa de provincias</title>
+          <defs>
+            <pattern id="rayas" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <rect width="6" height="6" fill="var(--surface)"></rect>
+              <line x1="0" y1="0" x2="0" y2="6" stroke="var(--line-strong)" stroke-width="2"></line>
+            </pattern>
+          </defs>
+          <g id="g-prov"></g>
+          <path class="ccaa" id="g-ccaa"></path>
+          <path class="frame" id="g-frame"></path>
+          <g id="g-extra"></g>
+          <path class="sel" id="p-sel"></path>
+          <path class="hl" id="p-hl"></path>
+        </svg>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <div class="legend">
+        <div class="bar">
+          <div class="grad" id="grad"></div>
+          <div class="ticks num" id="ticks"></div>
+        </div>
+        <span class="na" id="leg-na" hidden><i></i>Sin dato</span>
+      </div>
+      <p class="note" id="nota"></p>
+    </section>
+
+    <aside class="panel detail" aria-live="polite" id="ficha"></aside>
+  </div>
+
+  <section class="panel rank" aria-labelledby="rank-t">
+    <header>
+      <h2 id="rank-t">Las 52 provincias</h2>
+      <span class="period" id="rank-sub"></span>
+    </header>
+    <ol id="lista"></ol>
+  </section>
+
+  </section>
+
+  <div class="pager">
+    <button type="button" class="pbtn" id="ant"></button>
+    <span class="ppos num" id="ppos"></span>
+    <button type="button" class="pbtn next" id="sig"></button>
+  </div>
+</main>
+
+<script>
+const D = /*__DATOS__*/null;
+const G = /*__GEO__*/null;
+const NS = "http://www.w3.org/2000/svg";
+const nf1 = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+const nf0 = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0, useGrouping: true });
+const pct = v => v == null ? "—" : nf1.format(v) + " %";
+const $ = id => document.getElementById(id);
+
+function periodoU4T(p) { // "U4T-2026-T2" -> "3T 2025 – 2T 2026"
+  const [, y, t] = p.match(/(\d{4})-T(\d)/); let q = +t + 1, a = +y - 1;
+  if (q === 5) { q = 1; a += 1; }
+  return `${q}T ${a} – ${t}T ${y}`;
+}
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const periodoMes = p => { const [y, m] = p.split("-"); return `${MESES[+m - 1]} de ${y}`; };
+
+const enReal = () => false;   // la página muestra la inflación junto a cada dato, sin selector
+const conSigno = v => (v >= 0 ? "+" : "−") + nf1.format(Math.abs(v)) + " %";
+
+const CAPAS = [
+  { id: "presion", boton: "Hogares por vivienda nueva", prop: false, max: 7, sufijo: "",
+    fmt: v => nf1.format(v), big: v => nf1.format(v),
+    titulo: "Hogares nuevos por cada vivienda terminada, 2021–2025",
+    frase: v => `hogares nuevos por cada vivienda terminada en España entre 2021 y 2025.`,
+    periodo: () => `Hogares: INE. Viviendas libres y protegidas: Ministerio de Vivienda.`,
+    nota: "Escala propia (0–7). Un valor alto indica que los hogares nuevos superan con mucho a las viviendas nuevas. Donde abundan las viviendas vacías o de segunda residencia, parte de esos hogares ocupa casas que ya existían.",
+    uno: (v, n, cod) => {
+      const P = D.presion_detalle, h = cod ? P.h[cod] : P.h_nac, t = cod ? P.v[cod] : P.v_nac;
+      return `En ${n} se formaron ${nf0.format(h)} hogares y se terminaron ${nf0.format(t)} viviendas entre 2021 y 2025.`;
+    } },
+  { id: "extranjeros", boton: "Compras de extranjeros", prop: true,
+    titulo: "Compras de vivienda hechas por extranjeros",
+    frase: v => `de cada 100 viviendas vendidas en España las compró un extranjero.`,
+    periodo: () => `Últimos 12 meses (${periodoU4T(D.u4t)}).`,
+    nota: "Suma extranjeros que viven en España y no residentes. Fuente: Ministerio de Vivienda, a partir de escrituras notariales.",
+    uno: (v, n) => `1 de cada ${Math.round(100 / v)} viviendas vendidas en ${n} la compró un extranjero.` },
+  { id: "no_residentes", boton: "Extranjeros no residentes", prop: true,
+    titulo: "Compras de extranjeros que no viven en España",
+    frase: v => `de cada 100 las compró un extranjero que no vive en España: segunda residencia o inversión.`,
+    periodo: () => `Últimos 12 meses (${periodoU4T(D.u4t)}).`,
+    nota: "Es la parte de las compras extranjeras que más se parece a inversión o segunda residencia. Fuente: Ministerio de Vivienda.",
+    uno: (v, n) => v > 0 ? `1 de cada ${Math.round(100 / v)} viviendas vendidas en ${n} la compró un no residente.` : `En ${n} casi no hay compras de no residentes.` },
+  { id: "turisticas", boton: "Pisos turísticos", prop: true,
+    titulo: "Viviendas anunciadas como alquiler turístico",
+    frase: v => `de cada 100 viviendas están anunciadas como alquiler turístico.`,
+    periodo: () => `Dato de ${periodoMes(D.capas.turisticas.periodo)}.`,
+    nota: "Viviendas anunciadas en las grandes plataformas sobre el total de viviendas del censo. Fuente: INE, estadística experimental.",
+    uno: (v, n) => `1 de cada ${Math.round(100 / v)} viviendas de ${n} se anuncia como piso turístico.` },
+  { id: "alquiler", boton: "Alquiler sin inflación", prop: false, max: 15, divMax: 15, div: true, siempreReal: true,
+    real: v => 100 * ((1 + v / 100) / D.inflacion.alquiler_deflactor - 1),
+    fmt: v => conSigno(v), big: v => conSigno(v),
+    titulo: "Alquiler 2015–2024, descontando la inflación",
+    frase: v => `ha cambiado el alquiler vigente en España entre 2015 y 2024 descontando la inflación. Sin descontarla subió un ${pct(D.capas.alquiler.nacional)}, casi lo mismo que el resto de precios (${pct(D.inflacion.alquiler_ipc)}).`,
+    periodo: () => `Índice de Precios de Vivienda en Alquiler, INE.`,
+    nota: "Escala de −15 % a +15 %. En azul, donde el alquiler subió más que el resto de precios; en rojo, donde subió menos. Se descuenta el IPC nacional. Mide todos los alquileres vigentes, no solo los contratos nuevos, que suben más. Sin dato en País Vasco y Navarra.",
+    uno: (v, n, cod) => `En ${n}, descontando la inflación, el alquiler vigente está un ${nf1.format(Math.abs(v))}\u00a0% ${v >= 0 ? "más caro" : "más barato"} que en 2015. Sin descontarla, ${conSigno(cod ? D.capas.alquiler.prov[cod] : D.capas.alquiler.nacional)}.` },
+];
+const PROPS = CAPAS.filter(c => c.prop);
+const fmtCapa = (c, v) => v == null ? "—" : (c.fmt ? c.fmt(v) : pct(v));
+const COMUN = 50;
+
+const estado = { capa: "presion", escala: "comun", sel: null, hover: null };
+
+/* ---------- color ---------- */
+function rampa() {
+  const cs = getComputedStyle(document.documentElement);
+  return [1, 2, 3, 4, 5, 6, 7].map(i => cs.getPropertyValue("--r" + i).trim());
+}
+const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+function colorDe(t, R) {
+  t = Math.max(0, Math.min(1, t)) * (R.length - 1);
+  const i = Math.min(Math.floor(t), R.length - 2), f = t - i;
+  const a = hex2rgb(R[i]), b = hex2rgb(R[i + 1]);
+  return `rgb(${a.map((x, k) => Math.round(x + (b[k] - x) * f)).join(",")})`;
+}
+function colorDiv(f) {
+  const cs = getComputedStyle(document.documentElement);
+  const mid = hex2rgb(cs.getPropertyValue("--dm").trim()), pol = hex2rgb(cs.getPropertyValue(f < 0 ? "--dn" : "--dp").trim());
+  const t = Math.min(1, Math.abs(f));
+  return `rgb(${mid.map((x, k) => Math.round(x + (pol[k] - x) * t)).join(",")})`;
+}
+const colorCapa = (capa, v, max, R) => capa.div ? colorDiv(v / max) : colorDe(v / max, R);
+function maxEscala(capa) {
+  if (capa.div) return capa.divMax;
+  if (!capa.prop) return capa.max;
+  if (estado.escala === "comun") return COMUN;
+  const m = Math.max(...Object.values(D.capas[capa.id].prov));
+  const paso = m <= 10 ? 1 : 5;
+  return Math.ceil(m / paso) * paso;
+}
+
+/* ---------- mapa ---------- */
+const capaActual = () => CAPAS.find(c => c.id === estado.capa);
+const ajustar = (id, v) => { const c = CAPAS.find(x => x.id === id); return v != null && c && c.real && (c.siempreReal || enReal()) ? c.real(v) : v; };
+const valor = (id, cod) => ajustar(id, D.capas[id].prov[cod]);
+const nacional = id => ajustar(id, D.capas[id].nacional);
+const nombre = cod => D.provincias[cod][0];
+
+function construirMapa() {
+  const g = $("g-prov");
+  for (const [cod, d] of Object.entries(G.prov)) {
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", d); p.setAttribute("class", "prov"); p.dataset.cod = cod;
+    p.setAttribute("tabindex", "0"); p.setAttribute("role", "button");
+    g.appendChild(p);
+  }
+  $("g-ccaa").setAttribute("d", G.ccaa);
+  $("g-frame").setAttribute("d", G.frame);
+  // Ceuta y Melilla son diminutas: un círculo amplía la zona sensible
+  for (const cod of ["51", "52"]) {
+    const bb = g.querySelector(`[data-cod="${cod}"]`).getBBox();
+    const cx = bb.x + bb.width / 2, cy = bb.y + bb.height / 2;
+    const ring = document.createElementNS(NS, "circle");
+    ring.setAttribute("cx", cx); ring.setAttribute("cy", cy); ring.setAttribute("r", 7); ring.setAttribute("class", "dotmark");
+    const hit = document.createElementNS(NS, "circle");
+    hit.setAttribute("cx", cx); hit.setAttribute("cy", cy); hit.setAttribute("r", 12); hit.setAttribute("class", "hit"); hit.dataset.cod = cod;
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", cx + 11); t.setAttribute("y", cy + 4); t.setAttribute("class", "maplabel"); t.textContent = nombre(cod);
+    $("g-extra").append(ring, t, hit);
+  }
+  const svg = $("mapa");
+  svg.addEventListener("pointermove", e => {
+    const cod = e.target.dataset && e.target.dataset.cod;
+    if (cod) mostrarTip(cod, e); else ocultarTip();
+  });
+  svg.addEventListener("pointerleave", ocultarTip);
+  svg.addEventListener("click", e => { const cod = e.target.dataset && e.target.dataset.cod; if (cod) seleccionar(cod); });
+  svg.addEventListener("keydown", e => {
+    const cod = e.target.dataset && e.target.dataset.cod;
+    if (cod && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); seleccionar(cod); }
+  });
+  svg.addEventListener("focusin", e => { const cod = e.target.dataset && e.target.dataset.cod; if (cod) mostrarTip(cod, null); });
+  svg.addEventListener("focusout", ocultarTip);
+}
+
+function pintarMapa() {
+  const capa = capaActual(), R = rampa(), max = maxEscala(capa);
+  let faltan = false;
+  for (const p of $("g-prov").children) {
+    const v = valor(capa.id, p.dataset.cod);
+    if (v == null) { p.style.fill = "url(#rayas)"; faltan = true; }
+    else p.style.fill = colorCapa(capa, v, max, R);
+    p.setAttribute("aria-label", `${nombre(p.dataset.cod)}: ${v == null ? "sin dato" : fmtCapa(capa, v)}`);
+  }
+  $("leg-na").hidden = !faltan;
+  // leyenda continua con marcas en valores redondos
+  if (capa.div) {
+    const cs = getComputedStyle(document.documentElement), g = k => cs.getPropertyValue(k).trim();
+    $("grad").style.background = `linear-gradient(90deg, ${g("--dn")}, ${g("--dm")}, ${g("--dp")})`;
+    const ticks = [-max, -max / 3 * 2, -max / 3, 0, max / 3, max / 3 * 2, max].map(v => Math.round(v));
+    $("ticks").innerHTML = ticks.map(v => `<span style="left:${(v + max) / (2 * max) * 100}%">${v > 0 ? "+" : v < 0 ? "−" : ""}${nf0.format(Math.abs(v))}${v === max ? " %" : ""}</span>`).join("");
+  } else {
+  $("grad").style.background = `linear-gradient(90deg, ${R.join(",")})`;
+  const paso = max <= 5 ? 1 : max <= 10 ? 2 : 10;
+  const ticks = [];
+  for (let v = 0; v <= max + 1e-9; v += paso) ticks.push(v);
+  if (ticks[ticks.length - 1] < max) { if (max - ticks[ticks.length - 1] < paso / 2) ticks.pop(); ticks.push(max); }
+  $("ticks").innerHTML = ticks.map(v => `<span style="left:${(v / max) * 100}%">${nf0.format(v)}${v === max ? (capa.sufijo ?? " %") : ""}</span>`).join("");
+  }
+  $("titulo-capa").textContent = capa.titulo;
+}
+
+function mostrarTip(cod, e) {
+  const capa = capaActual(), v = valor(capa.id, cod), nac = nacional(capa.id);
+  const tip = $("tip");
+  let cmp = "";
+  if (v != null && nac != null && capa.div) {
+    const dif = v - nac;
+    cmp = Math.abs(dif) < 1 ? `Cerca de la media de España (${fmtCapa(capa, nac)})`
+      : `${nf1.format(Math.abs(dif))} puntos ${dif > 0 ? "por encima" : "por debajo"} de la media de España (${fmtCapa(capa, nac)})`;
+  } else if (v != null && nac) {
+    const r = v / nac;
+    const m = fmtCapa(capa, nac);
+    cmp = r >= 1.15 ? `${nf1.format(r)} veces la media de España (${m})` :
+          r <= 0.87 ? `Por debajo de la media de España (${m})` : `Cerca de la media de España (${m})`;
+  }
+  tip.innerHTML = `<strong>${nombre(cod)}</strong><span class="v num">${v == null ? "Sin dato" : fmtCapa(capa, v)}</span>` +
+    `<span class="c">${v == null ? "No hay dato oficial para esta provincia." : cmp}</span>` +
+    (capa.siempreReal && v != null ? `<span class="c">Sin descontar la inflación: ${conSigno(D.capas[capa.id].prov[cod])}</span>` : "");
+  tip.hidden = false;
+  const box = $("mapbox").getBoundingClientRect();
+  let x, y;
+  if (e) { x = e.clientX - box.left; y = e.clientY - box.top; }
+  else { const bb = e?.target?.getBoundingClientRect?.() || document.activeElement.getBoundingClientRect(); x = bb.left - box.left + bb.width / 2; y = bb.top - box.top + bb.height / 2; }
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(0, Math.min(box.width - w, x + 14)) + "px";
+  tip.style.top = Math.max(0, y - h - 12) + "px";
+  $("p-hl").setAttribute("d", G.prov[cod]);
+}
+function ocultarTip() { $("tip").hidden = true; $("p-hl").setAttribute("d", ""); }
+
+/* ---------- titular ---------- */
+function pintarTitular() {
+  const capa = capaActual(), nac = nacional(capa.id);
+  $("big").textContent = capa.big ? capa.big(nac) : capa.prop ? nf1.format(nac) : "+" + nf1.format(nac) + " %";
+  $("frase").textContent = capa.frase(nac);
+  $("periodo").textContent = capa.periodo();
+  $("nota").textContent = capa.nota;
+}
+
+/* ---------- ficha ---------- */
+function filaBarra(etq, v, nac, max, f = pct) {
+  const w = v == null ? 0 : Math.min(100, (v / max) * 100);
+  return `<div class="row">
+    <div class="lab"><span>${etq}</span><b class="num">${v == null ? "—" : f(v)}</b></div>
+    <div class="track"><span class="fill" style="width:${w}%"></span>${nac != null ? `<span class="nat" style="left:calc(${Math.min(100, nac / max * 100)}% - 1px)" title="Media de España"></span>` : ""}</div>
+    ${nac != null && v != null && estado.sel ? `<span class="cmp">España: ${f(nac)}</span>` : ""}
+  </div>`;
+}
+
+function filaBarraDiv(etq, v, nac, M, f) {
+  const pos = x => 50 + Math.max(-1, Math.min(1, x / M)) * 50;
+  const l = v == null ? 50 : Math.min(50, pos(v)), w = v == null ? 0 : Math.abs(pos(v) - 50);
+  return `<div class="row">
+    <div class="lab"><span>${etq}</span><b class="num">${v == null ? "—" : f(v)}</b></div>
+    <div class="track div"><span class="fill" style="left:${l}%;width:${w}%;right:auto;background:${v == null ? "transparent" : v < 0 ? "var(--dn)" : "var(--dp)"}"></span>${nac != null ? `<span class="nat" style="left:calc(${pos(nac)}% - 1px)" title="Media de España"></span>` : ""}</div>
+    ${nac != null && v != null && estado.sel ? `<span class="cmp">España: ${f(nac)}</span>` : ""}
+  </div>`;
+}
+
+function pintarFicha() {
+  const cod = estado.sel, capa = capaActual();
+  const nombreT = cod ? nombre(cod) : "España";
+  const val = id => cod ? valor(id, cod) : nacional(id);
+  const nac = id => nacional(id);
+  const compras = val("compras"), turN = val("turisticas_n");
+  let h = `<header>
+    ${cod ? `<button class="back" type="button" id="volver">Ver toda España</button>` : ""}
+    <h2>${nombreT}</h2>
+    <span class="sub">${cod ? D.provincias[cod][1] + " · " : ""}${nf0.format(compras)} compraventas en 12 meses · ${nf0.format(turN)} pisos turísticos</span>
+  </header>
+  <div class="rows">
+    ${filaBarra("Hogares nuevos por vivienda terminada", val("presion"), cod ? nac("presion") : null, 7, x => nf1.format(x))}
+    <div class="scalecap num"><span>0</span><span>3,5</span><span>7</span></div>
+    <span class="eyebrow">Las tres proporciones, en la misma escala</span>
+    ${filaBarra("Compras de extranjeros", val("extranjeros"), cod ? nac("extranjeros") : null, COMUN)}
+    ${filaBarra("· de ellos, no residentes", val("no_residentes"), cod ? nac("no_residentes") : null, COMUN)}
+    ${filaBarra("Pisos turísticos", val("turisticas"), cod ? nac("turisticas") : null, COMUN)}
+    <div class="scalecap num"><span>0 %</span><span>25 %</span><span>50 %</span></div>
+    ${filaBarraDiv("Alquiler 2015–2024, descontando la inflación", val("alquiler"), cod ? nac("alquiler") : null, 15, conSigno)}
+    <div class="scalecap num"><span>−15 %</span><span>0</span><span>+15 %</span></div>
+    ${cod ? `<div class="keyline"><span><i style="background:var(--accent);height:8px"></i>${nombreT}</span><span><i style="background:var(--ink);width:2px;height:12px"></i>Media de España</span></div>` : ""}
+  </div>`;
+  const v = val(capa.id);
+  h += `<div class="callout"><span class="eyebrow">${capa.boton}</span>
+    <p class="one">${v == null ? `Sin dato para ${nombreT}.` : capa.uno(v, nombreT, cod)}</p></div>`;
+  h += `<div class="callout"><span class="eyebrow">% de compras de extranjeros por año</span>
+    <div class="keyline">${cod ? `<span><i style="background:var(--accent)"></i>${nombreT}</span>` : ""}<span><i style="background:var(--nat)"></i>España</span></div>
+    <div class="chart" id="spark"></div></div>`;
+  $("ficha").innerHTML = h;
+  if (cod) $("volver").addEventListener("click", () => seleccionar(null));
+  const S = D.series.extranjeros;
+  const series = [{ v: S.valores["00"], color: "var(--nat)", nombre: "España" }];
+  if (cod) series.push({ v: S.valores[cod], color: "var(--accent)", nombre: nombreT });
+  lineas($("spark"), S.anos, series, { alto: 150 });
+}
+
+/* ---------- gráfico de líneas con cursor ---------- */
+function lineas(cont, anos, series, opt = {}) {
+  const W = 340, H = opt.alto || 150, m = { t: 10, r: 40, b: 20, l: 28 };
+  const todos = series.flatMap(s => s.v).filter(v => v != null);
+  const ymax = opt.ymax || Math.max(10, Math.ceil(Math.max(...todos) / 10) * 10);
+  const x = i => m.l + (i / (anos.length - 1)) * (W - m.l - m.r);
+  const y = v => H - m.b - (v / ymax) * (H - m.t - m.b);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opt.aria || "Evolución anual"}">`;
+  const pasos = [0, ymax / 2, ymax];
+  s += `<g class="grid">${pasos.map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"></line>`).join("")}</g>`;
+  s += `<g class="axis">${pasos.map(v => `<text x="${m.l - 6}" y="${y(v) + 3}" text-anchor="end">${nf0.format(v)}</text>`).join("")}`;
+  const marcas = [0, Math.floor((anos.length - 1) / 2), anos.length - 1];
+  s += marcas.map(i => `<text x="${x(i)}" y="${H - 4}" text-anchor="middle">${anos[i]}</text>`).join("") + `</g>`;
+  for (const se of series) {
+    const pts = se.v.map((v, i) => v == null ? null : `${x(i).toFixed(1)},${y(v).toFixed(1)}`).filter(Boolean);
+    s += `<polyline class="ln" points="${pts.join(" ")}" style="stroke:${se.color}"></polyline>`;
+    const li = se.v.length - 1;
+    if (se.v[li] != null) s += `<circle cx="${x(li)}" cy="${y(se.v[li])}" r="3.5" style="fill:${se.color}"></circle>` +
+      `<text x="${x(li) + 6}" y="${y(se.v[li]) + 3}" style="fill:var(--ink-2)">${nf1.format(se.v[li])}</text>`;
+  }
+  for (const a of (opt.anotar || [])) {
+    s += `<circle cx="${x(a.i)}" cy="${y(a.v)}" r="3.5" style="fill:var(--surface);stroke:${series[0].color};stroke-width:2"></circle>` +
+      `<text x="${x(a.i)}" y="${y(a.v) - 8}" text-anchor="middle" style="fill:var(--ink-2)">${a.t}</text>`;
+  }
+  s += `<line id="cur" y1="${m.t}" y2="${H - m.b}" style="stroke:var(--line-strong)" visibility="hidden"></line>`;
+  s += `<rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H}" fill="transparent"></rect></svg><div class="ctip" hidden></div>`;
+  cont.innerHTML = s;
+  const svg = cont.querySelector("svg"), cur = svg.querySelector("#cur"), tip = cont.querySelector(".ctip");
+  svg.addEventListener("pointermove", e => {
+    const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(anos.length - 1, Math.round((px - m.l) / (W - m.l - m.r) * (anos.length - 1))));
+    cur.setAttribute("x1", x(i)); cur.setAttribute("x2", x(i)); cur.setAttribute("visibility", "visible");
+    tip.innerHTML = `<b>${anos[i]}</b>` + series.map(se => `<span>${se.nombre}: ${pct(se.v[i])}</span>`).join("");
+    tip.hidden = false;
+    const left = x(i) / W * r.width;
+    tip.style.left = Math.min(r.width - tip.offsetWidth, Math.max(0, left - tip.offsetWidth / 2)) + "px";
+    tip.style.top = "-6px"; tip.style.transform = "translateY(-100%)";
+  });
+  svg.addEventListener("pointerleave", () => { cur.setAttribute("visibility", "hidden"); tip.hidden = true; });
+}
+
+/* ---------- ranking ---------- */
+function barraDiv(v, nac, M) {
+  const pos = x => 50 + Math.max(-1, Math.min(1, x / M)) * 50;
+  const bar = v == null ? "" : `<i style="left:${Math.min(50, pos(v))}%;width:${Math.abs(pos(v) - 50)}%;background:${colorDiv(v / M)}"></i>`;
+  return `<span class="tr div">${bar}<b style="left:${pos(nac)}%"></b></span>`;
+}
+function pintarRanking() {
+  const capa = capaActual(), R = rampa(), max = maxEscala(capa), nac = nacional(capa.id);
+  const filas = Object.keys(D.provincias).map(c => [c, valor(capa.id, c)])
+    .sort((a, b) => (b[1] ?? -1) - (a[1] ?? -1));
+  $("rank-sub").textContent = `${capa.titulo}. La raya marca la media de España (${fmtCapa(capa, nac)}).`;
+  $("lista").innerHTML = filas.map(([c, v], i) => `<li><button type="button" data-cod="${c}" class="${c === estado.sel ? "on" : ""}">
+      <span class="pos num">${v == null ? "" : i + 1}</span><span class="nm">${nombre(c)}</span>
+      ${capa.div ? barraDiv(v, nac, max) : `<span class="tr">${v == null ? "" : `<i style="width:${Math.min(100, v / max * 100)}%;background:${colorDe(v / max, R)}"></i>`}<b style="left:${Math.min(100, nac / max * 100)}%"></b></span>`}
+      <span class="val num">${v == null ? '<span class="na">sin dato</span>' : fmtCapa(capa, v)}</span></button></li>`).join("");
+}
+$("lista").addEventListener("click", e => { const b = e.target.closest("button[data-cod]"); if (b) seleccionar(b.dataset.cod); });
+
+/* ---------- fuentes ---------- */
+function pintarFuentes() {
+  $("fuentes").innerHTML = `<h3>Fuentes</h3><ul>${D.fuentes.map(f =>
+    `<li><a href="${f.url}" target="_blank" rel="noopener">${f.organismo}: ${f.nombre}</a>. ${f.limitaciones}</li>`).join("")}</ul>
+    <p>Datos descargados el ${new Date(D.fuentes[0].descarga).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}.</p>`;
+}
+
+/* ---------- estado ---------- */
+function seleccionar(cod) {
+  estado.sel = estado.sel === cod ? null : cod;
+  $("p-sel").setAttribute("d", estado.sel ? G.prov[estado.sel] : "");
+  pintarFicha(); pintarRanking();
+}
+function ponerCapa(id) {
+  estado.capa = id;
+  const capa = capaActual();
+  for (const b of $("capas").children) b.setAttribute("aria-pressed", b.dataset.capa === id);
+  $("esc-comun").disabled = $("esc-capa").disabled = !capa.prop;
+  todo();
+}
+function ponerEscala(e) {
+  estado.escala = e;
+  $("esc-comun").setAttribute("aria-pressed", e === "comun");
+  $("esc-capa").setAttribute("aria-pressed", e === "capa");
+  pintarMapa(); pintarRanking();
+}
+function todo() { pintarMapa(); pintarTitular(); pintarFicha(); pintarRanking(); }
+
+$("capas").innerHTML = CAPAS.map(c => `<button type="button" data-capa="${c.id}" aria-pressed="${c.id === estado.capa}">${c.boton}</button>`).join("");
+$("capas").addEventListener("click", e => { const b = e.target.closest("button"); if (b) ponerCapa(b.dataset.capa); });
+$("esc-comun").addEventListener("click", () => ponerEscala("comun"));
+$("esc-capa").addEventListener("click", () => ponerEscala("capa"));
+
+// La vivienda se monta la primera vez que se abre (el mapa necesita estar visible para medirse)
+let viviendaLista = false;   // el explorador del mapa ya está montado
+function iniciarMapa() {
+  if (viviendaLista) return;
+  viviendaLista = true;
+  construirMapa(); todo();
+}
+/*__RECORRIDO__*/
+
+// Repintar si cambia el tema (sistema o selector del visor)
+const repintarTema = () => { if (viviendaLista) { pintarMapa(); pintarRanking(); } };
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", repintarTema);
+new MutationObserver(repintarTema).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+/* ---------- secciones del sitio ---------- */
+const SECCIONES = [
+  { id: "vivienda", nombre: "Vivienda", lista: true,
+    pregunta: "¿Qué mueve el precio? Hogares, construcción, costes, crédito y compradores, componente a componente." },
+  { id: "inmigracion", nombre: "Inmigración",
+    pregunta: "¿Cuánta gente llega y se va, cuántos trabajan y cotizan, y qué dicen de verdad las cifras de delitos?",
+    preguntas: ["Llegadas, salidas y saldo neto por año y provincia", "Extranjeros afiliados a la Seguridad Social y en qué sectores trabajan", "Condenados por nacionalidad, teniendo en cuenta edad y sexo", "Expulsiones decididas frente a las que se ejecutan"],
+    fuentes: ["INE: Estadística Continua de Población y Estadística de Migraciones", "Seguridad Social: afiliación de extranjeros", "INE: Estadística de Condenados", "Ministerio del Interior: balance de inmigración irregular"] },
+  { id: "pensiones", nombre: "Pensiones",
+    pregunta: "¿Cuánto cuestan hoy, cuánto costarán y a cuánta gente no le llega?",
+    preguntas: ["Gasto en pensiones sobre el PIB y su proyección hasta 2050", "Pensión media por provincia y por sexo", "Pensiones por debajo del salario mínimo", "Cuánto se paga con cotizaciones y cuánto con transferencias del Estado"],
+    fuentes: ["Seguridad Social: estadísticas de pensiones contributivas", "AIReF: opiniones sobre sostenibilidad del sistema", "Comisión Europea: Ageing Report"] },
+  { id: "salarios", nombre: "Salarios y coste de vida",
+    pregunta: "¿Vivimos mejor o peor que hace ocho años?",
+    preguntas: ["Salario medio y mediano frente a los precios", "Subida del salario mínimo y de la cesta de la compra", "Poder de compra real por provincia"],
+    fuentes: ["INE: Encuesta de Estructura Salarial y salarios de la EPA", "INE: Índice de Precios de Consumo", "BOE: salario mínimo interprofesional"] },
+  { id: "empleo", nombre: "Empleo y economía",
+    pregunta: "¿Cuánto crecemos, cuánto paro hay y cuánto debemos?",
+    preguntas: ["Paro total y juvenil por provincia", "Crecimiento del PIB comparado con la zona euro", "Deuda y déficit públicos"],
+    fuentes: ["INE: Encuesta de Población Activa", "INE: Contabilidad Nacional", "Banco de España y Eurostat"] },
+  { id: "igualdad", nombre: "Igualdad",
+    pregunta: "¿Cuánto cobran menos las mujeres, por qué, y cómo cambia con la edad y el tipo de trabajo?",
+    preguntas: ["Brecha salarial por hora y anual, y qué parte explica la jornada", "Brecha en pensiones", "Empleo a tiempo parcial y cuidados", "Víctimas de violencia de género por provincia"],
+    fuentes: ["INE: Encuesta de Estructura Salarial", "Seguridad Social: pensiones por sexo", "INE: Estadística de Violencia Doméstica y Violencia de Género", "Ministerio de Igualdad: Delegación del Gobierno contra la Violencia de Género"] },
+  { id: "salud", nombre: "Salud pública",
+    pregunta: "¿Cuánto se espera para operarse o ver a un especialista, y cuánto se gasta en cada comunidad?",
+    preguntas: ["Listas de espera quirúrgicas y de consultas por comunidad", "Gasto sanitario público por habitante", "Médicos y enfermeras por habitante"],
+    fuentes: ["Ministerio de Sanidad: Sistema de Información de Listas de Espera", "Ministerio de Sanidad: Estadística de Gasto Sanitario Público", "INE y Ministerio de Sanidad: profesionales sanitarios"] },
+];
+
+function pintarNav(actual) {
+  $("nav").innerHTML = SECCIONES.map(s => `<li><a href="#${s.id}"${s.id === actual ? ' aria-current="page"' : ""}>${s.nombre}${s.lista ? "" : '<span class="wip" title="En preparación"></span>'}</a></li>`).join("");
+}
+
+function pintarInicio() {
+  const P = D.recorrido.precio, k = P.anos.length - 1;
+  $("v-inicio").innerHTML = `<header class="top">
+      <span class="eyebrow">Datos oficiales, cada uno con su fuente</span>
+      <h1>En proporción</h1>
+      <p class="lede">Los grandes debates de España con las cifras oficiales delante. Todo en su tamaño real: sin exagerar lo pequeño ni esconder lo grande, y diciendo siempre lo que cada dato no cuenta.</p>
+    </header>
+    <nav class="secs" aria-label="Secciones">${SECCIONES.map(s => `<a href="#${s.id}">
+        <h2>${s.nombre}</h2>
+        <p>${s.lista ? `<span class="fig">Frente a los sueldos, la vivienda cuesta casi lo mismo que en 2008; desde 2019 ha subido más que ellos.</span> ` : ""}${s.pregunta}</p>
+        <span class="chip${s.lista ? " ok" : ""}">${s.lista ? "Disponible" : "En preparación"}</span>
+      </a>`).join("")}</nav>`;
+}
+
+function pintarSeccion(s) {
+  $("v-seccion").innerHTML = `<header class="top">
+      <span class="eyebrow">Sección en preparación</span>
+      <h1>${s.nombre}</h1>
+      <p class="lede">${s.pregunta}</p>
+    </header>
+    <div class="prep">
+      <div><h3>Qué va a responder</h3><ul>${s.preguntas.map(p => `<li>${p}</li>`).join("")}</ul></div>
+      <div class="src"><h3>Fuentes previstas</h3><ul>${s.fuentes.map(f => `<li>${f}</li>`).join("")}</ul></div>
+    </div>
+    <p class="note">Todavía no hay datos publicados en esta sección. Mientras tanto puedes consultar <a href="#vivienda">Vivienda</a>.</p>`;
+}
+
+function ruta() {
+  const id = (location.hash || "#inicio").slice(1);
+  const [base, sub] = id.split(/-(.+)/);
+  const s = SECCIONES.find(x => x.id === base);
+  const vista = !s ? "inicio" : s.lista ? s.id : "seccion";
+  for (const v of document.querySelectorAll(".view")) v.hidden = v.id !== "v-" + vista;
+  pintarNav(s ? s.id : null);
+  if (vista === "inicio") pintarInicio();
+  else if (vista === "seccion") pintarSeccion(s);
+  else mostrarPaso(sub);
+  document.title = s ? `${s.nombre} · En proporción` : "En proporción";
+  const a = document.querySelector('.nav a[aria-current="page"]');
+  if (a) a.scrollIntoView({ block: "nearest", inline: "nearest" });
+  if (s && s.lista && sub) $("pasos").scrollIntoView({ block: "start" });
+  else window.scrollTo(0, 0);
+}
+function etiquetaTema() {
+  const oscuro = document.documentElement.getAttribute("data-theme") === "dark";
+  $("tema-t").textContent = oscuro ? "Modo claro" : "Modo oscuro";
+  $("tema").setAttribute("aria-pressed", String(oscuro));
+}
+$("tema").addEventListener("click", () => {
+  const nuevo = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", nuevo);
+  try { localStorage.setItem("tema", nuevo); } catch (e) {}
+  etiquetaTema();
+});
+etiquetaTema();
+
+addEventListener("hashchange", ruta);
+ruta();
+</script>

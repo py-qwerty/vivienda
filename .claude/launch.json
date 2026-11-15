@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "vivienda-web", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "5501", "--directory", "web"], "port": 5501 }
+  ]
+}

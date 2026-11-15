@@ -1,0 +1,143 @@
+{
+  "revisado": "2026-11-15",
+  "nota": "Normas estatales y europeas, y criterios de los tribunales, comprobados en fuentes oficiales o análisis jurídicos citados. No incluye normas autonómicas ni municipales.",
+  "normas": [
+    {
+      "fecha": "2005-06",
+      "origen": "España",
+      "nombre": "Informe de suficiencia de recursos hídricos (artículo 25.4 de la Ley de Aguas)",
+      "cambio": "Todo plan urbanístico que genere nuevas demandas de agua necesita un informe de la confederación hidrográfica sobre si hay agua suficiente. El Tribunal Supremo lo considera preceptivo y vinculante, y un estudio jurídico de 2017 contaba más de 90 planes anulados por no justificar los recursos hídricos.",
+      "fase": "suelo",
+      "estado": "vigente",
+      "ralentiza": true,
+      "fuente": "https://www.actualidadjuridicaambiental.com/wp-content/uploads/2017/04/2017_04_03_Medrano_Mas-de-90-planes-anulados-por-recursos-hidricos.pdf",
+      "fuente_txt": "Actualidad Jurídica Ambiental"
+    },
+    {
+      "fecha": "2006-03",
+      "origen": "España",
+      "nombre": "Código Técnico de la Edificación (Real Decreto 314/2006)",
+      "cambio": "Fija por primera vez en un solo código las exigencias de seguridad, ahorro de energía, salubridad y protección frente al ruido que debe cumplir todo edificio nuevo.",
+      "fase": "obra",
+      "estado": "vigente",
+      "fuente": "https://www.boe.es/eli/es/rd/2006/03/17/314",
+      "fuente_txt": "BOE"
+    },
+    {
+      "fecha": "2013-12",
+      "origen": "España",
+      "nombre": "Ley de evaluación ambiental (Ley 21/2013)",
+      "cambio": "Los planes urbanísticos deben pasar una evaluación ambiental estratégica desde el inicio de su tramitación. Si falta o se tramita mal, el Tribunal Supremo anula el plan entero y no admite arreglarlo después, como en los planes generales de Vigo, Chiclana de la Frontera o Marbella.",
+      "fase": "suelo",
+      "estado": "vigente",
+      "ralentiza": true,
+      "fuente": "https://www.poderjudicial.es/cgpj/es/Poder-Judicial/Tribunales-Superiores-de-Justicia/TSJ-Andalucia--Ceuta-y-Melilla/Noticias-Judiciales-TSJ-Andalucia--Ceuta-y-Melilla/El-Tribunal-Supremo-confirma-la-nulidad-de-la-aprobacion-del-PGOU-de-Chiclana-de-la-Frontera--Cadiz--por-defectos-de-forma",
+      "fuente_txt": "Poder Judicial (caso Chiclana)"
+    },
+    {
+      "fecha": "2013-12",
+      "origen": "España",
+      "nombre": "Ley General de derechos de las personas con discapacidad (Real Decreto Legislativo 1/2013)",
+      "cambio": "Obliga a que los edificios sean accesibles. Fijó el 4 de diciembre de 2017 como plazo para adaptar los edificios existentes con ajustes razonables (por ejemplo, rampas o ascensores en comunidades de vecinos), siempre que no supongan una carga desproporcionada.",
+      "fase": "obra",
+      "estado": "vigente",
+      "fuente": "https://accesibilidad.coaatgr.es/wp-content/uploads/2022/10/COAATGR-Guia-Comunidad-A6-V7.pdf",
+      "fuente_txt": "Colegio de Aparejadores de Granada"
+    },
+    {
+      "fecha": "2018-12",
+      "origen": "España",
+      "nombre": "Informe de impacto de género en el planeamiento urbanístico",
+      "cambio": "Varios tribunales exigieron este informe a los planes urbanísticos y anularon planes por no tenerlo: el de Ordenación del Territorio de la Costa del Sol (Supremo, 2015 y 2016) y el Plan General de Boadilla del Monte (Tribunal Superior de Justicia de Madrid, 2017). En diciembre de 2018 el Supremo revocó la anulación de Boadilla: la ley estatal no permite exigirlo como requisito esencial.",
+      "fase": "suelo",
+      "estado": "criterio_judicial",
+      "ralentiza": true,
+      "estado_nota": "Su exigencia depende ahora de cada ley autonómica; los aspectos de igualdad de un plan se pueden seguir discutiendo en los tribunales.",
+      "fuente": "https://www.poderjudicial.es/cgpj/es/Poder-Judicial/Tribunales-Superiores-de-Justicia/TSJ-Madrid/Noticias-Judiciales-TSJ-Madrid/El-Tribunal-Supremo-revoca-la-nulidad-del-PGOU-de-Boadilla-del-Monte--Madrid--por-no-ser-exigible-el-informe-de-impacto-de-genero",
+      "fuente_txt": "Poder Judicial"
+    },
+    {
+      "fecha": "2020-09",
+      "origen": "España",
+      "nombre": "Reforma del Código Técnico (Real Decreto 732/2019)",
+      "cambio": "Exige que los edificios nuevos sean de consumo de energía casi nulo, endurece los requisitos de eficiencia energética y añade la protección frente al radón. Se aprobó en diciembre de 2019 y es obligatoria desde septiembre de 2020.",
+      "fase": "obra",
+      "estado": "vigente",
+      "fuente": "https://www.boe.es/boe/dias/2019/12/27/pdfs/BOE-A-2019-18528.pdf",
+      "fuente_txt": "BOE"
+    },
+    {
+      "fecha": "2022-07",
+      "origen": "España",
+      "nombre": "Ley 15/2022 integral para la igualdad de trato y la no discriminación",
+      "cambio": "Su artículo 20 prohíbe la discriminación en el acceso a la vivienda, tanto por parte de las administraciones como de propietarios particulares, por ejemplo al vender o alquilar.",
+      "fase": "uso",
+      "estado": "vigente",
+      "estado_nota": "El apartado 2 del artículo 20 fue recurrido ante el Tribunal Constitucional en 2022.",
+      "fuente": "https://www.boe.es/buscar/pdf/2022/BOE-A-2022-11589-consolidado.pdf",
+      "fuente_txt": "BOE"
+    },
+    {
+      "fecha": "2023-05",
+      "origen": "España",
+      "nombre": "Ley 12/2023 por el derecho a la vivienda",
+      "cambio": "Sube la reserva de suelo para vivienda protegida del 30 % al 40 % en suelo urbanizable y del 10 % al 20 % en suelo urbano no consolidado, con al menos la mitad para alquiler. Permite declarar zonas tensionadas, donde se limita la renta de los nuevos contratos de alquiler.",
+      "fase": "suelo",
+      "estado": "vigente",
+      "estado_nota": "Recurrida ante el Tribunal Constitucional por varias comunidades autónomas.",
+      "fuente": "https://www.boe.es/eli/es/l/2023/05/24/12",
+      "fuente_txt": "BOE"
+    },
+    {
+      "fecha": "2024-05",
+      "origen": "España",
+      "nombre": "Reforma de la Ley del Suelo (no aprobada)",
+      "cambio": "Buscaba que los defectos de forma subsanables no anulen planes urbanísticos enteros: más de un centenar de ciudades han visto anulados sus planes en los tribunales. El Gobierno la retiró en mayo de 2024 por falta de apoyos y una nueva propuesta posterior tampoco fue admitida a trámite.",
+      "fase": "suelo",
+      "estado": "no_aprobada",
+      "fuente": "https://rtvc.es/el-gobierno-retira-la-reforma-de-la-ley-del-suelo/",
+      "fuente_txt": "RTVC"
+    },
+    {
+      "fecha": "2024-05",
+      "origen": "Unión Europea",
+      "nombre": "Directiva (UE) 2024/1275 de eficiencia energética de los edificios",
+      "cambio": "Todos los edificios nuevos deberán ser de cero emisiones a partir de 2030. España debía incorporarla a su legislación antes del 29 de mayo de 2026 y, según el Green Building Council España, la incorporación sigue incompleta.",
+      "fase": "obra",
+      "estado": "pendiente",
+      "fuente": "https://energy.ec.europa.eu/topics/energy-efficiency/energy-performance-buildings/energy-performance-buildings-directive_en",
+      "fuente_txt": "Comisión Europea"
+    },
+    {
+      "fecha": "2025-04",
+      "origen": "España",
+      "nombre": "Reforma de la Ley de Propiedad Horizontal (Ley Orgánica 1/2025)",
+      "cambio": "Para abrir un nuevo piso turístico hace falta el voto a favor de tres quintas partes de los propietarios de la comunidad. En vigor desde el 3 de abril de 2025.",
+      "fase": "uso",
+      "estado": "vigente",
+      "fuente": "https://www.lamoncloa.gob.es/serviciosdeprensa/notasprensa/vivienda-agenda-urbana/Paginas/2025/010425-vecinos-pisos-turisticos.aspx",
+      "fuente_txt": "La Moncloa"
+    },
+    {
+      "fecha": "2025-07",
+      "origen": "España",
+      "nombre": "Registro único de arrendamientos de corta duración (Real Decreto 1312/2024)",
+      "cambio": "Exige un número de registro a todo alquiler de corta duración, incluidos los turísticos, desde el 1 de julio de 2025.",
+      "fase": "uso",
+      "estado": "anulada_parte",
+      "estado_nota": "Según análisis jurídicos, el Tribunal Supremo anuló en mayo de 2026 el procedimiento de registro único y mantuvo la ventanilla digital.",
+      "fuente": "https://es.andersen.com/wp-content/uploads/2026/06/Andersen-Alerta-SENTENCIA-DEL-TRIBUNAL-SUPREMO-SOBRE-EL-REGISTRO-UNICO-DE-ARRENDAMIENTOS-DE-CORTA-DURACION.pdf",
+      "fuente_txt": "Andersen (análisis de la sentencia)"
+    },
+    {
+      "fecha": "2026-05",
+      "origen": "Unión Europea",
+      "nombre": "Reglamento (UE) 2024/1028 sobre alquileres de corta duración",
+      "cambio": "Obliga a las plataformas de alquiler de corta duración a compartir datos con las autoridades y a mostrar el número de registro allí donde exista. Aplicable desde el 20 de mayo de 2026.",
+      "fase": "uso",
+      "estado": "vigente",
+      "fuente": "https://eur-lex.europa.eu/eli/reg/2024/1028/oj/spa",
+      "fuente_txt": "EUR-Lex"
+    }
+  ]
+}

@@ -245,7 +245,9 @@ function propiedadHTML() {
     <div class="aviso">
       <div class="aviso-cab"><span class="chip-aviso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>Qué no dice este reparto</span>
         <h3>«Dos o más viviendas» no es lo mismo que «gran tenedor»</h3></div>
-      <p>El grupo de particulares con dos o más viviendas alquiladas incluye desde quien alquila dos pisos hasta quien alquila decenas: el informe no separa a los que superan las 10 viviendas, que es el umbral legal de gran tenedor. ${P.nota} No incluye País Vasco ni Navarra, que tienen su propia hacienda. <a href="${P.fuente}" target="_blank" rel="noopener">Fuente: informe del Ministerio de Consumo y el CSIC</a>.</p>
+      <p>El grupo de particulares con dos o más viviendas alquiladas incluye desde quien alquila dos pisos hasta quien alquila decenas: el informe no separa a los que superan las 10 viviendas, que es el umbral legal de gran tenedor. Para ese grupo, la Agencia Tributaria estima que los particulares con más de 10 viviendas tenían <strong>como máximo el ${P.bde.mas10_max_pct} % del alquiler de mercado en ${P.bde.mas10_anyo}</strong> (<a href="${P.bde.fuente}" target="_blank" rel="noopener">${P.bde.fuente_txt}</a>).</p>
+      <p><strong>Por qué no hay serie de este reparto:</strong> no se publica cada año. Para las empresas solo hay dos estimaciones hechas con métodos distintos, así que no se pueden comparar entre sí: en torno al ${P.bde.pj_2018_pct} % en 2018, según una encuesta (<a href="${P.bde.fuente_2018}" target="_blank" rel="noopener">${P.bde.fuente_2018_txt}</a>), y en torno al ${P.bde.pj_pct} % en la estimación actual, a partir de datos fiscales.</p>
+      <p>${P.nota} No incluye País Vasco ni Navarra, que tienen su propia hacienda. <a href="${P.fuente}" target="_blank" rel="noopener">Fuente: informe del Ministerio de Consumo y el CSIC</a>.</p>
     </div></section>`;
 }
 

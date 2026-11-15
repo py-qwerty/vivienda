@@ -131,5 +131,15 @@
   "fuente": "https://cdn.mivau.gob.es/portal-web-mivau/vivienda/serpavi/2026-03-18_Metodologia_SERPAVI.pdf",
   "fuente_txt": "Ministerio de Vivienda, Sistema Estatal de Referencia del Precio del Alquiler (SERPAVI), metodología de marzo de 2026, tablas A1 y A2",
   "nota": "Viviendas alquiladas como residencia habitual declaradas por particulares en el IRPF y que el sistema usa como referencia: es una parte del total, no el parque completo. No distingue cuántas viviendas tiene cada propietario ni incluye a las empresas."
+ },
+ "bde": {
+  "mas10_max_pct": 7,
+  "mas10_anyo": 2021,
+  "pj_pct": 8,
+  "pj_2018_pct": 10,
+  "fuente": "https://www.bde.es/f/webbe/SES/Secciones/Publicaciones/PublicacionesAnuales/InformesAnuales/23/Fich/InfAnual_2023_Cap4.pdf",
+  "fuente_txt": "Banco de España, Informe Anual 2023, capítulo 4",
+  "fuente_2018": "https://www.bde.es/f/webbde/SES/Secciones/Publicaciones/InformesBoletinesRevistas/ArticulosAnaliticos/19/T3/descargar/Fich/be1903-art25.pdf",
+  "fuente_2018_txt": "Banco de España, Boletín Económico 3/2019, a partir de una encuesta del CIS de 2018"
  }
 }

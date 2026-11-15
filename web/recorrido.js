@@ -201,6 +201,17 @@ function propAlquiler() {
   return { ...P, tot, pct };
 }
 
+function comprasHTML(d) {
+  const p = PASOS_TODOS.compradores;
+  setTimeout(() => { const el = $("c-compras"); if (el) p.chart_compras(d, el); });
+  return `<section class="lectura" aria-labelledby="comp-t">
+    <h3 id="comp-t">Quién compra</h3>
+    <div class="lect-grid">
+      <article class="ancho"><div class="chart" id="c-compras"></div></article>
+      <article class="ancho"><p>${p.exp_compras(d)}</p></article>
+    </div></section>`;
+}
+
 function definicionesHTML() {
   const art = (t, x) => `<article><h4>${t}</h4><p>${x}</p></article>`;
   return `<section class="lectura" aria-labelledby="def-inv">
@@ -218,14 +229,11 @@ function definicionesHTML() {
 
 function propiedadHTML() {
   const P = propAlquiler(), E = D.inversion.eri;
-  const fila = (id, c) => { const g = P.grupos.find(x => x.id === id); return { etq: g.nombre, vals: [{ v: P.pct[id], c, quien: `${milesR(g.viviendas)} viviendas` }] }; };
-  setTimeout(() => { const el = $("c-prop"); if (el) barrasH(el, [fila("uno", C1), fila("varias", C2), fila("empresas", C3), fila("publica", C4)], 50, "Porcentaje sobre el total de viviendas en alquiler de vivienda habitual. Misma escala, de 0 a 50 %."); });
   return `<section class="lectura" aria-labelledby="prop-t">
-    <h3 id="prop-t">Quién es propietario de las viviendas en alquiler</h3>
+    <h3 id="prop-t">Cómo se mide la propiedad del alquiler</h3>
     <div class="lect-grid">
-      <article class="ancho"><p>No existe una estadística oficial de la propiedad de las viviendas en alquiler. La mejor aproximación disponible combina los datos fiscales de los particulares (Panel de Hogares del IRPF, ${P.anyo}) con una estimación del Banco de España para las empresas. Cubre unas ${millones(P.tot)} de viviendas alquiladas como residencia habitual.</p>
-        <div class="chart" id="c-prop"></div></article>
-      <article><h4>Particulares con varias viviendas</h4><p>Entre 2016 y ${P.anyo}, las viviendas alquiladas por particulares pasaron de ${millones(P.particulares_2016)} a ${millones(P.particulares_2023)} de viviendas. Las de quienes tienen una sola crecieron un ${pct(P.crec_uno)}; las de quienes tienen dos o más, un ${pct(P.crec_varias)}.</p></article>
+      <article class="ancho"><p>No existe una estadística oficial de la propiedad de las viviendas en alquiler. La mejor aproximación disponible combina los datos fiscales de los particulares (Panel de Hogares del IRPF) con una estimación del Banco de España para las empresas. Cubre unas ${millones(P.tot)} de viviendas alquiladas como residencia habitual en ${P.anyo}.</p></article>
+      <article><h4>Solo dos años</h4><p>El informe publica 2016 y ${P.anyo}, no una serie anual. ${P.serie_particulares.nota}</p></article>
       <article><h4>Por ciudades</h4><p>Porcentaje de las viviendas alquiladas por particulares que pertenecen a quien tiene dos o más: ${P.ciudades_varias.map(([c, v]) => `${c} ${pct(v)}`).join(", ")}.</p></article>
       <article><h4>Compras de empresas</h4><p>Según los Registradores, las personas jurídicas hicieron el ${pct(E.pj_pct)} de las compras de vivienda en ${E.anyo}, frente a un máximo del ${pct(E.pj_max[1])} a comienzos de ${E.pj_max[0]}. Por comunidades, el porcentaje más alto está en ${E.pj_ccaa.map(([c, v]) => `${c} (${pct(v)})`).join(", ")}.</p></article>
     </div>
@@ -592,15 +600,28 @@ const PASOS = [
     },
     pie: "*Media de los meses publicados." },
 
-  { id: "compradores", corto: "Inversión y especulación", eyebrow: "Componente 4 · Quién compra y quién es propietario",
-    q: "Inversión y especulación: compras, propiedad del alquiler y regulación",
+  { id: "compradores", corto: "Inversión y especulación", eyebrow: "Componente 4 · Quién es propietario y quién compra",
+    q: "Inversión y especulación: propiedad del alquiler, compras y regulación",
     resp: d => { const P = propAlquiler();
-      return `En ${d.eU[0]}, las empresas hicieron el <strong>${pct(d.eU[1])} de las compras de vivienda</strong>. En el alquiler de vivienda habitual, las empresas privadas tienen alrededor del <strong>${pct(P.pct.empresas)} de las viviendas</strong> y los particulares con dos o más viviendas alquiladas, el <strong>${pct(P.pct.varias)}</strong>.`; },
-    expl: d => `Las compras de empresas llegaron al ${pct(d.eMax[1])} en ${d.eMax[0]}, cuando bancos y fondos compraron vivienda tras la crisis. Esa cifra incluye promotoras y sociedades familiares, no solo fondos. Las compras de no residentes y los pisos turísticos se concentran en ${nombre(d.top("no_residentes").cod)}, Málaga, Baleares y Canarias.`,
-    lectura: d => definicionesHTML() + propiedadHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML(),
+      return `De las viviendas alquiladas como residencia habitual, los particulares con dos o más viviendas alquiladas tienen el <strong>${pct(P.pct.varias)}</strong>; quienes alquilan una sola, el <strong>${pct(P.pct.uno)}</strong>; las empresas privadas, alrededor del <strong>${pct(P.pct.empresas)}</strong>, y el sector público, en torno al <strong>${pct(P.pct.publica)}</strong>.`; },
+    pie: "Izquierda: reparto en 2023. Derecha: viviendas alquiladas por particulares en 2016 y 2023, los dos únicos años publicados; no hay serie anual. Las empresas y el sector público solo tienen estimación para 2023.",
+    expl: d => { const S = D.inversion.propiedad.serie_particulares, i = S.anos.length - 1;
+      return `Entre ${S.anos[0]} y ${S.anos[i]}, las viviendas alquiladas por particulares con dos o más pasaron de ${milesR(S.varias[0])} a ${milesR(S.varias[i])} (${signoE(varPct(S.varias[0], S.varias[i]))}), y las de quienes alquilan una sola, de ${milesR(S.uno[0])} a ${milesR(S.uno[i])} (${signoE(varPct(S.uno[0], S.uno[i]))}).`; },
+    exp_compras: d => `Las compras de empresas llegaron al ${pct(d.eMax[1])} en ${d.eMax[0]}, cuando bancos y fondos compraron vivienda tras la crisis. Esa cifra incluye promotoras y sociedades familiares, no solo fondos. Las compras de no residentes y los pisos turísticos se concentran en ${nombre(d.top("no_residentes").cod)}, Málaga, Baleares y Canarias.`,
+    lectura: d => propiedadHTML() + comprasHTML(d) + definicionesHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML(),
     det: () => `<p><strong>Compras de extranjeros y de no residentes:</strong> últimos 12 meses (${periodoU4T(D.u4t)}), Ministerio de Vivienda a partir de escrituras notariales. <strong>Empresas:</strong> compraventas de vivienda en las que el comprador es una persona jurídica (INE, solo dato nacional). <strong>Pisos turísticos:</strong> viviendas anunciadas en las grandes plataformas sobre el total de viviendas del censo (INE, ${periodoMes(D.capas.turisticas.periodo)}). <strong>Propiedad del alquiler:</strong> ${D.inversion.propiedad.fuente_txt}. <strong>Viviendas vacías:</strong> INE, Censo 2021 cruzado con el consumo eléctrico.</p>
       <p><strong>Qué no dice:</strong> ninguna estadística oficial mide la especulación como tal, es decir, cuántas viviendas se compran para revenderlas con beneficio. Los datos de esta página son aproximaciones: quién compra, quién es propietario y cuántas viviendas no se usan. "Extranjero" no equivale a "inversor": los extranjeros que viven en España compran sobre todo su propia casa. Las barras de compras y la de pisos turísticos usan denominadores distintos: compras en un caso y viviendas en el otro.</p>`,
     chart: (d, el) => {
+      const P = propAlquiler(), S = P.serie_particulares;
+      el.innerHTML = `<div class="duo"><div><h4>Quién es propietario de las viviendas en alquiler, ${P.anyo}</h4><div class="chart" id="c-prop"></div></div><div><h4>Viviendas alquiladas por particulares</h4><div class="chart" id="c-prop-t"></div></div></div>`;
+      const fila = (id, c) => { const g = P.grupos.find(x => x.id === id); return { etq: g.nombre, vals: [{ v: P.pct[id], c, quien: `${milesR(g.viviendas)} viviendas` }] }; };
+      barrasH($("c-prop"), [fila("uno", C1), fila("varias", C2), fila("empresas", C3), fila("publica", C4)], 50, "Porcentaje sobre el total de viviendas en alquiler de vivienda habitual. Misma escala, de 0 a 50 %.");
+      grafico($("c-prop-t"), { tipo: "barras", modo: "pila", alto: 260, x: S.anos,
+        series: [{ n: "Con una sola vivienda alquilada", v: S.uno, c: C1 }, { n: "Con dos o más", v: S.varias, c: C2 }],
+        y: { fmt: v => v === 0 ? "0" : nf1.format(v / 1e6).replace(/,0$/, "") + " M" }, ml: 48, tipFmt: v => nf0.format(v),
+        aria: "Viviendas alquiladas por particulares según cuántas alquilan, 2016 y 2023" });
+    },
+    chart_compras: (d, el) => {
       const tN = d.top("no_residentes"), tE = d.top("extranjeros"), tT = d.top("turisticas");
       barrasH(el, [
         { etq: "Compras hechas por extranjeros", vals: [{ v: D.capas.extranjeros.nacional, c: C1, quien: "España" }, { v: tE.v, c: C2, quien: nombre(tE.cod) }] },
@@ -650,6 +671,7 @@ function coberturaHTML() {
       { serie: "Tiempo de obra (estimado)", desde: String(RC.obra.periodos[0].desde), hasta: RC.obra.ult_mes }].map(c => `<tr${+c.desde > 2001 ? ' class="hueco"' : ""}><th scope="row">${c.serie}</th><td>${c.desde}</td><td>${c.hasta.replace("-T", " T").replace(/^(\d{4})-(\d{2})$/, (m, a, mm) => MES_CORTO[+mm - 1].slice(0, 3) + " " + a)}</td><td>${notas[c.serie] || ""}</td></tr>`).join("")}</tbody></table></div></section>`;
 }
 
+const PASOS_TODOS = Object.fromEntries(PASOS.map(p => [p.id, p]));
 // Pasos que se muestran dentro de otro, como apartado, para acortar el recorrido.
 const UNIDOS = { origen: "hogares", costes: "construccion" };
 for (const [hijo, padre] of Object.entries(UNIDOS)) {

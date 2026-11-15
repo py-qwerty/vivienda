@@ -64,5 +64,20 @@
  ],
  "fuente": "https://www.dsca.gob.es/sites/default/files/prensa/Informe%201%20Multiarrendadores.pdf",
  "fuente_txt": "Ministerio de Derechos Sociales, Consumo y Agenda 2030 y CSIC, «Un mercado dominado por multiarrendadores» (2026), a partir del Panel de Hogares IRPF 2023 (INE y Agencia Tributaria) y del Informe Anual 2023 del Banco de España",
- "nota": "El propio informe lo presenta como una aproximación: no existe una estadística oficial de la propiedad de las viviendas en alquiler. La cifra de empresas procede de una estimación del Banco de España y la de vivienda pública es una cifra redondeada."
+ "nota": "El propio informe lo presenta como una aproximación: no existe una estadística oficial de la propiedad de las viviendas en alquiler. La cifra de empresas procede de una estimación del Banco de España y la de vivienda pública es una cifra redondeada.",
+ "serie_particulares": {
+  "anos": [
+   2016,
+   2023
+  ],
+  "uno": [
+   930551,
+   1213439
+  ],
+  "varias": [
+   970269,
+   1357406
+  ],
+  "nota": "El informe publica solo 2016 y 2023. El reparto de 2016 se obtiene a partir del crecimiento que da el informe para cada grupo (+30,4 % y +39,9 %); suma 1.900.820 viviendas, frente a las 1.900.883 del informe."
+ }
 }

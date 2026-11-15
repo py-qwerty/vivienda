@@ -79,5 +79,57 @@
    1357406
   ],
   "nota": "El informe publica solo 2016 y 2023. El reparto de 2016 se obtiene a partir del crecimiento que da el informe para cada grupo (+30,4 % y +39,9 %); suma 1.900.820 viviendas, frente a las 1.900.883 del informe."
+ },
+ "serie_serpavi": {
+  "anos": [
+   2016,
+   2017,
+   2018,
+   2019,
+   2020,
+   2021,
+   2022,
+   2023,
+   2024
+  ],
+  "colectiva": [
+   1292617,
+   1410435,
+   1503003,
+   1554829,
+   1822381,
+   1920453,
+   2042979,
+   2147789,
+   2271987
+  ],
+  "unifamiliar": [
+   173544,
+   189639,
+   201035,
+   204852,
+   248546,
+   259472,
+   266763,
+   274828,
+   284591
+  ],
+  "cobertura": [
+   [
+    2021,
+    "Entra Navarra"
+   ],
+   [
+    2022,
+    "Entra Gipuzkoa"
+   ],
+   [
+    2024,
+    "Entran Álava y Bizkaia"
+   ]
+  ],
+  "fuente": "https://cdn.mivau.gob.es/portal-web-mivau/vivienda/serpavi/2026-03-18_Metodologia_SERPAVI.pdf",
+  "fuente_txt": "Ministerio de Vivienda, Sistema Estatal de Referencia del Precio del Alquiler (SERPAVI), metodología de marzo de 2026, tablas A1 y A2",
+  "nota": "Viviendas alquiladas como residencia habitual declaradas por particulares en el IRPF y que el sistema usa como referencia: es una parte del total, no el parque completo. No distingue cuántas viviendas tiene cada propietario ni incluye a las empresas."
  }
 }

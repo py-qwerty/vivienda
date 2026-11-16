@@ -167,6 +167,8 @@ svg.mm .mm-hl { fill: none; stroke: var(--ink); stroke-width: 1.4; pointer-event
 .tabla table.mmt { min-width: 760px; }
 .tabla table.mmt thead th { white-space: normal; vertical-align: bottom; }
 .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.seg-mini { display: inline-flex; margin: 0 0 6px; padding: 3px; border-radius: 10px; }
+.seg-mini button { padding: 4px 10px; font-size: 0.82rem; }
 .duo h4 { margin: 0 0 6px; font-size: 0.9rem; font-weight: 600; color: var(--ink-2); }
 .pila-graf { display: grid; gap: 28px; }
 .pila-graf h4 { margin: 0 0 6px; font-size: 0.9rem; font-weight: 600; color: var(--ink-2); }
@@ -1212,14 +1214,27 @@ function comprasHTML() {
   </section>`;
 }
 
+/* año base del gráfico de precio de compra frente a alquiler: se puede cambiar para quitar la crisis */
+const PA_BASES = [2015, 2019, 2021];
+let paBase = 2015;
+function paSerie(base) {
+  const PA = D.inversion.precio_alquiler, i0 = PA.anos.indexOf(base);
+  const re = arr => arr.slice(i0).map(v => Math.round(1000 * v / arr[i0]) / 10);
+  return { anos: PA.anos.slice(i0), compra: re(PA.compra), alquiler: re(PA.alquiler) };
+}
+function paTexto(base) {
+  const S = paSerie(base), U = ult(S.anos), sc = ult(S.compra) - 100, sa = ult(S.alquiler) - 100;
+  const PA = D.inversion.precio_alquiler, rel = (c, a) => c / a, i15 = PA.anos.indexOf(base);
+  const r0 = Math.round(100 * rel(PA.compra[0], PA.alquiler[0]) / rel(PA.compra[i15], PA.alquiler[i15]));
+  return `Quien compra para alquilar espera una renta; quien compra para revender espera que suba el precio. Cuando las compras se apoyan sobre todo en la subida esperada, el precio de compra tiende a subir más que el alquiler. Entre ${base} y ${U}, el precio de compra subió un <strong>${pctE(sc)}</strong> y el alquiler vigente, un <strong>${pctE(sa)}</strong>. La relación entre los dos pasó de 100 a ${nf0.format(Math.round(100 * (100 + sc) / (100 + sa)))}${r0 > 100 && PA.anos[0] < base ? `; en ${PA.anos[0]}, en plena caída de precios, estaba en ${nf0.format(r0)}` : ""}. `;
+}
+
+
 function precioAlquilerHTML() {
-  const PA = D.inversion.precio_alquiler, U = ult(PA.anos), i15 = PA.anos.indexOf(2015);
-  const sc = ult(PA.compra) - 100, sa = ult(PA.alquiler) - 100;
-  const ratio = PA.anos.map((_, k) => Math.round(1000 * PA.compra[k] / PA.alquiler[k]) / 10);
   return `<section class="lectura" aria-labelledby="pa-t">
     <h3 id="pa-t">Precio de compra frente a precio del alquiler</h3>
     <div class="lect-grid">
-      <article class="ancho"><p>Quien compra para alquilar espera una renta; quien compra para revender espera que suba el precio. Cuando las compras se apoyan sobre todo en la subida esperada, el precio de compra tiende a subir más que el alquiler. Entre 2015 y ${U}, el precio de compra subió un <strong>${pctE(sc)}</strong> y el alquiler vigente, un <strong>${pctE(sa)}</strong>. La relación entre los dos pasó de 100 a ${nf0.format(ult(ratio))}${ratio[0] > 100 ? `; en ${PA.anos[0]} estaba en ${nf0.format(ratio[0])}, al final de la caída de precios` : ""}.</p></article>
+      <article class="ancho"><p id="pa-txt">${paTexto(paBase)}</p></article>
       <article class="ancho"><p><strong>Qué no dice:</strong> el índice de alquiler del INE mide todos los contratos vigentes, no solo los nuevos, y por eso sube más despacio que los alquileres que se firman cada año. Parte de la diferencia viene de ahí. También influyen los tipos de interés: entre 2015 y 2021 el crédito estuvo muy barato (paso «Crédito»), lo que encarece la compra sin que cambie el alquiler. El dato es compatible con compras que esperan revalorización, pero no permite separar ese efecto de los otros dos.</p></article>
     </div></section>`;
 }
@@ -1767,7 +1782,7 @@ const PASOS = [
     q: "Inversión y especulación: compras de inversión, concentración de la propiedad y tensión del alquiler",
     resp: d => { const { C, i, U } = invCompras(), M = D.mun;
       return `En ${U}, las empresas hicieron el <strong>${pct(C.empresas[i(U)])}</strong> de las compras de vivienda y los extranjeros no residentes, el <strong>${pct(C.no_residentes[i(U)])}</strong>. En ${M.ult}, <strong>${nf0.format(M.cumplen[M.ult])} de los ${nf0.format(M.evaluables[M.ult])}</strong> municipios con datos suficientes cumplían el criterio legal de subida del alquiler para declarar una zona tensionada.`; },
-    pie: "Izquierda: porcentaje de las compras de vivienda hechas por empresas (INE) y por extranjeros no residentes (Ministerio de Vivienda). Misma escala. Derecha: precio de compra (IPV) y alquiler vigente (IPVA) del INE, 2015 = 100, sin descontar la inflación.",
+    pie: "Izquierda: porcentaje de las compras de vivienda hechas por empresas (INE) y por extranjeros no residentes (Ministerio de Vivienda). Misma escala. Derecha: precio de compra (IPV) y alquiler vigente (IPVA) del INE, con el año base elegido = 100, sin descontar la inflación.",
     expl: d => { const { C, i, U, maxDe } = invCompras(), eM = maxDe("empresas");
       return `Las compras de empresas y de no residentes alcanzaron su peso máximo entre ${eM.a} y ${maxDe("no_residentes").a}, con el precio en mínimos, y después bajaron. Desde entonces el precio ha subido un ${pctE(varPct(C.precio[i(eM.a)], C.precio[i(U)]))} y su peso se ha mantenido o ha bajado. El precio de compra ha subido más que el alquiler: es una señal habitual de compras que esperan revalorización, aunque tiene otras explicaciones posibles, que se detallan más abajo.`; },
     lectura: d => definicionesHTML() + comprasHTML() + precioAlquilerHTML() + mapaMunHTML() + concentracionHTML() + parqueHTML() + propiedadHTML() + vaciasHTML() + estudiosHTML() + analisisHTML(d) + regulacionHTML(),
@@ -1776,11 +1791,19 @@ const PASOS = [
       <p><strong>Qué no dice:</strong> ninguna estadística oficial mide la especulación como tal, es decir, cuántas viviendas se compran para revenderlas con beneficio. Los datos de esta página son aproximaciones: quién compra, quién es propietario, cuánto sube el alquiler y cuántas viviendas no se usan.</p>`,
     chart: (d, el) => {
       const { C } = invCompras(), PA = D.inversion.precio_alquiler;
-      el.innerHTML = `<div class="duo"><div><h4>Compras de empresas y de no residentes, % del total</h4><div class="chart" id="c-inv"></div></div><div><h4>Precio de compra y de alquiler, 2015 = 100</h4><div class="chart" id="c-pa"></div></div></div>`;
+      el.innerHTML = `<div class="duo"><div><h4>Compras de empresas y de no residentes, % del total</h4><div class="chart" id="c-inv"></div></div><div><h4>Precio de compra y de alquiler, <span id="pa-b">${paBase}</span> = 100</h4>
+        <div class="seg seg-mini" role="group" aria-label="Año base" id="pa-bases">${PA_BASES.map(a => `<button type="button" data-b="${a}" aria-pressed="${a === paBase}">Base ${a}</button>`).join("")}</div>
+        <div class="chart" id="c-pa"></div></div></div>`;
       grafico($("c-inv"), { tipo: "lineas", alto: 260, x: C.anos, series: [{ n: "Empresas", v: C.empresas, c: C1 }, { n: "No residentes", v: C.no_residentes, c: C2 }],
         y: { min: 0, max: 25, ticks: [0, 5, 10, 15, 20, 25], fmt: v => v + " %" }, tipFmt: v => pct(v), aria: "Porcentaje de compras de vivienda hechas por empresas y por no residentes, por año" });
-      grafico($("c-pa"), { tipo: "lineas", alto: 260, x: PA.anos, series: [{ n: "Compra", v: PA.compra, c: C1 }, { n: "Alquiler vigente", v: PA.alquiler, c: C3 }],
-        y: { ref: 100, fmt: v => nf0.format(v) }, tipFmt: v => nf1.format(v), aria: "Índices de precio de compra y de alquiler, 2015 = 100" });
+      const dibujaPA = () => { const S = paSerie(paBase);
+        grafico($("c-pa"), { tipo: "lineas", alto: 224, x: S.anos, series: [{ n: "Compra", v: S.compra, c: C1 }, { n: "Alquiler vigente", v: S.alquiler, c: C3 }],
+          y: { ref: 100, fmt: v => nf0.format(v) }, tipFmt: v => `${nf1.format(v)} (${signoE(v - 100)} desde ${paBase})`, aria: `Índices de precio de compra y de alquiler, ${paBase} = 100` }); };
+      dibujaPA();
+      $("pa-bases").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+        paBase = +b.dataset.b; $("pa-b").textContent = paBase;
+        for (const x of $("pa-bases").children) x.setAttribute("aria-pressed", +x.dataset.b === paBase);
+        dibujaPA(); const tx = $("pa-txt"); if (tx) tx.innerHTML = paTexto(paBase); });
     } },
 
   { id: "mapa", corto: "Por provincia", eyebrow: "Por provincia" },

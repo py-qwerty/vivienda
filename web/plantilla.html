@@ -147,6 +147,25 @@ details p + p { margin-top: 8px; }
 .chart .ctip span { display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
 .chart .ctip span i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
 .chart .ctip .tx { color: var(--muted); }
+.mm-card { display: grid; gap: 10px; padding: 16px; margin: 0; }
+@media (max-width: 600px) { .mm-card { padding: 10px; } }
+.mm-card h4 { margin: 0; font-size: 0.98rem; font-weight: 650; }
+.mm-card figcaption { color: var(--ink-2); font-size: 0.85rem; max-width: 80ch; }
+svg.mm { width: 100%; height: auto; display: block; }
+svg.mm #mm-m path { stroke-width: 0.35; cursor: pointer; }
+svg.mm .mm-prov { fill: none; stroke: var(--line-strong); stroke-width: 0.6; pointer-events: none; }
+svg.mm .mm-marco { fill: none; stroke: var(--line-strong); stroke-width: 1; pointer-events: none; }
+svg.mm .mm-hl { fill: none; stroke: var(--ink); stroke-width: 1.4; pointer-events: none; }
+#mm-box { position: relative; }
+#mm-box .tip { position: absolute; pointer-events: none; max-width: 320px; }
+.mm-esc { position: relative; max-width: 420px; margin: 4px 0 18px; }
+.mm-grad { height: 10px; border-radius: 5px; }
+.mm-ticks { position: relative; height: 14px; font-size: 0.75rem; color: var(--muted); }
+.mm-ticks span { position: absolute; top: 3px; transform: translateX(-50%); white-space: nowrap; }
+.mm-ticks span:first-child { transform: none; }
+.mm-ticks span:last-child { transform: translateX(-100%); }
+.tabla table.mmt { min-width: 760px; }
+.tabla table.mmt thead th { white-space: normal; vertical-align: bottom; }
 .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
 .duo h4 { margin: 0 0 6px; font-size: 0.9rem; font-weight: 600; color: var(--ink-2); }
 .pila-graf { display: grid; gap: 28px; }

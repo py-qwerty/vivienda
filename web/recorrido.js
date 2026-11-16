@@ -236,6 +236,9 @@ function definicionesHTML() {
       ${art("SOCIMI", "Sociedad cotizada dedicada a comprar inmuebles para alquilarlos. Tiene un régimen fiscal propio: no paga el Impuesto sobre Sociedades si reparte la mayor parte de sus beneficios como dividendos.")}
       ${art("Gran tenedor", "Figura legal de la Ley 12/2023: quien tiene más de 10 viviendas, o más de 1.500 m² de uso residencial. En zonas de mercado tensionado, las comunidades pueden bajar el umbral a 5 viviendas.")}
       ${art("Persona jurídica", "Cualquier empresa o entidad con personalidad propia: promotoras, bancos, fondos, SOCIMI, sociedades familiares o cooperativas. Es la categoría que usan las estadísticas de compras.")}
+      ${art("Compra de inversión", "Compra de una vivienda que no es para vivir en ella: para alquilarla, como segunda residencia o para revenderla. Ninguna estadística oficial la mide directamente; se aproxima con las compras de empresas, de no residentes y sin hipoteca.")}
+      ${art("Concentración de la propiedad", "Parte de las viviendas de una zona que tiene un mismo propietario o unos pocos. Es la condición para que un propietario pueda influir en el precio de esa zona: si tiene una parte pequeña, quien busca casa tiene alternativas.")}
+      ${art("Zona tensionada", "Zona de mercado residencial tensionado de la Ley 12/2023, que declara cada comunidad. Permite limitar la renta de los nuevos contratos. Exige que el alquiler o la hipoteca supere el 30 % de la renta de los hogares, o que el precio haya subido en cinco años 3 puntos más que el IPC.")}
     </div></section>`;
 }
 
@@ -288,31 +291,255 @@ function estudiosHTML() {
     </div></section>`;
 }
 
+/* ---- compras de inversión (nacional) ---- */
+const AVISO_ICO = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>`;
+const avisoHTML = (chip, tit, cuerpo) => `<div class="aviso"><div class="aviso-cab"><span class="chip-aviso">${AVISO_ICO}${chip}</span><h3>${tit}</h3></div>${cuerpo}</div>`;
+const signoP = v => (v >= 0 ? "+" : "−") + nf1.format(Math.abs(v));
+
+function invCompras() {
+  const C = D.inversion.compras, i = a => C.anos.indexOf(a), U = ult(C.anos);
+  const maxDe = k => { let j = 0; C[k].forEach((v, n) => { if (v != null && v > C[k][j]) j = n; }); return { a: C.anos[j], v: C[k][j] }; };
+  const h = C.hipotecas_100.map((v, n) => [C.anos[n], v]).filter(x => x[1] != null);
+  return { C, i, U, maxDe, h, hMin: Math.min(...h.map(x => x[1])), hMax: Math.max(...h.map(x => x[1])) };
+}
+
+function comprasHTML() {
+  const { C, i, U, maxDe, h, hMin, hMax } = invCompras(), eM = maxDe("empresas"), nM = maxDe("no_residentes");
+  setTimeout(() => { const el = $("c-hip100"); if (el) grafico(el, { tipo: "barras", alto: 200, x: h.map(x => x[0]),
+    series: [{ n: "Hipotecas por cada 100 compraventas", v: h.map(x => x[1]), c: C4 }], y: { min: 0, max: 100, ticks: [0, 25, 50, 75, 100] },
+    tipFmt: v => `${nf0.format(v)} hipotecas por cada 100 compraventas`, aria: "Hipotecas sobre vivienda por cada 100 compraventas, por año" }); });
+  return `<section class="lectura" aria-labelledby="compras-t">
+    <h3 id="compras-t">Compras de inversión, año a año</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>Ninguna estadística oficial pregunta para qué se compra una vivienda. Hay tres datos que se acercan a las compras que no son para vivir en ellas: las que hacen las <strong>empresas</strong>, las que hacen los <strong>extranjeros no residentes</strong> (sobre todo segunda residencia o inversión) y las que se pagan <strong>sin hipoteca</strong>. El gráfico principal muestra las dos primeras junto al precio.</p></article>
+      <article><h4>Empresas</h4><p>Hicieron el <strong>${pct(C.empresas[i(U)])}</strong> de las compras en ${U}. El máximo fue el ${pct(eM.v)} en ${eM.a}, cuando el precio estaba cerca de su punto más bajo. En ${U} el precio estaba un ${pctE(varPct(C.precio[i(eM.a)], C.precio[i(U)]))} por encima del de ${eM.a}.</p></article>
+      <article><h4>Extranjeros no residentes</h4><p>Hicieron el <strong>${pct(C.no_residentes[i(U)])}</strong> de las compras en ${U}, frente a un máximo del ${pct(nM.v)} en ${nM.a}. Su peso es mucho mayor en Baleares, Canarias y la costa mediterránea: el mapa del paso «Por provincia» lo muestra.</p></article>
+      <article><h4>Compras sin hipoteca</h4><p>No hay una estadística oficial de compras pagadas sin préstamo. Comparando hipotecas inscritas y compraventas, desde ${h[0][0]} ha habido entre <strong>${hMin} y ${hMax} hipotecas por cada 100 compraventas</strong>, sin una tendencia clara. Si las compras al contado hubieran crecido mucho, esta cifra habría bajado.</p>
+        <div class="chart" id="c-hip100"></div></article>
+    </div>
+    ${avisoHTML("Qué no dice", "Ninguno de estos datos es «especulación»",
+      `<p>Una empresa puede comprar para alquilar, para revender o para su propio uso. Un no residente puede comprar una segunda residencia que usa unas semanas al año. Una compra sin hipoteca puede ser de alguien que vende otra vivienda o que hereda. Son límites superiores de las compras de inversión, no la cifra de especulación. La comparación de hipotecas y compraventas usa dos estadísticas distintas (INE y Ministerio de Vivienda): antes de ${h[0][0]} había más hipotecas que compraventas, porque se hipotecaban también promociones enteras y refinanciaciones, así que esos años no se muestran.</p>`)}
+  </section>`;
+}
+
+function precioAlquilerHTML() {
+  const PA = D.inversion.precio_alquiler, U = ult(PA.anos), i15 = PA.anos.indexOf(2015);
+  const sc = ult(PA.compra) - 100, sa = ult(PA.alquiler) - 100;
+  const ratio = PA.anos.map((_, k) => Math.round(1000 * PA.compra[k] / PA.alquiler[k]) / 10);
+  return `<section class="lectura" aria-labelledby="pa-t">
+    <h3 id="pa-t">Precio de compra frente a precio del alquiler</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>Quien compra para alquilar espera una renta; quien compra para revender espera que suba el precio. Cuando las compras se apoyan sobre todo en la subida esperada, el precio de compra tiende a subir más que el alquiler. Entre 2015 y ${U}, el precio de compra subió un <strong>${pctE(sc)}</strong> y el alquiler vigente, un <strong>${pctE(sa)}</strong>. La relación entre los dos pasó de 100 a ${nf0.format(ult(ratio))}${ratio[0] > 100 ? `; en ${PA.anos[0]} estaba en ${nf0.format(ratio[0])}, al final de la caída de precios` : ""}.</p></article>
+      <article class="ancho"><p><strong>Qué no dice:</strong> el índice de alquiler del INE mide todos los contratos vigentes, no solo los nuevos, y por eso sube más despacio que los alquileres que se firman cada año. Parte de la diferencia viene de ahí. También influyen los tipos de interés: entre 2015 y 2021 el crédito estuvo muy barato (paso «Crédito»), lo que encarece la compra sin que cambie el alquiler. El dato es compatible con compras que esperan revalorización, pero no permite separar ese efecto de los otros dos.</p></article>
+    </div></section>`;
+}
+
+/* ---- mapa municipal: tensión del alquiler y concentración de la propiedad ---- */
+const MM = { datos: null, capa: "cb", caminos: null };
+const MCAPAS = [
+  { id: "cb", boton: "Años con tensión", titulo: "Años en los que el alquiler subió más de 3 puntos por encima del IPC en cinco años",
+    val: v => v.cb, max: () => D.mun.ult - 2015, fmt: v => `${v} de ${D.mun.ult - 2015} años`, cero: true,
+    nota: () => `Criterio b) de la Ley 12/2023 para declarar una zona tensionada, comprobado en cada año de 2016 a ${D.mun.ult} con el alquiler mediano por m² de los pisos (SERPAVI). Rayado: menos de ${D.mun.min_alq} viviendas alquiladas en alguno de los años comparados.` },
+  { id: "exc", boton: `Subida ${D.mun.ult - 5}–${D.mun.ult}`, titulo: `Subida del alquiler frente al IPC, ${D.mun.ult - 5}–${D.mun.ult}`, div: 20,
+    val: v => v.exc, fmt: v => `${signoP(v)} puntos`,
+    nota: () => `Puntos de diferencia entre la subida del alquiler mediano por m² de los pisos y la del IPC entre ${D.mun.ult - 5} y ${D.mun.ult}. A partir de +3 se cumple el criterio b) de la Ley 12/2023.` },
+  { id: "esf", boton: "Alquiler y renta", titulo: `Alquiler anual sobre la renta media de los hogares, ${D.mun.ult}`, max: () => 30,
+    val: v => v.esf, fmt: v => pct(v),
+    nota: () => `12 veces el alquiler mediano de un piso, dividido entre la renta neta media de todos los hogares del municipio (INE). Se queda corto frente al criterio a) de la ley (30 %), que incluye gastos y suministros y se refiere a los hogares que alquilan, que suelen tener menos renta.` },
+  { id: "zt", boton: "Zonas declaradas", titulo: "Zonas de mercado residencial tensionado declaradas",
+    cat: [["entera", "Municipio declarado", "var(--r6)"], ["parcial", "Parte del municipio", "var(--r3)"]],
+    val: v => v.zt ? (v.zt[1] ? "parcial" : "entera") : null,
+    nota: () => `Declaraciones publicadas por el Ministerio de Vivienda hasta el ${new Date(D.mun.decl.consulta).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}. Las declara cada comunidad si lo pide: que un municipio no esté declarado no significa que no cumpla los criterios.` },
+  { id: "mas10", boton: "Más de 10 viviendas", titulo: `Viviendas de propietarios con más de 10 en el mismo municipio, ${D.mun.catastro_anyo}`, max: () => 10,
+    val: v => v.mas10, fmt: v => pct(v),
+    nota: () => `Porcentaje de los inmuebles residenciales del municipio cuyo titular (persona o empresa) tiene más de 10 en ese municipio (Catastro). Sin País Vasco ni Navarra, que tienen catastro propio.` },
+  { id: "pj", boton: "Empresas", titulo: `Viviendas cuyo titular es una empresa, ${D.mun.catastro_anyo}`, max: () => 20,
+    val: v => v.pj, fmt: v => pct(v),
+    nota: () => `Porcentaje de los inmuebles residenciales del municipio cuyo titular es una persona jurídica privada: promotoras, bancos, fondos, SOCIMI, sociedades familiares… (Catastro). Sin País Vasco ni Navarra.` },
+  { id: "vut", boton: "Pisos turísticos", titulo: `Pisos turísticos sobre el total de viviendas, ${D.mun.vut_periodo.replace("-", "/")}`, max: () => 10,
+    val: v => v.vut, fmt: v => pct(v),
+    nota: () => `Viviendas anunciadas en plataformas de alquiler turístico sobre el total de viviendas (INE, estadística experimental).` },
+];
+
+function mmCaminos(geo) {
+  const A = geo.arcos.map(d => { const out = []; let x = 0, y = 0; for (let k = 0; k < d.length; k += 2) { x += d[k]; y += d[k + 1]; out.push([x / geo.q, y / geo.q]); } return out; });
+  const anillo = r => { const pts = []; for (const idx of r) { const a = idx >= 0 ? A[idx] : A[~idx].slice().reverse(); a.forEach((p, k) => { if (k || !pts.length) pts.push(p); }); } return "M" + pts.map(p => p.join(",")).join("L") + "Z"; };
+  const camino = polys => polys.map(p => p.map(anillo).join("")).join("");
+  return { mun: Object.fromEntries(Object.entries(geo.mun).map(([c, p]) => [c, camino(p)])), prov: Object.values(geo.prov).map(camino).join("") };
+}
+
+function mmColor(capa, v) {
+  if (v == null) return null;
+  if (capa.cat) return capa.cat.find(x => x[0] === v)[2];
+  if (capa.div) return colorDiv(Math.max(-1, Math.min(1, v / capa.div)));
+  if (capa.cero && v === 0) return "var(--surface)";
+  return colorDe(v / capa.max(), rampa());
+}
+
+function mmLeyenda(capa) {
+  if (capa.cat) return leyendaHTML([...capa.cat.map(([, n, c]) => ({ n, c })), { n: "No declarado", c: "var(--surface)" }]);
+  const cs = getComputedStyle(document.documentElement), g = k => cs.getPropertyValue(k).trim();
+  const grad = capa.div ? `linear-gradient(90deg, ${g("--dn")}, ${g("--dm")}, ${g("--dp")})` : `linear-gradient(90deg, ${rampa().join(",")})`;
+  const marcas = capa.div ? [-20, -10, 0, 3, 10, 20].map(v => [(v + 20) / 40, (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v) + (v === 20 ? " p." : "")])
+    : (capa.id === "cb" ? [0, 3, 6, 9] : [0, capa.max() / 2, capa.max()]).map(v => [v / capa.max(), nf0.format(v) + (capa.id === "cb" ? (v === capa.max() ? " años" : "") : v === capa.max() ? " %" : "")]);
+  return `<div class="mm-esc"><div class="mm-grad" style="background:${grad}"></div><div class="mm-ticks num">${marcas.map(([p, t]) => `<span style="left:${p * 100}%">${t}</span>`).join("")}</div></div>
+    <div class="leyenda"><span><i style="background:url(#rayas);background:repeating-linear-gradient(45deg,var(--surface) 0 3px,var(--line-strong) 3px 5px)"></i>Sin datos suficientes</span>${capa.cero ? `<span><i style="background:var(--surface);border:1px solid var(--line-strong)"></i>Ningún año</span>` : ""}</div>`;
+}
+
+function mmPintar() {
+  const capa = MCAPAS.find(c => c.id === MM.capa), M = MM.datos.m;
+  for (const p of $("mm-m").children) {
+    const v = M[p.dataset.c] ? capa.val(M[p.dataset.c]) : null;
+    const sinDato = v == null && !(capa.cat) && !(capa.cero && M[p.dataset.c] && M[p.dataset.c].exc != null);
+    const col = capa.cero && v == null && M[p.dataset.c] && M[p.dataset.c].exc != null ? "var(--surface)" : mmColor(capa, v);
+    p.style.fill = col || (capa.cat ? "var(--surface)" : "url(#mm-rayas)");
+    p.style.stroke = col && !sinDato ? col : "none";
+  }
+  $("mm-tit").textContent = capa.titulo;
+  $("mm-leg").innerHTML = mmLeyenda(capa);
+  $("mm-nota").textContent = capa.nota();
+  for (const b of $("mm-capas").children) b.setAttribute("aria-pressed", b.dataset.capa === MM.capa);
+}
+
+function mmTip(c, e) {
+  const v = MM.datos.m[c], tip = $("mm-tip");
+  if (!v) { tip.hidden = true; return; }
+  const capa = MCAPAS.find(x => x.id === MM.capa), val = capa.val(v);
+  const l = [];
+  if (v.zt) l.push(`Zona tensionada declarada${v.zt[1] ? " en parte" : ""} desde ${new Date(v.zt[0]).toLocaleDateString("es-ES", { month: "long", year: "numeric" })}`);
+  if (v.exc != null) l.push(`Alquiler ${D.mun.ult - 5}–${D.mun.ult}: ${signoP(v.exc)} puntos frente al IPC`);
+  if (v.cb != null || v.exc != null) l.push(`Años con subida > IPC + 3: ${(v.cb || []).length} de ${D.mun.ult - 2015}`);
+  if (v.alq) l.push(`Alquiler mediano de un piso: ${nf0.format(v.alq)} €/mes (${nf0.format(v.alq_n)} viviendas alquiladas)`);
+  if (v.esf != null) l.push(`Alquiler anual / renta media del hogar: ${pct(v.esf)}`);
+  if (v.mas10 != null) l.push(`Propietarios con más de 10: ${pct(v.mas10)} · Empresas: ${pct(v.pj)}`);
+  if (v.vut != null) l.push(`Pisos turísticos: ${pct(v.vut)}`);
+  const vtxt = capa.cat ? (val ? capa.cat.find(x => x[0] === val)[1] : "No declarado") : val == null ? (capa.cero && v.exc != null ? "Ningún año" : "Sin datos suficientes") : capa.fmt(Array.isArray(val) ? val.length : val);
+  tip.innerHTML = `<strong>${esc(v.n || c)}</strong><span class="v num">${vtxt}</span>${l.map(x => `<span class="c">${x}</span>`).join("")}`;
+  tip.hidden = false;
+  const box = $("mm-box").getBoundingClientRect();
+  const x = e ? e.clientX - box.left : box.width / 2, y = e ? e.clientY - box.top : box.height / 2;
+  tip.style.left = Math.max(0, Math.min(box.width - tip.offsetWidth, x + 14)) + "px";
+  tip.style.top = Math.max(0, y - tip.offsetHeight - 12) + "px";
+}
+
+async function mmIniciar() {
+  const box = $("mm-box");
+  if (!box) return;
+  try {
+    if (!MM.datos) { const r = await fetch("municipios.json"); MM.datos = await r.json(); MM.datos.m = Object.fromEntries(Object.entries(MM.datos.m).map(([c, v]) => [c, v.cb ? { ...v, cb: v.cb } : v])); }
+    if (!$("mm-box")) return;
+    const G = MM.datos.geo; MM.caminos = MM.caminos || mmCaminos(G);
+    // cb se guarda como lista de años; la capa usa cuántos son
+    MCAPAS[0].val = v => v.cb ? v.cb.length : null;
+    $("mm-svg").setAttribute("viewBox", `0 0 ${G.w} ${G.h}`);
+    $("mm-m").innerHTML = Object.entries(MM.caminos.mun).map(([c, d]) => `<path d="${d}" data-c="${c}"></path>`).join("");
+    $("mm-p").setAttribute("d", MM.caminos.prov);
+    const [x0, y0, x1, y1] = G.marco;
+    $("mm-marco").setAttribute("d", `M${x0},${y0}H${x1}V${y1}H${x0}Z`);
+    $("mm-carga").hidden = true;
+    const svg = $("mm-svg");
+    svg.addEventListener("pointermove", e => { const c = e.target.dataset && e.target.dataset.c; if (c) { mmTip(c, e); $("mm-hl").setAttribute("d", MM.caminos.mun[c]); } else { $("mm-tip").hidden = true; $("mm-hl").setAttribute("d", ""); } });
+    svg.addEventListener("pointerleave", () => { $("mm-tip").hidden = true; $("mm-hl").setAttribute("d", ""); });
+    mmPintar();
+  } catch (err) {
+    $("mm-carga").textContent = "No se ha podido cargar el mapa de municipios.";
+  }
+}
+
+function mapaMunHTML() {
+  const U = D.mun, Ev = U.evaluables, Cu = U.cumplen, anos = Object.keys(Ev).map(Number);
+  const pico = anos.reduce((a, b) => Cu[b] / Ev[b] > Cu[a] / Ev[a] ? b : a);
+  const filas = U.top_alq;
+  const nacVut = D.capas.turisticas.nacional;
+  setTimeout(() => {
+    mmIniciar();
+    const el = $("c-cumplen"); if (el) grafico(el, { tipo: "barras", alto: 200, x: anos,
+      series: [{ n: "Municipios que cumplen el criterio", v: anos.map(a => Math.round(1000 * Cu[a] / Ev[a]) / 10), c: C2 }],
+      y: { min: 0, max: 100, ticks: [0, 25, 50, 75, 100], fmt: v => v + " %" }, tipFmt: v => `${nf1.format(v)} %`,
+      tipExtra: i => `<span class="tx">${nf0.format(Cu[anos[i]] ?? 0)} de ${nf0.format(Ev[anos[i]] ?? 0)} municipios con datos</span>`,
+      aria: "Porcentaje de municipios con datos que cumplen el criterio de subida del alquiler, por año" });
+    const cs = $("mm-capas"); if (cs) cs.addEventListener("click", e => { const b = e.target.closest("button"); if (b) { MM.capa = b.dataset.capa; if (MM.datos) mmPintar(); } });
+  });
+  return `<section class="lectura" aria-labelledby="mm-t">
+    <h3 id="mm-t">Dónde se cumplen los criterios de tensión, municipio a municipio</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>La Ley 12/2023 permite declarar una <strong>zona de mercado residencial tensionado</strong> cuando se cumple uno de dos criterios: que el alquiler o la hipoteca, más los gastos, supere el 30 % de la renta de los hogares (criterio a), o que el precio haya subido en cinco años al menos <strong>3 puntos más que el IPC</strong> (criterio b). Los calculamos con datos oficiales para todos los municipios con suficientes alquileres, año a año, y los ponemos junto a la concentración de la propiedad y los pisos turísticos. Así se ve dónde hay tensión ahora, dónde la hubo y si coincide con donde hay más grandes propietarios.</p></article>
+    </div>
+    <div class="seg" role="group" aria-label="Dato que muestra el mapa de municipios" id="mm-capas">${MCAPAS.map(c => `<button type="button" data-capa="${c.id}" aria-pressed="${c.id === MM.capa}">${c.boton}</button>`).join("")}</div>
+    <figure class="panel mm-card">
+      <h4 id="mm-tit"></h4>
+      <div class="mapbox" id="mm-box">
+        <p class="note" id="mm-carga">Cargando el mapa de municipios…</p>
+        <svg class="map mm" id="mm-svg" viewBox="0 0 800 600" role="img" aria-labelledby="mm-tit">
+          <defs><pattern id="mm-rayas" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="var(--surface)"></rect><line x1="0" y1="0" x2="0" y2="4" stroke="var(--line-strong)" stroke-width="1.2"></line></pattern></defs>
+          <g id="mm-m"></g><path id="mm-p" class="mm-prov"></path><path id="mm-marco" class="mm-marco"></path><path id="mm-hl" class="mm-hl"></path>
+        </svg>
+        <div class="tip" id="mm-tip" hidden></div>
+      </div>
+      <div id="mm-leg"></div>
+      <figcaption id="mm-nota"></figcaption>
+    </figure>
+    <div class="lect-grid">
+      <article><h4>Ahora y antes</h4><p>En ${U.ult}, <strong>${nf0.format(Cu[U.ult])} de los ${nf0.format(Ev[U.ult])} municipios</strong> con datos suficientes cumplían el criterio b), el ${pct(100 * Cu[U.ult] / Ev[U.ult])}. El porcentaje más alto fue en ${pico} (${pct(100 * Cu[pico] / Ev[pico])}). En ${anos[0]} solo lo cumplía el ${pct(100 * Cu[anos[0]] / Ev[anos[0]])}: la tensión empezó a extenderse a partir de ${anos.find(a => Cu[a] / Ev[a] > 0.25)}.</p>
+        <div class="chart" id="c-cumplen"></div></article>
+      <article><h4>Zonas declaradas</h4><p>Hay <strong>${nf0.format(U.decl.n)} municipios</strong> con zonas tensionadas declaradas, en ${Object.keys(U.decl.por_ccaa).length} comunidades: ${Object.entries(U.decl.por_ccaa).sort((a, b) => b[1] - a[1]).map(([c, n]) => `${c} (${n})`).join(", ")}. De los ${U.decl.evaluables} que se pueden calcular, ${U.decl.cumplen_b} cumplían el criterio b) en ${U.ult} con nuestros datos. Muchos municipios que lo cumplen no están declarados, porque la declaración depende de que la comunidad la pida. <a href="${U.decl.fuente}" target="_blank" rel="noopener">Fuente: Ministerio de Vivienda</a>.</p></article>
+      <article><h4>Criterio a): alquiler y renta</h4><p>Con datos oficiales solo se puede aproximar. En los municipios con más de 10.000 viviendas alquiladas, el alquiler anual de un piso mediano va del ${pct(U.esf_rango.min[1])} de la renta media de los hogares en ${esc(U.esf_rango.min[0])} al ${pct(U.esf_rango.max[1])} en ${esc(U.esf_rango.max[0])}. Ninguno llega al 30 % con esta aproximación, que se queda corta: no incluye gastos ni suministros y usa la renta de todos los hogares, no solo de los que alquilan. Por eso el mapa lo muestra como dato continuo y no como criterio cumplido o no.</p></article>
+    </div>
+    <h4>Municipios con más de 10.000 viviendas alquiladas</h4>
+    <div class="tabla"><table class="num mmt"><thead><tr><th scope="col">Municipio</th><th scope="col">Alquiler frente al IPC<br>${U.ult - 5}–${U.ult}</th><th scope="col">Años con tensión<br>(de ${U.ult - 2015})</th><th scope="col">Alquiler / renta</th><th scope="col">Propietarios<br>con más de 10</th><th scope="col">Empresas</th><th scope="col">Pisos<br>turísticos</th><th scope="col">Zona<br>declarada</th></tr></thead>
+    <tbody><tr class="dest"><th scope="row">España</th><td>—</td><td>—</td><td>—</td><td>${pct(U.nac_cat.mas10)}</td><td>${pct(U.nac_cat.pj)}</td><td>${pct(nacVut)}</td><td>—</td></tr>
+    ${filas.map(f => `<tr><th scope="row">${esc(f.n)}</th><td>${signoP(f.exc)}</td><td>${f.cb}</td><td>${pct(f.esf)}</td><td>${pct(f.mas10)}</td><td>${pct(f.pj)}</td><td>${pct(f.vut)}</td><td>${f.zt ? "Sí" : ""}</td></tr>`).join("")}</tbody></table></div>
+    <p class="note">España: media de todos los municipios con datos del Catastro (sin País Vasco ni Navarra) y total nacional de pisos turísticos. Ordenados por la subida del alquiler frente al IPC.</p>
+    ${avisoHTML("Qué no dice", "Los criterios no miden la causa de la tensión",
+      `<p>Que un municipio cumpla el criterio b) dice que el alquiler subió más que el resto de precios, no por qué. El alquiler de SERPAVI procede de las declaraciones del IRPF: cubre los contratos vigentes declarados, no solo los nuevos, y no incluye a las empresas. Los datos de País Vasco y Navarra entran tarde en la serie (Navarra desde 2021, Gipuzkoa desde 2022, Álava y Bizkaia en 2024), así que en esos territorios no se puede calcular la subida a cinco años. El Catastro mide la concentración dentro de cada municipio: una empresa con 300 viviendas repartidas en 30 municipios cuenta como titular de 10 en cada uno. No hay datos oficiales por barrio para toda España.</p>`)}
+  </section>`;
+}
+
+function concentracionHTML() {
+  const U = D.mun, Ci = D.inversion.concentracion_local || [], g = U.grupos;
+  return `<section class="lectura" aria-labelledby="conc-t">
+    <h3 id="conc-t">Concentración de la propiedad y precio</h3>
+    <div class="lect-grid">
+      <article class="ancho"><p>Para que un propietario pueda subir el precio sin perder inquilinos tiene que controlar una parte grande de la oferta en la zona en la que buscan casa. Si tiene un 5 % y el resto está repartido entre muchos pequeños propietarios, quien busca casa tiene alternativas. Por eso importa la <strong>concentración por zona</strong>, no solo el total que tiene cada empresa en España.</p></article>
+      <article><h4>Por municipio</h4><p>En el conjunto de municipios con datos del Catastro, los propietarios que tienen más de 10 viviendas en el mismo municipio son titulares del <strong>${pct(U.nac_cat.mas10)}</strong> de las viviendas, y los que tienen más de 100, del ${pct(U.nac_cat.mas100)}. Las empresas son titulares del ${pct(U.nac_cat.pj)}. Los valores más altos están sobre todo en municipios turísticos de Canarias y Baleares, donde hay complejos de apartamentos de un solo propietario.</p>
+        <div class="tabla"><table class="num"><thead><tr><th scope="col">Municipio</th><th scope="col">Más de 10</th><th scope="col">Más de 100</th><th scope="col">Empresas</th></tr></thead>
+        <tbody>${U.top_conc.slice(0, 8).map(f => `<tr><th scope="row">${esc(f.n)}</th><td>${pct(f.mas10)}</td><td>${pct(f.mas100)}</td><td>${pct(f.pj)}</td></tr>`).join("")}</tbody></table></div>
+        <p class="note">Municipios con más de 10.000 inmuebles residenciales. Catastro, ${U.catastro_anyo}.</p></article>
+      <article><h4>¿Coincide con la tensión?</h4><p>En los ${U.n_grandes} municipios con al menos ${nf0.format(U.min_comp)} viviendas alquiladas, los que cumplían el criterio de subida en ${U.ult} tienen un <strong>${pct(g.si.mas10)}</strong> de viviendas de propietarios con más de 10, frente al <strong>${pct(g.no.mas10)}</strong> de los que no lo cumplían. En pisos turísticos, ${pct(g.si.vut)} frente a ${pct(g.no.vut)}. ${relTxt(U.rho.exc.mas10, "la subida del alquiler", "la concentración de la propiedad")} ${relTxt(U.rho.exc.vut, "la subida", "el peso de los pisos turísticos")} ${relTxt(U.rho.esf.pj, "el nivel del alquiler frente a la renta", "el porcentaje de viviendas de empresas")}</p></article>
+      <article><h4>En algunas ciudades</h4><p>Algunas comunidades tienen registros de fianzas de alquiler que permiten saber quién es el propietario de las viviendas alquiladas. Solo se han publicado análisis para unas pocas ciudades. ${Ci.map(x => `${x.texto} (<a href="${x.fuente}" target="_blank" rel="noopener">${x.fuente_txt}</a>${x.oficial ? "" : "; sin carácter oficial"}).`).join(" ")}</p></article>
+    </div>
+    ${avisoHTML("Qué no dice", "Concentración no es lo mismo que poder para fijar el precio",
+      `<p>La prueba directa sería comparar lo que cobran los grandes propietarios con lo que cobran los pequeños por viviendas parecidas en la misma zona. Ninguna estadística oficial publica el alquiler según el tipo de propietario. El Catastro registra al titular del IBI, que puede no ser el propietario pleno, y cuenta inmuebles de uso residencial, que no son exactamente viviendas. Una relación entre concentración y precio en el mismo municipio tampoco diría qué causa qué: las empresas compran más donde los alquileres ya son altos.</p>`)}
+  </section>`;
+}
+
+function relTxt(r, a, b) {
+  const f = Math.abs(r) < 0.1 ? `no tiene relación con ${b}` : Math.abs(r) < 0.3 ? `tiene una relación ${r > 0 ? "positiva" : "negativa"} débil con ${b}` : `tiene una relación ${r > 0 ? "positiva" : "negativa"} moderada con ${b}`;
+  return `Ordenando los municipios, ${a} ${f} (correlación de rangos ${nf1.format(r).replace(/^-/, "−")}).`;
+}
+
 function analisisHTML(d) {
-  const P = propAlquiler(), B = P.bde, N = D.inversion.parque_n, E = D.empresas;
-  const g = id => P.grupos.find(x => x.id === id).viviendas;
-  const mercado = P.tot - g("publica"), mas10 = B.mas10_max_pct / 100 * mercado;
-  const gt = g("empresas") + mas10, gtAlq = 100 * gt / mercado, gtParque = 100 * gt / N;
-  const eMax = E.reduce((a, b) => b[1] > a[1] ? b : a), eU = ult(E);
-  const desde21 = E.filter(e => e[0] >= 2021).map(e => e[1]);
-  const suelo = RC.precio.crisis.suelo.slice(0, 4), sube19 = RC.precio.comparar[2019].vivienda;
+  const { C, i, U } = invCompras(), Mu = D.mun, g = Mu.grupos, PA = D.inversion.precio_alquiler;
+  const a19 = 2019, e19 = C.empresas[i(a19)], eU = C.empresas[i(U)], n19 = C.no_residentes[i(a19)], nU = C.no_residentes[i(U)];
+  const subeP = varPct(C.precio[i(a19)], C.precio[i(U)]);
   const brecha = d.sH - d.sV, anos = `${d.H.anos[0]} y ${ult(d.H.anos)}`;
   const art = (t, x) => `<article><h4>${t}</h4><p>${x}</p></article>`;
+  const cambio = (a, b) => Math.abs(b - a) < 1 ? "casi igual" : b > a ? "más" : "menos";
+  const concMenos = g.si.mas10 <= g.no.mas10;
   return `<section class="lectura" aria-labelledby="ana-t">
-    <h3 id="ana-t">Análisis final: los grandes tenedores y el precio de la vivienda</h3>
-    <p class="note">Contrastamos lo que muestran los datos de esta página con las dos lecturas posibles: que los grandes tenedores influyen de forma importante en el precio, o que su impacto en el problema de la vivienda es pequeño. Por «grandes tenedores» sumamos las empresas privadas que alquilan vivienda y los particulares con más de 10 viviendas, lo que da un máximo, porque no todas las empresas superan ese umbral.</p>
+    <h3 id="ana-t">Análisis final: inversión, concentración y precio</h3>
+    <p class="note">Separamos dos preguntas: si las compras de inversión explican la subida del precio en el conjunto de España, y si en algunos lugares la concentración de la propiedad coincide con la tensión del alquiler.</p>
     <div class="lect-grid">
-      ${art("1 · Tamaño", `Juntos tendrían como máximo unas <strong>${milesR(gt)} viviendas en alquiler</strong>: hasta el ${pct(gtAlq)} del alquiler de mercado y el ${pct(gtParque)} del parque total. El ${pct(100 - gtAlq)} restante del alquiler de mercado es de particulares con 10 viviendas o menos. El Banco de España describe el mercado como dominado por pequeños propietarios.`)}
-      ${art("2 · Momento", `Las empresas hicieron más compras cuando el precio estaba en mínimos: el ${pct(eMax[1])} de las compras en ${eMax[0]}, cerca del punto más bajo de la crisis (${suelo}). Desde 2021, cuando el precio ha subido con más fuerza (${signoE(sube19)} desde 2019, sin descontar la inflación), su porcentaje se ha mantenido entre el ${pct(Math.min(...desde21))} y el ${pct(Math.max(...desde21))}. A escala nacional, la subida reciente no coincide con un aumento de sus compras.`)}
-      ${art("3 · Comparación con otros factores", `Entre ${anos} se formaron unos ${milesR(brecha)} hogares más que viviendas terminadas. Esa diferencia, acumulada en ${d.H.anos.length} años, es ${brecha >= gt ? "mayor que" : "comparable a"} todo el alquiler que tendrían los grandes tenedores. La construcción sigue lejos de los niveles anteriores a 2008. Son factores que afectan a todo el país.`)}
-      ${art("4 · Dónde sí pueden pesar", `El peso medio esconde diferencias grandes. En Barcelona, las empresas tenían alrededor del 25 % del alquiler en 2018, según el Banco de España, y los particulares con varias viviendas superan el 60 % del alquiler de particulares en las capitales canarias, Palma y Barcelona. En los barrios con más pisos turísticos de Barcelona, el estudio citado estima un efecto en el alquiler de hasta el 7 %. Donde un propietario o un tipo de uso concentra mucha oferta, su influencia en el precio local puede ser mayor.`)}
-      ${art("5 · Lo que no se puede medir", "No hay datos oficiales del peso de los grandes tenedores por barrio, de los precios que cobran frente a los pequeños propietarios, de cuántas viviendas compran para revender ni de las que mantienen vacías. Sin esos datos, no se puede cuantificar su efecto en el precio a ninguna escala.")}
+      ${art("1 · Compras de inversión y precio", `Entre ${a19} y ${U} el precio de compra subió un ${pctE(subeP)}. En esos años, las empresas pasaron del ${pct(e19)} al ${pct(eU)} de las compras (${cambio(e19, eU)}), los no residentes del ${pct(n19)} al ${pct(nU)} (${cambio(n19, nU)}) y las hipotecas por cada 100 compraventas se mantuvieron entre ${invCompras().hMin} y ${invCompras().hMax}. La subida reciente no coincide con un aumento del peso de estas compras a escala nacional.`)}
+      ${art("2 · Precio frente a alquiler", `El precio de compra ha subido más que el alquiler vigente desde 2015 (${pctE(ult(PA.compra) - 100)} frente a ${pctE(ult(PA.alquiler) - 100)}). Es compatible con compras que esperan revalorización, pero también con el crédito barato hasta 2021 y con que el índice del alquiler sube despacio por cómo se calcula.`)}
+      ${art("3 · Dónde hay tensión", `En ${Mu.ult} cumplían el criterio legal de subida del alquiler ${nf0.format(Mu.cumplen[Mu.ult])} de los ${nf0.format(Mu.evaluables[Mu.ult])} municipios con datos, con los porcentajes más altos en ${Mu.ccaa_top.map(([c, s]) => `${c} (${pctE(s)})`).join(", ")}. Es un fenómeno extendido, no limitado a unos pocos barrios.`)}
+      ${art("4 · Concentración y tensión", `Entre los municipios con al menos ${nf0.format(Mu.min_comp)} viviendas alquiladas, los que cumplen el criterio tienen ${concMenos ? "menos" : "más"} concentración de la propiedad que los que no lo cumplen (${pct(g.si.mas10)} frente a ${pct(g.no.mas10)} de viviendas de propietarios con más de 10). En pisos turísticos tienen ${g.si.vut > g.no.vut ? "más" : "menos"}: ${pct(g.si.vut)} frente a ${pct(g.no.vut)}.`)}
+      ${art("5 · Comparación con otros factores", `Entre ${anos} se formaron unos ${milesR(brecha)} hogares más que viviendas terminadas. Es un factor que afecta a todo el país, como la tensión del alquiler.`)}
+      ${art("6 · Lo que no se puede medir", "No hay datos oficiales de cuántas viviendas se compran para revender, de la propiedad por barrio en toda España ni de lo que cobran los grandes propietarios frente a los pequeños. Sin esos datos no se puede medir el efecto de un propietario concreto en el precio de un barrio.")}
     </div>
-    <div class="aviso">
-      <div class="aviso-cab"><span class="chip-aviso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>Lo que permiten concluir los datos</span>
-        <h3>Peso pequeño a escala nacional; posible efecto en mercados locales concretos</h3></div>
-      <p>Con los datos disponibles, los grandes tenedores tienen una parte pequeña del parque y del alquiler, su actividad de compra no aumentó cuando el precio subió con más fuerza, y el desajuste entre hogares nuevos y viviendas nuevas es de un tamaño mayor. Estos datos no apuntan a que sean la causa principal de la subida del precio en el conjunto de España. Los datos sí son compatibles con un efecto relevante en barrios y ciudades donde concentran mucha oferta, pero no hay información oficial suficiente para medir su tamaño. Esta conclusión puede cambiar si se publican datos de propiedad por barrio o de precios según el tipo de propietario.</p>
-    </div></section>`;
+    ${avisoHTML("Lo que permiten concluir los datos", concMenos && Math.abs(Mu.rho.exc.mas10) < 0.3 ? "La tensión del alquiler está extendida y no se concentra donde hay más grandes propietarios" : "La tensión del alquiler está extendida; su relación con la concentración es limitada",
+      `<p>A escala nacional, el peso de las compras de inversión no ha crecido durante la subida reciente del precio. A escala municipal, el alquiler subió más que el IPC + 3 puntos en el ${pctE(100 * Mu.cumplen[Mu.ult] / Mu.evaluables[Mu.ult])} de los municipios con datos en ${Mu.ult}, y esa subida ${concMenos ? "no es mayor" : "es algo mayor"} donde hay más viviendas en manos de grandes propietarios; ${g.si.vut > g.no.vut ? "coincide algo más con los pisos turísticos" : "tampoco coincide con los pisos turísticos"}. Estos datos no apuntan a que la inversión o la concentración de la propiedad sean la causa principal de la subida del precio en España. No permiten descartar que un gran propietario influya en el precio de un barrio concreto donde concentra mucha oferta: para medirlo harían falta datos de propiedad por barrio y de precios según el tipo de propietario, que hoy no se publican.</p>`)}
+  </section>`;
 }
 
 function regulacionHTML() {
@@ -646,27 +873,24 @@ const PASOS = [
     },
     pie: "*Media de los meses publicados." },
 
-  { id: "compradores", corto: "Inversión y especulación", eyebrow: "Componente 4 · Quién es propietario",
-    q: "Inversión y especulación: propiedad del alquiler, parque de viviendas y regulación",
-    resp: d => { const P = propAlquiler();
-      return `De las viviendas alquiladas como residencia habitual, los particulares con dos o más viviendas alquiladas tienen el <strong>${pct(P.pct.varias)}</strong>; quienes alquilan una sola, el <strong>${pct(P.pct.uno)}</strong>; las empresas privadas, alrededor del <strong>${pct(P.pct.empresas)}</strong>, y el sector público, en torno al <strong>${pct(P.pct.publica)}</strong>.`; },
-    pie: "Izquierda: reparto en 2023 (Ministerio de Consumo y CSIC). Derecha: viviendas alquiladas como residencia habitual declaradas por particulares en el IRPF y usadas por el Ministerio de Vivienda como referencia de precios; es una parte del total y no separa cuántas tiene cada propietario. Las marcas señalan la entrada de los territorios forales, que suma viviendas a la serie.",
-    expl: d => { const S = D.inversion.propiedad.serie_particulares, i = S.anos.length - 1;
-      const T = D.inversion.propiedad.serie_serpavi, tot = T.colectiva.map((v, k) => v + T.unifamiliar[k]), k1 = T.anos.indexOf(2020);
-      return `Las viviendas alquiladas por particulares que recoge el Ministerio de Vivienda pasaron de ${milesR(tot[0])} en ${T.anos[0]} a ${milesR(ult(tot))} en ${ult(T.anos)}. Solo hay dos años con el reparto entre quien alquila una vivienda y quien alquila varias: entre ${S.anos[0]} y ${S.anos[i]}, las de particulares con dos o más pasaron de ${milesR(S.varias[0])} a ${milesR(S.varias[i])} (${signoE(varPct(S.varias[0], S.varias[i]))}), y las de quienes alquilan una sola, de ${milesR(S.uno[0])} a ${milesR(S.uno[i])} (${signoE(varPct(S.uno[0], S.uno[i]))}).`; },
-    lectura: d => parqueHTML() + propiedadHTML() + definicionesHTML() + vaciasHTML() + estudiosHTML() + regulacionHTML() + analisisHTML(d),
-    det: () => `<p><strong>Propiedad del alquiler:</strong> ${D.inversion.propiedad.fuente_txt}. <strong>Viviendas vacías:</strong> INE, Censo 2021 cruzado con el consumo eléctrico.</p>
-      <p><strong>Qué no dice:</strong> ninguna estadística oficial mide la especulación como tal, es decir, cuántas viviendas se compran para revenderlas con beneficio. Los datos de esta página son aproximaciones: quién es propietario y cuántas viviendas no se usan.</p>`,
+  { id: "compradores", corto: "Inversión y especulación", eyebrow: "Componente 4 · Compras de inversión y propiedad",
+    q: "Inversión y especulación: compras de inversión, concentración de la propiedad y tensión del alquiler",
+    resp: d => { const { C, i, U } = invCompras(), M = D.mun;
+      return `En ${U}, las empresas hicieron el <strong>${pct(C.empresas[i(U)])}</strong> de las compras de vivienda y los extranjeros no residentes, el <strong>${pct(C.no_residentes[i(U)])}</strong>. En ${M.ult}, <strong>${nf0.format(M.cumplen[M.ult])} de los ${nf0.format(M.evaluables[M.ult])}</strong> municipios con datos suficientes cumplían el criterio legal de subida del alquiler para declarar una zona tensionada.`; },
+    pie: "Izquierda: porcentaje de las compras de vivienda hechas por empresas (INE) y por extranjeros no residentes (Ministerio de Vivienda). Misma escala. Derecha: precio de compra (IPV) y alquiler vigente (IPVA) del INE, 2015 = 100, sin descontar la inflación.",
+    expl: d => { const { C, i, U, maxDe } = invCompras(), eM = maxDe("empresas");
+      return `Las compras de empresas y de no residentes alcanzaron su peso máximo entre ${eM.a} y ${maxDe("no_residentes").a}, con el precio en mínimos, y después bajaron. Desde entonces el precio ha subido un ${pctE(varPct(C.precio[i(eM.a)], C.precio[i(U)]))} y su peso se ha mantenido o ha bajado. El precio de compra ha subido más que el alquiler: es una señal habitual de compras que esperan revalorización, aunque tiene otras explicaciones posibles, que se detallan más abajo.`; },
+    lectura: d => definicionesHTML() + comprasHTML() + precioAlquilerHTML() + mapaMunHTML() + concentracionHTML() + parqueHTML() + propiedadHTML() + vaciasHTML() + estudiosHTML() + analisisHTML(d) + regulacionHTML(),
+    det: () => `<p><strong>Compras:</strong> INE, Transmisiones de Derechos de la Propiedad (empresas); Ministerio de Vivienda, Estadística de Transacciones Inmobiliarias (no residentes); INE, Estadística de Hipotecas. <strong>Precios:</strong> INE, IPV e IPVA. <strong>Municipios:</strong> Ministerio de Vivienda, SERPAVI 2011–${D.mun.ult}; INE, Atlas de Distribución de Renta de los Hogares; Catastro, titulares de inmuebles de uso residencial (${D.mun.catastro_anyo}); INE, viviendas turísticas (${D.mun.vut_periodo.replace("-", "/")}); Ministerio de Vivienda, zonas tensionadas declaradas. <strong>Propiedad del alquiler:</strong> ${D.inversion.propiedad.fuente_txt}. <strong>Viviendas vacías:</strong> INE, Censo 2021 cruzado con el consumo eléctrico.</p>
+      <p><strong>Cómo se calculan los criterios:</strong> criterio b), alquiler mediano por m² de los pisos de cada municipio frente al IPC medio anual, en ventanas de cinco años (2011–2016 a ${D.mun.ult - 5}–${D.mun.ult}); solo municipios con al menos ${D.mun.min_alq} viviendas alquiladas en los dos años. Criterio a), aproximado con 12 veces el alquiler mediano de un piso dividido entre la renta neta media por hogar del mismo año.</p>
+      <p><strong>Qué no dice:</strong> ninguna estadística oficial mide la especulación como tal, es decir, cuántas viviendas se compran para revenderlas con beneficio. Los datos de esta página son aproximaciones: quién compra, quién es propietario, cuánto sube el alquiler y cuántas viviendas no se usan.</p>`,
     chart: (d, el) => {
-      const P = propAlquiler(), T = P.serie_serpavi;
-      el.innerHTML = `<div class="duo"><div><h4>Quién es propietario de las viviendas en alquiler, ${P.anyo}</h4><div class="chart" id="c-prop"></div></div><div><h4>Viviendas alquiladas por particulares, ${T.anos[0]}–${ult(T.anos)}</h4><div class="chart" id="c-prop-t"></div></div></div>`;
-      const fila = (id, c) => { const g = P.grupos.find(x => x.id === id); return { etq: g.nombre, vals: [{ v: P.pct[id], c, quien: `${milesR(g.viviendas)} viviendas` }] }; };
-      barrasH($("c-prop"), [fila("uno", C1), fila("varias", C2), fila("empresas", C3), fila("publica", C4)], 50, "Porcentaje sobre el total de viviendas en alquiler de vivienda habitual. Misma escala, de 0 a 50 %.");
-      grafico($("c-prop-t"), { tipo: "barras", modo: "pila", alto: 260, x: T.anos,
-        series: [{ n: "Pisos", v: T.colectiva, c: C1 }, { n: "Viviendas unifamiliares", v: T.unifamiliar, c: C3 }],
-        marcas: T.cobertura.map(([a, t], k) => ({ i: T.anos.indexOf(a), t, fila: k % 2 + 1 })),
-        y: { fmt: v => v === 0 ? "0" : nf1.format(v / 1e6).replace(/,0$/, "") + " M" }, ml: 48, tipFmt: v => nf0.format(v),
-        aria: "Viviendas alquiladas como residencia habitual por particulares, por año" });
+      const { C } = invCompras(), PA = D.inversion.precio_alquiler;
+      el.innerHTML = `<div class="duo"><div><h4>Compras de empresas y de no residentes, % del total</h4><div class="chart" id="c-inv"></div></div><div><h4>Precio de compra y de alquiler, 2015 = 100</h4><div class="chart" id="c-pa"></div></div></div>`;
+      grafico($("c-inv"), { tipo: "lineas", alto: 260, x: C.anos, series: [{ n: "Empresas", v: C.empresas, c: C1 }, { n: "No residentes", v: C.no_residentes, c: C2 }],
+        y: { min: 0, max: 25, ticks: [0, 5, 10, 15, 20, 25], fmt: v => v + " %" }, tipFmt: v => pct(v), aria: "Porcentaje de compras de vivienda hechas por empresas y por no residentes, por año" });
+      grafico($("c-pa"), { tipo: "lineas", alto: 260, x: PA.anos, series: [{ n: "Compra", v: PA.compra, c: C1 }, { n: "Alquiler vigente", v: PA.alquiler, c: C3 }],
+        y: { ref: 100, fmt: v => nf0.format(v) }, tipFmt: v => nf1.format(v), aria: "Índices de precio de compra y de alquiler, 2015 = 100" });
     } },
 
   { id: "mapa", corto: "Por provincia", eyebrow: "Por provincia" },
@@ -680,6 +904,7 @@ const PASOS = [
       ["Acelera o frena", "El precio del dinero", (() => { const R = interesReal(d); return `El interés pasó del ${nf1.format(d.Cr.interes[d.iMinInt])}\u00a0% al ${nf1.format(d.Cr.interes[d.iMaxInt])}\u00a0%, pero entre ${R.a0} y ${R.a1} la inflación fue mayor, así que el crédito salió barato. Cambió el ritmo de compras, no la tendencia del precio.`; })()],
       ["Mayor en zonas concretas", "Compradores no residentes y pisos turísticos", `${pct(D.capas.no_residentes.nacional)} de las compras y ${pct(D.capas.turisticas.nacional)} de las viviendas en España, pero hasta ${pct(d.top("no_residentes").v)} de las compras en ${nombre(d.top("no_residentes").cod)}.`],
       ["Menor que tras la crisis", "Empresas compradoras", `${pct(d.eU[1])} de las compras en ${d.eU[0]}, frente al ${pct(d.eMax[1])} de ${d.eMax[0]}.`],
+      ["Por municipio", "Tensión del alquiler extendida", `En ${D.mun.ult}, el ${pctE(100 * D.mun.cumplen[D.mun.ult] / D.mun.evaluables[D.mun.ult])} de los municipios con datos cumplía el criterio legal de subida del alquiler. ${D.mun.grupos.si.mas10 <= D.mun.grupos.no.mas10 ? "No es mayor" : "Es algo mayor"} donde hay más viviendas de grandes propietarios.`],
       ["Propiedad del alquiler", "Particulares con varias viviendas", (() => { const P = propAlquiler(); return `Tienen el ${pct(P.pct.varias)} de las viviendas en alquiler; las empresas privadas, el ${pct(P.pct.empresas)}, y quienes alquilan una sola vivienda, el ${pct(P.pct.uno)}.`; })()],
     ],
     det: () => `<p><strong>Lo que estos datos no miden:</strong> los plazos para conceder licencias y aprobar suelo, la normativa de cada comunidad y ayuntamiento, el coste de los materiales desde 2024, por qué están vacías las viviendas vacías y cuántas compras se hacen para revender. Todos influyen y no hay una estadística oficial actualizada que permita medirlos con el mismo detalle.</p>` },

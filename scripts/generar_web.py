@@ -362,6 +362,100 @@ inv.update({"propiedad": json.loads((BASE / "data/propiedad_alquiler.json").read
 datos["inversion"] = inv
 datos["capas"]["vacias"] = vac
 
+# Compras de inversión (aproximaciones nacionales, año a año)
+compras_a = {int(a): v for a, v in serie("compras_total", tipo="año")}
+no_res_a = {int(a): v for a, v in serie("pct_compras_ext_no_residentes", tipo="año")}
+hipo_a = {a: v[0] * 12 for a, v in hipo.items() if v[1] == 12}
+anos_inv = sorted(compras_a)
+inv["compras"] = {
+    "anos": anos_inv,
+    "empresas": [dict(datos["empresas"]).get(a) for a in anos_inv],
+    "no_residentes": [round(no_res_a[a], 1) if a in no_res_a else None for a in anos_inv],
+    # hipotecas inscritas por cada 100 compraventas: hasta 2011 supera 100 (se hipotecaban también promociones
+    # enteras y refinanciaciones), así que solo se muestra desde 2012
+    "hipotecas_100": [round(100 * hipo_a[a] / compras_a[a]) if a in hipo_a and a >= 2012 else None for a in anos_inv],
+    "precio": [P_ipv.get(a) for a in anos_inv],
+}
+# Precio de compra frente a alquiler (2015 = 100): IPV del INE frente al IPVA del INE
+alq_a = {int(a): v for a, v in serie("alquiler_indice", tipo="año")}
+anos_pa = [a for a in sorted(alq_a) if a in P_ipv]
+inv["precio_alquiler"] = {"anos": anos_pa, "compra": [P_ipv[a] for a in anos_pa],
+                          "alquiler": [round(alq_a[a], 1) for a in anos_pa]}
+
+# Municipios: mapa de tensión e inversión
+mun_path = BASE / "data/municipios.json"
+if mun_path.exists():
+    MJ = json.loads(mun_path.read_text(encoding="utf-8"))
+    M = MJ["municipios"]
+    zt = json.loads((BASE / "data/zonas_tensionadas.json").read_text(encoding="utf-8"))
+
+    def rangos(v):
+        orden = sorted(range(len(v)), key=lambda i: v[i])
+        r = [0.0] * len(v)
+        i = 0
+        while i < len(orden):  # empates: rango medio
+            j = i
+            while j + 1 < len(orden) and v[orden[j + 1]] == v[orden[i]]:
+                j += 1
+            for k in range(i, j + 1):
+                r[orden[k]] = (i + j) / 2
+            i = j + 1
+        return r
+
+    def spearman(a, b):
+        ra, rb = rangos(a), rangos(b)
+        n = len(a); ma, mb = sum(ra) / n, sum(rb) / n
+        num = sum((x - ma) * (y - mb) for x, y in zip(ra, rb))
+        den = (sum((x - ma) ** 2 for x in ra) * sum((y - mb) ** 2 for y in rb)) ** 0.5
+        return round(num / den, 2)
+
+    ULT = max(int(a) for a in MJ["evaluables_b"])
+    MIN_COMP = 1000  # municipios con al menos 1.000 viviendas alquiladas: comparación más estable
+    grandes = [v for v in M.values() if v.get("alq_n", 0) >= MIN_COMP and "exc" in v and "mas10" in v and "vut" in v]
+    w = lambda g, k: round(sum(v[k] * v["res"] for v in g) / sum(v["res"] for v in g), 2) if g else None  # noqa: E731
+    si = [v for v in grandes if ULT in v.get("cb", [])]
+    no = [v for v in grandes if ULT not in v.get("cb", [])]
+    con_esf = [v for v in grandes if "esf" in v]
+    cb_anos = {a: sum(1 for v in M.values() if a in v.get("cb", [])) for a in map(int, MJ["evaluables_b"])}
+    decl = [z["codigo_ine"] for z in zt["municipios"]]
+    decl_eval = [c for c in decl if c in M and "exc" in M[c]]
+    fila = lambda c, v: {"c": c, "n": v["n"], **{k: v.get(k) for k in ("exc", "esf", "alq", "alq_n", "mas10", "mas100", "pj", "vut", "res")},  # noqa: E731
+                         "zt": bool(v.get("zt")), "cb": len(v.get("cb", []))}
+    datos["mun"] = {
+        "ult": ULT, "catastro_anyo": MJ["catastro_anyo"], "vut_periodo": MJ["vut_periodo"],
+        "min_alq": MJ["min_alquileres"], "min_comp": MIN_COMP,
+        "evaluables": {int(a): n for a, n in MJ["evaluables_b"].items()}, "cumplen": cb_anos,
+        "n_grandes": len(grandes),
+        "grupos": {"si": {"n": len(si), **{k: w(si, k) for k in ("mas10", "pj", "vut")}},
+                   "no": {"n": len(no), **{k: w(no, k) for k in ("mas10", "pj", "vut")}}},
+        "rho": {"exc": {k: spearman([v["exc"] for v in grandes], [v[k] for v in grandes]) for k in ("mas10", "pj", "vut")},
+                "esf": {k: spearman([v["esf"] for v in con_esf], [v[k] for v in con_esf]) for k in ("mas10", "pj", "vut")}},
+        "decl": {"n": len(decl), "por_ccaa": {}, "evaluables": len(decl_eval),
+                 "cumplen_b": sum(1 for c in decl_eval if ULT in M[c].get("cb", [])),
+                 "fuente": zt["url"], "consulta": zt["consulta"]},
+        "top_alq": [fila(c, v) for c, v in sorted(((c, v) for c, v in M.items() if v.get("alq_n", 0) >= 10000 and "exc" in v),
+                                                key=lambda x: -x[1]["exc"])],
+        "top_conc": [fila(c, v) for c, v in sorted(((c, v) for c, v in M.items() if v.get("res", 0) >= 10000 and "mas10" in v),
+                                                 key=lambda x: -x[1]["mas10"])[:12]],
+        "nac_cat": {k: w([v for v in M.values() if "res" in v], k) for k in ("mas10", "mas100", "pj")},
+    }
+    esf_g = [(v["n"], v["esf"]) for v in M.values() if v.get("alq_n", 0) >= 10000 and "esf" in v]
+    datos["mun"]["esf_rango"] = {"min": min(esf_g, key=lambda x: x[1]), "max": max(esf_g, key=lambda x: x[1])}
+    por_cc = {}
+    for c, v in M.items():
+        if ULT in [int(a) for a in MJ["evaluables_b"]] and "exc" in v and c[:2] in PROVINCIAS:
+            cc = CCAA[PROVINCIAS[c[:2]][1]]
+            e = por_cc.setdefault(cc, [0, 0]); e[0] += 1; e[1] += ULT in v.get("cb", [])
+    datos["mun"]["ccaa_top"] = sorted(([cc, round(100 * s / n, 1)] for cc, (n, s) in por_cc.items() if n >= 20),
+                                      key=lambda x: -x[1])[:4]
+    for z in zt["municipios"]:
+        datos["mun"]["decl"]["por_ccaa"][z["comunidad"]] = datos["mun"]["decl"]["por_ccaa"].get(z["comunidad"], 0) + 1
+    # mapa municipal: se carga aparte, solo al abrir el paso
+    geo_m = json.loads((BASE / "data/geo_municipios.json").read_text(encoding="utf-8"))
+    claves = ("n", "exc", "esf", "alq", "alq_n", "mas10", "mas100", "pj", "vut", "zt", "cb", "res", "renta")
+    mun_web = {c: {k: v[k] for k in claves if k in v} for c, v in M.items()}
+    (BASE / "web/municipios.json").write_text(json.dumps({"geo": geo_m, "m": mun_web}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
 geo = json.loads((BASE / "data/geo_provincias.json").read_text(encoding="utf-8"))
 geo_min = {"frame": geo["frame"], "ccaa": geo["ccaa"], "prov": {k: v["d"] for k, v in geo["prov"].items()}}
 

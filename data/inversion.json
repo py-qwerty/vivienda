@@ -97,5 +97,19 @@
    "fuente": "https://doi.org/10.1016/j.jue.2020.103278",
    "fuente_txt": "García-López, Jofre-Monseny, Martínez-Mazza y Segú, Journal of Urban Economics (2020)"
   }
+ ],
+ "concentracion_local": [
+  {
+   "texto": "En Barcelona, los propietarios con más de 10 viviendas tenían el 36 % de las viviendas en alquiler habitual en 2021, y las empresas, el 35,5 % del alquiler frente al 15,1 % del total de viviendas",
+   "fuente": "https://www.barcelona.cat/habitatge/es/actualitat/noticies/los-grandes-tenedores-son-propietarios-del-36-de-los-pisos-de-alquiler-habitual-de-la-ciudad-1229148",
+   "fuente_txt": "Observatorio Metropolitano de la Vivienda de Barcelona (O-HB), organismo público, a partir del registro de fianzas del Incasòl",
+   "oficial": true
+  },
+  {
+   "texto": "En la Comunidad de Madrid, diez empresas tenían el 12 % de las viviendas alquiladas con fianza depositada a finales de 2022",
+   "fuente": "https://civio.es/poder/2023/06/21/diez-empresas-concentran-el-12-percent-de-los-inmuebles-alquilados-en-la-comunidad-de-madrid/",
+   "fuente_txt": "Civio, a partir de los datos de fianzas de la Agencia de Vivienda Social",
+   "oficial": false
+  }
  ]
 }

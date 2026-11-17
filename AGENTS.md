@@ -49,6 +49,8 @@ data/
   normas.json             # normas de vivienda (manual, verificadas en BOE/EUR-Lex)
   inversion.json          # Registradores 2024, normas de inversión, estudios (manual)
   propiedad_alquiler.json # propiedad del alquiler, serie SERPAVI, Banco de España (manual)
+  regulacion_alquiler.json # hitos de la regulación del alquiler con quién la aprobó, declaró, pidió o recurrió
+                          # (institución, gobierno y partidos), casos y estudios (manual)
   zonas_tensionadas.json  # zonas tensionadas declaradas, con código INE (manual, de la web del Ministerio)
   municipios.json, geo_municipios.json   # generados por municipios.py
 web/

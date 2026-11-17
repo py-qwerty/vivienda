@@ -131,6 +131,34 @@ details p + p { margin-top: 8px; }
 .leyenda span { display: inline-flex; align-items: center; gap: 7px; }
 .leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
 .leyenda i.ln { height: 3px; width: 16px; border-radius: 2px; }
+.tabla .muted { color: var(--muted); font-size: 0.78rem; font-weight: 400; }
+.chart .esc-t { font-size: 11px; font-weight: 650; font-family: var(--font); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; }
+dl.quien { display: grid; grid-template-columns: max-content minmax(0, 1fr); max-width: 100%; gap: 3px 10px; margin: 6px 0 8px; font-size: 0.86rem; }
+dl.quien dt { font-weight: 650; color: var(--ink-2); }
+dl.quien dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 600px) { dl.quien { grid-template-columns: 1fr; } dl.quien dd { margin-bottom: 4px; } }
+.normas .ncuerpo { min-width: 0; }
+.nfuentes { margin: 0; font-size: 0.82rem; }
+.nfuentes a { display: inline !important; }
+.rm-q { margin: 0 0 4px; font-size: 0.82rem; color: var(--ink-2); }
+.dv { padding: 16px; margin: 0; display: grid; gap: 4px; }
+.dv-fila { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(0, 2fr); gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.dv-cab { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(0, 2fr); gap: 12px; }
+.dv-cab .leyenda { margin: 0; }
+.dv-n { font-weight: 600; font-size: 0.92rem; display: grid; }
+.dv-n .muted { font-weight: 400; font-size: 0.78rem; color: var(--muted); }
+.dv-barras { display: grid; gap: 4px; }
+.dv-b { display: grid; grid-template-columns: minmax(0, 1fr) 62px; gap: 8px; align-items: center; }
+.dv-pista { position: relative; height: 14px; background: linear-gradient(var(--line-strong), var(--line-strong)) 50% 0 / 1px 100% no-repeat; }
+.dv-pista i { position: absolute; top: 0; height: 100%; border-radius: 3px; }
+.dv-v { font-size: 0.85rem; text-align: right; }
+.dv-eje { border-top: 0; padding-top: 0; }
+.dv-ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-right: 70px; }
+@media (max-width: 600px) { .dv-fila, .dv-cab { grid-template-columns: 1fr; gap: 6px; } .dv-cab > span:first-child { display: none; } }
+.rm-sub { margin: 0; font-size: 0.88rem; color: var(--ink-2); }
+#rm-nota p { margin: 6px 0 0; }
+.leyenda i.esc { height: 0; width: 18px; border-radius: 0; border-top: 2px dashed var(--ink-2); background: none !important; }
+.esc { fill: none; stroke-width: 1.6; stroke-dasharray: 5 3; opacity: 0.85; pointer-events: none; }
 .cwrap { position: relative; }
 .cwrap svg { display: block; }
 .chart .grid line { stroke: var(--line); }
@@ -147,7 +175,10 @@ details p + p { margin-top: 8px; }
 .chart .ctip span { display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
 .chart .ctip span i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
 .chart .ctip .tx { color: var(--muted); }
-.mm-card { display: grid; gap: 10px; padding: 16px; margin: 0; }
+.mm-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 16px; margin: 0; min-width: 0; }
+#rm-nota .tabla { overflow-x: auto; }
+.tabla table.rmt thead th { white-space: normal; vertical-align: bottom; }
+.tabla table.rmt td { white-space: nowrap; }
 @media (max-width: 600px) { .mm-card { padding: 10px; } }
 .mm-card h4 { margin: 0; font-size: 0.98rem; font-weight: 650; }
 .mm-card figcaption { color: var(--ink-2); font-size: 0.85rem; max-width: 80ch; }

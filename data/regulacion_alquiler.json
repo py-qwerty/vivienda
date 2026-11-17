@@ -10,7 +10,24 @@
       "estado": "anulada",
       "estado_nota": "El Tribunal Constitucional anuló el régimen de contención de rentas en la sentencia 37/2022, de 10 de marzo de 2022, por invadir competencias del Estado, no por su contenido. Fuente: BOE, STC 37/2022 (BOE-A-2022-5807).",
       "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2020-11363",
-      "fuente_txt": "BOE, Ley 11/2020"
+      "fuente_txt": "BOE, Ley 11/2020",
+      "quien": [
+        {
+          "rol": "Aprobó",
+          "texto": "Parlament de Cataluña, 71 votos a favor (Junts per Catalunya, ERC, Catalunya en Comú Podem y CUP) y 63 en contra (Ciutadans, PSC, PP y otros)."
+        },
+        {
+          "rol": "Gobierno",
+          "texto": "Govern de Quim Torra (Junts per Catalunya y ERC)."
+        },
+        {
+          "rol": "Recurrió",
+          "texto": "Más de 50 diputados del Grupo Popular en el Congreso (diciembre de 2020), con sentencia 37/2022. El Gobierno de Pedro Sánchez también la recurrió en junio de 2021 (sentencia 57/2022)."
+        }
+      ],
+      "quien_fuente": "https://www.idealista.com/news/node/787045",
+      "quien_fuente_txt": "Idealista (votación); La Moncloa (recurso del Gobierno)",
+      "quien_fuente2": "https://www.lamoncloa.gob.es/consejodeministros/Paginas/enlaces/150621-enlace-vivienda.aspx"
     },
     {
       "fecha": "2023-05",
@@ -19,7 +36,23 @@
       "cambio": "Permite a las comunidades autónomas declarar zonas de mercado residencial tensionado y, en ellas, limitar la renta de los contratos nuevos al índice de referencia y, si el arrendador es gran tenedor, a un límite adicional. Fija los criterios para la declaración (art. 18.3).",
       "estado": "vigente",
       "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2023-12203",
-      "fuente_txt": "BOE"
+      "fuente_txt": "BOE",
+      "quien": [
+        {
+          "rol": "Aprobó",
+          "texto": "Cortes Generales. En el Congreso, 176 votos a favor y 167 en contra (27 de abril de 2023); el texto final se pactó entre PSOE, Unidas Podemos, ERC y EH Bildu."
+        },
+        {
+          "rol": "Gobierno",
+          "texto": "Gobierno de Pedro Sánchez (PSOE y Unidas Podemos); proyecto del Ministerio de Transportes, Movilidad y Agenda Urbana (Raquel Sánchez, PSOE)."
+        },
+        {
+          "rol": "Aplica",
+          "texto": "Cada comunidad decide si declara zonas tensionadas, normalmente a petición de los ayuntamientos; el Ministerio de Vivienda las publica en el BOE."
+        }
+      ],
+      "quien_fuente": "https://www.elsaltodiario.com/vivienda/congreso-aprueba-ley-vivienda",
+      "quien_fuente_txt": "El Salto (votación y acuerdo)"
     },
     {
       "fecha": "2024-03",
@@ -28,25 +61,112 @@
       "cambio": "Entran en vigor los límites de renta en 140 municipios catalanes, entre ellos Barcelona. En octubre de 2024 se suman otros 131, hasta 271 municipios.",
       "estado": "vigente",
       "fuente": "https://www.mivau.gob.es/vivienda/alquila-bien-es-tu-derecho/serpavi/consultar-zonas-de-mercado-residencial-tensionado",
-      "fuente_txt": "Ministerio de Vivienda, zonas tensionadas"
+      "fuente_txt": "Ministerio de Vivienda, zonas tensionadas",
+      "quien": [
+        {
+          "rol": "Declaró",
+          "texto": "Govern de Pere Aragonès (ERC), Departament de Territori (consellera Ester Capella, ERC): Resolución TER/800/2024 (140 municipios) y TER/2408/2024, de 1 de julio (131 municipios, en vigor desde octubre)."
+        }
+      ],
+      "quien_fuente": "https://es.ara.cat/sociedad/vivienda/partir-febrero-topes-alquiler-entraran-vigor-140-municipios_1_4907462.html",
+      "quien_fuente_txt": "ARA"
     },
     {
       "fecha": "2025-01",
-      "lugar": "País Vasco, Navarra, Galicia y Asturias",
-      "nombre": "Declaraciones posteriores fuera de Cataluña",
-      "cambio": "Primer municipio vasco en enero de 2025, 21 municipios navarros en julio de 2025, uno gallego en julio de 2025 y cinco asturianos con vigencia desde julio de 2026. Llevan poco tiempo en vigor y SERPAVI y las fianzas autonómicas aún no ofrecen un periodo comparable.",
+      "lugar": "País Vasco",
+      "nombre": "Primeras zonas tensionadas en el País Vasco",
+      "cambio": "Errenteria es el primer municipio (31 de enero de 2025). Le siguen, municipio a municipio y a petición de cada ayuntamiento, Irun, Zumaia, Lasarte-Oria, Barakaldo, Donostia/San Sebastián, Galdakao, Bilbao, Vitoria-Gasteiz y otros, hasta 21 en noviembre de 2026.",
       "estado": "vigente",
+      "quien": [
+        {
+          "rol": "Declaró",
+          "texto": "Gobierno Vasco de Imanol Pradales (PNV y PSE-EE), Departamento de Vivienda y Agenda Urbana (consejero Denis Itxaso, PSE-EE)."
+        },
+        {
+          "rol": "Pidió",
+          "texto": "Cada ayuntamiento; el primero, Errenteria (alcaldesa Aizpea Otaegi, EH Bildu)."
+        }
+      ],
       "fuente": "https://www.mivau.gob.es/vivienda/alquila-bien-es-tu-derecho/serpavi/consultar-zonas-de-mercado-residencial-tensionado",
-      "fuente_txt": "Ministerio de Vivienda, zonas tensionadas"
+      "fuente_txt": "Ministerio de Vivienda, zonas tensionadas",
+      "quien_fuente": "https://orain.eus/es/actualidad/sociedad/2024/10/02/errenteria-declarada-como-zona-tensionada-en-vivienda/",
+      "quien_fuente_txt": "Orain"
+    },
+    {
+      "fecha": "2025-07",
+      "lugar": "Navarra",
+      "nombre": "Zona tensionada en 21 municipios navarros",
+      "cambio": "Orden Foral 157E/2025 (firmada el 19 de mayo de 2025), con vigencia desde el 30 de julio de 2025: Pamplona y su comarca, Tudela, Estella-Lizarra, Tafalla y otros.",
+      "estado": "vigente",
+      "quien": [
+        {
+          "rol": "Declaró",
+          "texto": "Gobierno de Navarra de María Chivite (PSN-PSOE), Departamento de Vivienda, Juventud y Políticas Migratorias (consejera Begoña Alfaro)."
+        }
+      ],
+      "fuente": "https://www.boe.es/boe/dias/2025/07/29/pdfs/BOE-A-2025-15728.pdf",
+      "fuente_txt": "BOE",
+      "quien_fuente": "https://orain.eus/es/actualidad/economia/2025/05/19/el-gobierno-de-navarra-declara-oficialmente-21-municipios-como-zona-de-mercado-tensionado/",
+      "quien_fuente_txt": "Orain"
+    },
+    {
+      "fecha": "2025-07",
+      "lugar": "Galicia",
+      "nombre": "Zona tensionada en A Coruña y, en 2026, Santiago de Compostela",
+      "cambio": "A Coruña, vigente desde el 30 de julio de 2025 (declaración de 28 de mayo de 2025); Santiago de Compostela, desde el 30 de julio de 2026.",
+      "estado": "vigente",
+      "quien": [
+        {
+          "rol": "Declaró",
+          "texto": "Xunta de Galicia de Alfonso Rueda (PP), que había devuelto antes la solicitud por incompleta."
+        },
+        {
+          "rol": "Pidió",
+          "texto": "Concello da Coruña (alcaldesa Inés Rey, PSdeG-PSOE)."
+        }
+      ],
+      "fuente": "https://www.mivau.gob.es/vivienda/alquila-bien-es-tu-derecho/serpavi/consultar-zonas-de-mercado-residencial-tensionado",
+      "fuente_txt": "Ministerio de Vivienda, zonas tensionadas",
+      "quien_fuente": "https://elespanol.com/quincemil/a-coruna/20250421/retrasa-solicitud-coruna-zona-vivienda-tensionada-errores/1003743723052_0.html",
+      "quien_fuente_txt": "El Español"
+    },
+    {
+      "fecha": "2026-07",
+      "lugar": "Asturias",
+      "nombre": "Zonas tensionadas en Gijón, Avilés, Llanes, Gozón y Cabrales",
+      "cambio": "Doce ámbitos (barrios y núcleos, no municipios enteros) con vigencia desde el 30 de julio de 2026.",
+      "estado": "vigente",
+      "quien": [
+        {
+          "rol": "Declaró",
+          "texto": "Gobierno del Principado de Adrián Barbón (PSOE e IU)."
+        },
+        {
+          "rol": "Recurrió",
+          "texto": "Ayuntamiento de Gijón (alcaldesa Carmen Moriyón, Foro Asturias), contra la inclusión de dos barrios; el Tribunal Superior de Justicia de Asturias admitió el recurso."
+        }
+      ],
+      "fuente": "https://boe.es/boe/dias/2026/07/29/pdfs/BOE-A-2026-16532.pdf",
+      "fuente_txt": "BOE",
+      "quien_fuente": "https://www.eldiario.es/asturias/asturias-suma-docena-zonas-tensionadas-gijon-xixon-aviles-llanes-gozon-cabrales_1_13414619.html",
+      "quien_fuente_txt": "elDiario.es"
     },
     {
       "fecha": "2026-10",
       "lugar": "Cataluña",
       "nombre": "Nueva declaración de zonas tensionadas (Resolución TER/3740/2026)",
-      "cambio": "La Generalitat declara zona tensionada otros 53 municipios (DOGC del 19 de octubre de 2026), al acercarse el fin de la vigencia de tres años de las declaraciones de 2024. La lista del Ministerio de Vivienda consultada para el mapa aún no la incluye.",
+      "cambio": "El Govern anunció en julio de 2026 la prórroga de la declaración, la salida de 22 municipios (entre ellos Lleida, Granollers y Figueres) y la entrada de 53, hasta 302. La resolución de los 53 nuevos se publicó en el DOGC el 19 de octubre de 2026. La lista del Ministerio de Vivienda consultada para el mapa aún no la incluye.",
       "estado": "vigente",
       "fuente": "https://dogc.gencat.cat/ca/document-del-dogc/?documentId=1057087",
-      "fuente_txt": "DOGC, Resolución TER/3740/2026"
+      "fuente_txt": "DOGC, Resolución TER/3740/2026",
+      "quien": [
+        {
+          "rol": "Declaró",
+          "texto": "Govern de Salvador Illa (PSC), Departament de Territori, Habitatge i Transició Ecològica (consellera Sílvia Paneque, PSC)."
+        }
+      ],
+      "quien_fuente": "https://www.3cat.cat/3catinfo/el-govern-amplia-el-mercat-residencial-tensionat-fins-a-302-municipis-aixi-queda-el-nou-mapa/noticia/3422490/",
+      "quien_fuente_txt": "3Cat"
     }
   ],
   "casos": [
@@ -92,5 +212,6 @@
       "fuente_txt": "El Español, sobre el informe del Banco de España",
       "oficial": false
     }
-  ]
+  ],
+  "nota_quien": "Quién aprobó, declaró, pidió o recurrió cada norma, con su partido en ese momento. Datos de BOE, DOGC y prensa; se citan las fuentes en cada hito."
 }

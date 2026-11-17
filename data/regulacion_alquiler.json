@@ -1,0 +1,107 @@
+{
+  "revisado": "2026-11-16",
+  "nota": "Regulación del precio del alquiler: hitos normativos comprobados en BOE y sentencias, cifras de la Generalitat de Cataluña (fianzas depositadas en el Incasòl) recogidas por prensa, y estudios. Las cifras de prensa y de estudios no tienen carácter oficial y se marcan como tales.",
+  "hitos": [
+    {
+      "fecha": "2020-09",
+      "lugar": "Cataluña",
+      "nombre": "Ley 11/2020 de contención de rentas en los contratos de arrendamiento de vivienda",
+      "cambio": "Primera norma autonómica que limita la renta inicial de los alquileres nuevos en las zonas que declara con mercado tensionado, tomando como referencia un índice de precios de la Generalitat.",
+      "estado": "anulada",
+      "estado_nota": "El Tribunal Constitucional anuló el régimen de contención de rentas en la sentencia 37/2022, de 10 de marzo de 2022, por invadir competencias del Estado, no por su contenido.",
+      "fuente": "https://boe.es/boe/dias/2022/04/08/pdfs/BOE-A-2022-5807.pdf",
+      "fuente_txt": "BOE, STC 37/2022"
+    },
+    {
+      "fecha": "2023-05",
+      "lugar": "España",
+      "nombre": "Ley 12/2023, de 24 de mayo, por el derecho a la vivienda",
+      "cambio": "Permite a las comunidades autónomas declarar zonas de mercado residencial tensionado y, en ellas, limitar la renta de los contratos nuevos al índice de referencia y, si el arrendador es gran tenedor, a un límite adicional. Fija los criterios para la declaración (art. 18.3).",
+      "estado": "vigente",
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2023-12203",
+      "fuente_txt": "BOE"
+    },
+    {
+      "fecha": "2024-03",
+      "lugar": "Cataluña",
+      "nombre": "Primera declaración de zonas tensionadas (16 de marzo de 2024)",
+      "cambio": "Entran en vigor los límites de renta en 140 municipios catalanes, entre ellos Barcelona. En octubre de 2024 se suman otros 131, hasta 271 municipios.",
+      "estado": "vigente",
+      "fuente": "https://www.mivau.gob.es/vivienda/alquila-bien-es-tu-derecho/serpavi/consultar-zonas-de-mercado-residencial-tensionado",
+      "fuente_txt": "Ministerio de Vivienda, zonas tensionadas"
+    },
+    {
+      "fecha": "2025-01",
+      "lugar": "País Vasco, Navarra, Galicia y Asturias",
+      "nombre": "Declaraciones posteriores fuera de Cataluña",
+      "cambio": "Primer municipio vasco en enero de 2025, 21 municipios navarros en julio de 2025, uno gallego en julio de 2025 y cinco asturianos con vigencia desde julio de 2026. Llevan poco tiempo en vigor y SERPAVI y las fianzas autonómicas aún no ofrecen un periodo comparable.",
+      "estado": "vigente",
+      "fuente": "https://www.mivau.gob.es/vivienda/alquila-bien-es-tu-derecho/serpavi/consultar-zonas-de-mercado-residencial-tensionado",
+      "fuente_txt": "Ministerio de Vivienda, zonas tensionadas"
+    }
+  ],
+  "casos": [
+    {
+      "id": "cat2020",
+      "lugar": "Cataluña, 2020–2022",
+      "regulacion": "Ley 11/2020: tope a la renta inicial de los contratos nuevos, de septiembre de 2020 a la sentencia del Tribunal Constitucional de marzo de 2022.",
+      "datos": "SERPAVI no separa contratos nuevos de vigentes, así que no permite medir el efecto sobre los alquileres que se firmaron en ese periodo. No hay estudio oficial que lo cuantifique.",
+      "fuente": "https://boe.es/boe/dias/2022/04/08/pdfs/BOE-A-2022-5807.pdf",
+      "fuente_txt": "BOE, STC 37/2022"
+    },
+    {
+      "id": "cat2024",
+      "lugar": "Cataluña, desde marzo de 2024",
+      "regulacion": "Límite a la renta de los contratos nuevos en las zonas tensionadas (Ley 12/2023), con 140 municipios desde el 16 de marzo de 2024 y 271 desde octubre.",
+      "datos": "La Generalitat publica cada trimestre el precio medio y el número de contratos con las fianzas depositadas en el Incasòl, separados entre zonas tensionadas y resto de Cataluña.",
+      "fuente": "https://es.ara.cat/economia/inmobiliario/topes-evitan-encarecimiento-alquileres-suben-1-2024_1_5897417.html",
+      "fuente_txt": "ARA, con datos de la Generalitat (Incasòl)"
+    },
+    {
+      "id": "berlin",
+      "lugar": "Berlín, 2020–2021",
+      "regulacion": "Mietendeckel: congelación y topes de los alquileres de viviendas construidas antes de 2014. Vigente desde el 23 de febrero de 2020; el Tribunal Constitucional Federal lo declaró nulo el 25 de marzo de 2021 (expedientes 2 BvF 1/20, 2 BvL 4/20 y 2 BvL 5/20) porque el alquiler de vivienda libre es materia de derecho civil y la regula el Estado federal (BGB, §§ 556–561), no los Länder.",
+      "datos": "Alquiler medio de oferta: 10,14 €/m² en 2020 (31 céntimos menos que en 2019, primera bajada en años) y 10,55 €/m² en 2021 (+4 %), según el informe sobre el mercado de vivienda del banco público IBB, recogido por la asociación de inquilinos de Berlín.",
+      "fuente": "https://www.bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/DE/2021/bvg21-028.html",
+      "fuente_txt": "Tribunal Constitucional Federal, nota de prensa 28/2021",
+      "fuente2": "https://www.berliner-mieterverein.de/magazin/online/mm0522/ibb-wohnungsmarktbericht-2021-ohne-deckel-steigen-die-mieten-wieder-ungebremst-052220.htm",
+      "fuente2_txt": "Berliner Mieterverein, sobre el informe IBB 2021"
+    }
+  ],
+  "incaso": {
+    "nota": "Cifras de la Generalitat de Cataluña a partir de las fianzas de alquiler depositadas en el Incasòl, tal como las recogió la prensa (ARA, 2 de noviembre de 2026; NacióDigital, 2026). No se ha podido descargar la serie trimestral completa del Incasòl, por lo que se muestran los datos sueltos publicados y no una serie.",
+    "puntos": [
+      {"clave": "zt_2a", "texto": "Precio medio de los contratos nuevos en las zonas tensionadas, marzo–junio de 2026 frente a dos años antes", "valor": -0.7, "unidad": "%"},
+      {"clave": "resto_2a", "texto": "Precio medio de los contratos nuevos en el resto de Cataluña, mismo periodo", "valor": 11.0, "unidad": "%"},
+      {"clave": "bcn", "texto": "Barcelona ciudad: alquiler medio mensual, marzo–junio de 2026 (la fuente indica un 4,4 % menos)", "valor": 1140.89, "unidad": "€"},
+      {"clave": "zt_1a", "texto": "Zonas tensionadas, primer trimestre de 2026 frente al primero de 2025", "valor": 3.71, "unidad": "%"}
+    ],
+    "contratos": [
+      {"periodo": "1.er trimestre de 2024", "valor": 34496},
+      {"periodo": "3.er trimestre de 2025", "valor": 26962}
+    ],
+    "contratos_nota": "Contratos de larga duración firmados en Cataluña.",
+    "saldo": {"periodo": "2.º trimestre de 2026", "firmados": 26449, "extinguidos": 23937, "neto": 2512, "neto_2024": 4136, "neto_2025": 2285},
+    "temporada": "Los contratos de temporada firmados en el 2.º trimestre de 2026 fueron un 40,5 % menos que en el mismo trimestre de 2025.",
+    "fuente": "https://es.ara.cat/economia/inmobiliario/topes-evitan-encarecimiento-alquileres-suben-1-2024_1_5897417.html",
+    "fuente_txt": "ARA, con datos de la Generalitat (Incasòl)",
+    "fuente2": "https://naciodigital.cat/societat/el-lloguer-a-les-zones-tensionades-puja-un-371-en-un-any-lleugerament-per-sota-de-la-catalunya-sense-topalls.html",
+    "fuente2_txt": "NacióDigital, con datos del Incasòl"
+  },
+  "estudios": [
+    {
+      "titulo": "San Francisco, 1994: control de alquileres en edificios pequeños",
+      "texto": "Un estudio académico comparó los edificios que quedaron bajo control con los que no, tras la ampliación de 1994. Los propietarios de los edificios regulados redujeron la oferta de alquiler un 15 % (venta, conversión a otros usos, reforma). El efecto sobre el conjunto de la ciudad fue un alquiler un 5,1 % más alto, y protegió a los inquilinos que ya estaban dentro.",
+      "fuente": "https://www.aeaweb.org/articles?id=10.1257/aer.20181289",
+      "fuente_txt": "Diamond, McQuade y Qian, American Economic Review (2019)",
+      "oficial": false
+    },
+    {
+      "titulo": "Banco de España, Informe Anual 2025 (junio de 2026)",
+      "texto": "Según la prensa que lo recoge, el informe sostiene que limitar las subidas de los contratos vigentes encarece los contratos nuevos, porque los propietarios fijan la renta inicial anticipando el límite, y que mantener los topes sin aumentar la oferta reduce la oferta de alquiler. También reconoce que los topes protegen a corto plazo a los hogares vulnerables. Cifras de prensa (+16,5 % en los contratos nuevos desde 2024, el doble que en los cuatro años anteriores) no verificadas en el informe.",
+      "fuente": "https://www.elespanol.com/invertia/observatorios/vivienda/20260618/banco-espana-avisa-gobierno-limitar-subidas-alquileres-vigor-dispara-precio-nuevos-contratos/1003744290463_0.html",
+      "fuente_txt": "El Español, sobre el informe del Banco de España",
+      "oficial": false
+    }
+  ]
+}

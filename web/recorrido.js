@@ -291,6 +291,67 @@ function estudiosHTML() {
     </div></section>`;
 }
 
+/* ---- regulación del precio del alquiler ---- */
+const RG_BASE = 2019;
+function rgSeries() {
+  const S = D.regulacion.series, b = S.anos.indexOf(RG_BASE);
+  const g = k => S.grupos[k].eur_m2;
+  const idx = k => g(k).map(v => v == null ? null : 100 * v / g(k)[b]);
+  const vi = k => g(k).map((v, i) => i === 0 || v == null || g(k)[i - 1] == null ? null : varPct(g(k)[i - 1], v));
+  return { S, b, g, idx, vi, i: a => S.anos.indexOf(a) };
+}
+function rgHitosHTML() {
+  const ESTADO = { vigente: "Vigente", anulada: "Anulada" };
+  const fecha = f => `${MES_CORTO[+f.slice(5, 7) - 1]} ${f.slice(0, 4)}`;
+  return `<section class="lectura" aria-labelledby="rgh-t"><h3 id="rgh-t">Cuándo se reguló y dónde</h3>
+    <p class="note">En España el precio del alquiler solo se ha limitado en Cataluña (2020–2022 y desde 2024) y, desde 2025, en zonas del País Vasco, Navarra, Galicia y Asturias. Las normas de otros países se muestran más abajo como referencia.</p>
+    <ol class="normas">${D.regulacion.hitos.map(n => `<li>
+      <span class="nfecha num">${fecha(n.fecha)}</span>
+      <div class="ncuerpo">
+        <div class="nchips"><span class="nchip est-${n.estado === "anulada" ? "derogada" : "vigente"}">${ESTADO[n.estado]}</span><span class="nchip">${n.lugar}</span></div>
+        <h4>${n.nombre}</h4>
+        <p>${n.cambio}${n.estado_nota ? ` <em>${n.estado_nota}</em>` : ""}</p>
+        <a href="${n.fuente}" target="_blank" rel="noopener">Fuente: ${n.fuente_txt}</a>
+      </div></li>`).join("")}</ol></section>`;
+}
+function rgTablaHTML() {
+  const R = rgSeries(), anos = R.S.anos.filter(a => a >= 2018);
+  const f = (k, a) => { const v = R.vi(k)[R.i(a)]; return v == null ? "—" : signoP(v) + " %"; };
+  const dif = a => { const i = R.i(a), x = R.vi("cat_zt")[i], y = R.vi("resto")[i]; return x == null || y == null ? "—" : signoP(x - y); };
+  return `<section class="lectura" aria-labelledby="rgt-t"><h3 id="rgt-t">Variación anual del alquiler mediano por m²</h3>
+    <div class="tabla"><table class="num"><thead><tr><th scope="col">Año</th><th scope="col">Cataluña, zonas declaradas en 2024</th><th scope="col">Resto de Cataluña</th><th scope="col">Resto de España</th><th scope="col">Diferencia: zonas declaradas menos resto de España (puntos)</th></tr></thead>
+    <tbody>${anos.map(a => `<tr><th scope="row">${a}</th><td>${f("cat_zt", a)}</td><td>${f("cat_no", a)}</td><td>${f("resto", a)}</td><td>${dif(a)}</td></tr>`).join("")}</tbody></table></div>
+    <p class="note">Alquiler mediano por m² de los pisos con contrato vigente (SERPAVI), media de los municipios ponderada por contratos. «Resto de España» no incluye Cataluña, País Vasco ni Navarra. Cataluña, zonas declaradas: ${R.S.grupos.cat_zt.municipios[R.S.anos.length - 1]} municipios con dato en ${ult(R.S.anos)}; resto de Cataluña: ${R.S.grupos.cat_no.municipios[R.S.anos.length - 1]}.</p></section>`;
+}
+function rgCasosHTML() {
+  return `<section class="lectura" aria-labelledby="rgc-t"><h3 id="rgc-t">Casos estudiados</h3>
+    <div class="lect-grid">${D.regulacion.casos.map(c => `<article><h4>${c.lugar}</h4>
+      <p><strong>Qué se reguló:</strong> ${c.regulacion}</p><p><strong>Qué datos hay:</strong> ${c.datos}</p>
+      <p><a href="${c.fuente}" target="_blank" rel="noopener">${c.fuente_txt}</a>${c.fuente2 ? ` · <a href="${c.fuente2}" target="_blank" rel="noopener">${c.fuente2_txt}</a>` : ""}</p></article>`).join("")}</div></section>`;
+}
+function rgCatHTML() {
+  const I = D.regulacion.incaso, P = Object.fromEntries(I.puntos.map(p => [p.clave, p.valor])), K = I.contratos, S = I.saldo;
+  const caida = varPct(K[0].valor, K[1].valor);
+  return `<section class="lectura" aria-labelledby="rgk-t"><h3 id="rgk-t">Cataluña desde marzo de 2024: contratos nuevos</h3>
+    <p class="note">${I.nota}</p>
+    <div class="lect-grid">
+      <article><h4>Precio de los contratos nuevos</h4><p>Marzo–junio de 2026 frente a dos años antes: <strong>${signoP(P.zt_2a)} %</strong> en las zonas tensionadas y <strong>${signoP(P.resto_2a)} %</strong> en el resto de Cataluña. En el primer trimestre de 2026, las zonas tensionadas estaban un ${nf1.format(P.zt_1a)} % por encima del primer trimestre de 2025.</p></article>
+      <article><h4>Número de contratos de larga duración</h4><p>${nf0.format(K[0].valor)} en el ${K[0].periodo} y ${nf0.format(K[1].valor)} en el ${K[1].periodo}: ${signoE(caida)}. Son trimestres distintos del año y la serie puede tener estacionalidad.</p></article>
+      <article><h4>Saldo de contratos</h4><p>En el ${S.periodo} se firmaron ${nf0.format(S.firmados)} y se extinguieron ${nf0.format(S.extinguidos)}: saldo de +${nf0.format(S.neto)}. El mismo trimestre de 2024 el saldo fue de ${nf0.format(S.neto_2024)}, y el de 2025, ${nf0.format(S.neto_2025)}.</p></article>
+      <article><h4>Contratos de temporada</h4><p>${I.temporada} Los de temporada quedan fuera de los límites de renta en las zonas tensionadas, por lo que se vigila si sustituyen a los de larga duración.</p></article>
+    </div>
+    <p class="note"><a href="${I.fuente}" target="_blank" rel="noopener">${I.fuente_txt}</a> · <a href="${I.fuente2}" target="_blank" rel="noopener">${I.fuente2_txt}</a>. Cifras de prensa que reproducen datos de la Generalitat: sin carácter oficial en esta web hasta contrastarlas con la serie del Incasòl.</p></section>`;
+}
+function rgEstudiosHTML() {
+  return `<section class="lectura" aria-labelledby="rge-t"><h3 id="rge-t">Qué dicen los estudios</h3>
+    <div class="lect-grid">${D.regulacion.estudios.map(e => `<article><h4>${e.titulo}</h4><p>${e.texto} <a href="${e.fuente}" target="_blank" rel="noopener">${e.fuente_txt}</a>. <em>Sin carácter oficial.</em></p></article>`).join("")}
+      <article class="ancho"><h4>Qué permiten concluir los datos y qué no</h4>
+        <p><strong>Permiten ver</strong> que en las zonas tensionadas catalanas el precio de los contratos nuevos se ha mantenido casi igual desde 2024, mientras que en el resto de Cataluña ha subido, y que el número de contratos de larga duración es menor que en 2024.</p>
+        <p><strong>No permiten concluir</strong> cuánto de esa diferencia se debe a la regulación: las zonas declaradas ya tenían precios más altos y subidas mayores (así se eligieron), los contratos de temporada pueden sustituir a los de larga duración, y SERPAVI mide contratos vigentes, no los que se firman cada año. Tampoco se puede saber qué habría pasado sin la regulación.</p>
+        <p><strong>Cambiaría la lectura</strong> con la serie trimestral completa del Incasòl por municipio, con una comparación entre municipios parecidos dentro y fuera de las zonas, y con SERPAVI de 2025 y 2026 cuando se publique.</p></article>
+    </div></section>`;
+}
+
 /* ---- compras de inversión (nacional) ---- */
 const AVISO_ICO = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>`;
 const avisoHTML = (chip, tit, cuerpo) => `<div class="aviso"><div class="aviso-cab"><span class="chip-aviso">${AVISO_ICO}${chip}</span><h3>${tit}</h3></div>${cuerpo}</div>`;
@@ -914,6 +975,27 @@ const PASOS = [
         dibujaPA(); const tx = $("pa-txt"); if (tx) tx.innerHTML = paTexto(paBase); });
     } },
 
+  { id: "regulacion", corto: "Regulación del alquiler", eyebrow: "Componente 5 · Regulación del precio del alquiler",
+    q: "Regulación del precio del alquiler: dónde se ha aplicado y qué muestran los datos",
+    resp: d => { const I = D.regulacion.incaso, P = Object.fromEntries(I.puntos.map(p => [p.clave, p.valor]));
+      return `El precio del alquiler se ha limitado en Cataluña (2020–2022 y desde marzo de 2024) y, desde 2025, en zonas del País Vasco, Navarra, Galicia y Asturias. Solo Cataluña lleva tiempo suficiente para medir algo. En las zonas tensionadas catalanas el precio medio de los contratos nuevos varió un <strong>${signoP(P.zt_2a)} %</strong> en dos años; en el resto de Cataluña, un <strong>${signoP(P.resto_2a)} %</strong>.`; },
+    pie: `Alquiler mediano por m² de los pisos con contrato vigente (SERPAVI, Ministerio de Vivienda), media de municipios ponderada por contratos, con ${RG_BASE} = 100. Misma escala en las tres líneas. La franja marca el periodo en que estuvo en vigor la Ley 11/2020; la línea de 2024 (marzo), la primera declaración de zonas tensionadas.`,
+    expl: d => { const R = rgSeries(), j = R.i(2024), a = R.i(2023);
+      const c = k => R.idx(k)[j] - 100;
+      return `Entre ${RG_BASE} y 2024 el alquiler mediano por m² subió un ${pctE(c("cat_zt"))} en las zonas catalanas declaradas, un ${pctE(c("cat_no"))} en el resto de Cataluña y un ${pctE(c("resto"))} en el resto de España. En 2024 la subida fue de ${nf1.format(varPct(R.g("cat_zt")[a], R.g("cat_zt")[j]))} % en las zonas declaradas y de ${nf1.format(varPct(R.g("resto")[a], R.g("resto")[j]))} % en el resto de España. Este dato mide contratos vigentes, no nuevos, y 2024 solo incluye parte del año con límites: el efecto sobre los alquileres nuevos aparece en los datos de la Generalitat que se muestran más abajo.`; },
+    lectura: d => rgHitosHTML() + rgTablaHTML() + rgCasosHTML() + rgCatHTML() + rgEstudiosHTML(),
+    det: () => `<p><strong>Fuentes:</strong> BOE y sentencias del Tribunal Constitucional (hitos); Ministerio de Vivienda, SERPAVI 2011–${D.mun.ult} (alquiler mediano por m² y contratos de vivienda colectiva) y zonas tensionadas declaradas; Generalitat de Cataluña, fianzas depositadas en el Incasòl (recogidas por prensa); Tribunal Constitucional Federal alemán y banco público IBB (Berlín).</p>
+      <p><strong>Cómo se calcula el gráfico:</strong> para cada año, media de los alquileres medianos por m² de los municipios, ponderada por su número de contratos. Grupos: municipios catalanes declarados zona tensionada (desde marzo y octubre de 2024), resto de municipios catalanes y resto de España sin País Vasco ni Navarra (entran tarde en SERPAVI).</p>
+      <p><strong>Qué no dice:</strong> SERPAVI mide contratos vigentes con datos de Hacienda, no los alquileres que se firman cada año, y responde despacio a un tope que solo afecta a contratos nuevos. Los grupos no son iguales de partida (las zonas declaradas se eligieron por tener precios altos y subidas mayores). Cataluña 2020–2022 no se puede evaluar con estos datos. Las cifras de Berlín y los estudios son de prensa o académicos y no tienen carácter oficial.</p>`,
+    chart: (d, el) => { const R = rgSeries(), X = R.S.anos;
+      el.innerHTML = `<h4>Alquiler mediano por m², ${RG_BASE} = 100</h4><div class="chart" id="c-reg"></div>`;
+      grafico($("c-reg"), { tipo: "lineas", alto: 300, x: X,
+        series: [{ n: "Cataluña, zonas declaradas", v: R.idx("cat_zt"), c: C1 }, { n: "Resto de Cataluña", v: R.idx("cat_no"), c: C2 }, { n: "Resto de España", v: R.idx("resto"), c: C3 }],
+        y: { min: 90, max: 150, ref: 100, ticks: [90, 100, 110, 120, 130, 140, 150], fmt: v => nf0.format(v) },
+        bandas: [{ i0: X.indexOf(2020), i1: X.indexOf(2021), t: "Ley 11/2020 en vigor" }],
+        marcas: [{ i: X.indexOf(2024), t: "Mar. 2024", fila: 1 }],
+        tipFmt: v => `${nf1.format(v)} (${signoP(v - 100)} desde ${RG_BASE})`, aria: "Alquiler mediano por metro cuadrado en Cataluña y en el resto de España, 2019 igual a 100" }); } },
+
   { id: "mapa", corto: "Por provincia", eyebrow: "Por provincia" },
 
   { id: "resumen", corto: "Resumen", eyebrow: "Qué dicen los datos",
@@ -926,6 +1008,7 @@ const PASOS = [
       ["Mayor en zonas concretas", "Compradores no residentes y pisos turísticos", `${pct(D.capas.no_residentes.nacional)} de las compras y ${pct(D.capas.turisticas.nacional)} de las viviendas en España, pero hasta ${pct(d.top("no_residentes").v)} de las compras en ${nombre(d.top("no_residentes").cod)}.`],
       ["Menor que tras la crisis", "Empresas compradoras", `${pct(d.eU[1])} de las compras en ${d.eU[0]}, frente al ${pct(d.eMax[1])} de ${d.eMax[0]}.`],
       ["Por municipio", "Tensión del alquiler extendida", `En ${D.mun.ult}, el ${pctE(100 * D.mun.cumplen[D.mun.ult] / D.mun.evaluables[D.mun.ult])} de los municipios con datos cumplía el criterio legal de subida del alquiler. ${D.mun.grupos.si.mas10 <= D.mun.grupos.no.mas10 ? "No es mayor" : "Es algo mayor"} donde hay más viviendas de grandes propietarios.`],
+      ["Cataluña", "Regulación del precio del alquiler", (() => { const P = Object.fromEntries(D.regulacion.incaso.puntos.map(p => [p.clave, p.valor])); return `Desde marzo de 2024 el precio de los contratos nuevos varió un ${signoP(P.zt_2a)} % en dos años en las zonas tensionadas y un ${signoP(P.resto_2a)} % en el resto de Cataluña. Los datos no permiten separar cuánto se debe a la regulación y cuánto a otras causas.`; })()],
       ["Propiedad del alquiler", "Particulares con varias viviendas", (() => { const P = propAlquiler(); return `Tienen el ${pct(P.pct.varias)} de las viviendas en alquiler; las empresas privadas, el ${pct(P.pct.empresas)}, y quienes alquilan una sola vivienda, el ${pct(P.pct.uno)}.`; })()],
     ],
     det: () => `<p><strong>Lo que estos datos no miden:</strong> los plazos para conceder licencias y aprobar suelo, la normativa de cada comunidad y ayuntamiento, el coste de los materiales desde 2024, por qué están vacías las viviendas vacías y cuántas compras se hacen para revender. Todos influyen y no hay una estadística oficial actualizada que permita medirlos con el mismo detalle.</p>` },

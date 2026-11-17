@@ -352,6 +352,12 @@ datos["recorrido"] = {
 
 datos["normas"] = json.loads((BASE / "data/normas.json").read_text(encoding="utf-8"))
 
+# ---------- Regulación del alquiler ----------
+datos["regulacion"] = json.loads((BASE / "data/regulacion_alquiler.json").read_text(encoding="utf-8"))
+reg_series = BASE / "data/regulacion_series.json"
+if reg_series.exists():  # lo genera scripts/regulacion.py
+    datos["regulacion"]["series"] = json.loads(reg_series.read_text(encoding="utf-8"))
+
 # ---------- Inversión y especulación ----------
 vac = valores("pct_viviendas_vacias", "2021")
 vac_n = valores("viviendas_vacias", "2021")

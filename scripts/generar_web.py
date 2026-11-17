@@ -460,7 +460,11 @@ if mun_path.exists():
     geo_m = json.loads((BASE / "data/geo_municipios.json").read_text(encoding="utf-8"))
     claves = ("n", "exc", "esf", "alq", "alq_n", "mas10", "mas100", "pj", "vut", "zt", "cb", "res", "renta")
     mun_web = {c: {k: v[k] for k in claves if k in v} for c, v in M.items()}
-    (BASE / "web/municipios.json").write_text(json.dumps({"geo": geo_m, "m": mun_web}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    web_mun = {"geo": geo_m, "m": mun_web}
+    reg_mun = BASE / "data/regulacion_municipios.json"  # lo genera scripts/regulacion.py
+    if reg_mun.exists():
+        web_mun["reg"] = json.loads(reg_mun.read_text(encoding="utf-8"))
+    (BASE / "web/municipios.json").write_text(json.dumps(web_mun, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
 geo = json.loads((BASE / "data/geo_provincias.json").read_text(encoding="utf-8"))
 geo_min = {"frame": geo["frame"], "ccaa": geo["ccaa"], "prov": {k: v["d"] for k, v in geo["prov"].items()}}

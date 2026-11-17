@@ -1,16 +1,16 @@
 {
-  "revisado": "2026-11-16",
-  "nota": "Regulación del precio del alquiler: hitos normativos comprobados en BOE y sentencias, cifras de la Generalitat de Cataluña (fianzas depositadas en el Incasòl) recogidas por prensa, y estudios. Las cifras de prensa y de estudios no tienen carácter oficial y se marcan como tales.",
+  "revisado": "2026-11-17",
+  "nota": "Regulación del precio del alquiler: hitos normativos comprobados en BOE, DOGC y sentencias; serie oficial de contratos nuevos de la Generalitat de Cataluña (fianzas del Incasòl, en data/regulacion_series.json, generada por scripts/regulacion.py); casos de otros países y estudios. Las cifras de prensa y de estudios no tienen carácter oficial y se marcan como tales.",
   "hitos": [
     {
       "fecha": "2020-09",
       "lugar": "Cataluña",
       "nombre": "Ley 11/2020 de contención de rentas en los contratos de arrendamiento de vivienda",
-      "cambio": "Primera norma autonómica que limita la renta inicial de los alquileres nuevos en las zonas que declara con mercado tensionado, tomando como referencia un índice de precios de la Generalitat.",
+      "cambio": "Primera norma autonómica que limita la renta inicial de los alquileres nuevos. Entra en vigor el 22 de septiembre de 2020 y declara de forma transitoria 61 municipios con mercado tenso (anexo), entre ellos Barcelona, Girona, Lleida, Tarragona y la mayor parte del área metropolitana.",
       "estado": "anulada",
-      "estado_nota": "El Tribunal Constitucional anuló el régimen de contención de rentas en la sentencia 37/2022, de 10 de marzo de 2022, por invadir competencias del Estado, no por su contenido.",
-      "fuente": "https://boe.es/boe/dias/2022/04/08/pdfs/BOE-A-2022-5807.pdf",
-      "fuente_txt": "BOE, STC 37/2022"
+      "estado_nota": "El Tribunal Constitucional anuló el régimen de contención de rentas en la sentencia 37/2022, de 10 de marzo de 2022, por invadir competencias del Estado, no por su contenido. Fuente: BOE, STC 37/2022 (BOE-A-2022-5807).",
+      "fuente": "https://www.boe.es/buscar/act.php?id=BOE-A-2020-11363",
+      "fuente_txt": "BOE, Ley 11/2020"
     },
     {
       "fecha": "2023-05",
@@ -38,6 +38,15 @@
       "estado": "vigente",
       "fuente": "https://www.mivau.gob.es/vivienda/alquila-bien-es-tu-derecho/serpavi/consultar-zonas-de-mercado-residencial-tensionado",
       "fuente_txt": "Ministerio de Vivienda, zonas tensionadas"
+    },
+    {
+      "fecha": "2026-10",
+      "lugar": "Cataluña",
+      "nombre": "Nueva declaración de zonas tensionadas (Resolución TER/3740/2026)",
+      "cambio": "La Generalitat declara zona tensionada otros 53 municipios (DOGC del 19 de octubre de 2026), al acercarse el fin de la vigencia de tres años de las declaraciones de 2024. La lista del Ministerio de Vivienda consultada para el mapa aún no la incluye.",
+      "estado": "vigente",
+      "fuente": "https://dogc.gencat.cat/ca/document-del-dogc/?documentId=1057087",
+      "fuente_txt": "DOGC, Resolución TER/3740/2026"
     }
   ],
   "casos": [
@@ -45,7 +54,7 @@
       "id": "cat2020",
       "lugar": "Cataluña, 2020–2022",
       "regulacion": "Ley 11/2020: tope a la renta inicial de los contratos nuevos, de septiembre de 2020 a la sentencia del Tribunal Constitucional de marzo de 2022.",
-      "datos": "SERPAVI no separa contratos nuevos de vigentes, así que no permite medir el efecto sobre los alquileres que se firmaron en ese periodo. No hay estudio oficial que lo cuantifique.",
+      "datos": "SERPAVI no separa contratos nuevos de vigentes, pero las fianzas del Incasòl sí: el gráfico (vista «Ley 11/2020») y la tabla comparan los 61 municipios regulados con el resto de Cataluña. El periodo coincide con la pandemia.",
       "fuente": "https://boe.es/boe/dias/2022/04/08/pdfs/BOE-A-2022-5807.pdf",
       "fuente_txt": "BOE, STC 37/2022"
     },
@@ -53,9 +62,9 @@
       "id": "cat2024",
       "lugar": "Cataluña, desde marzo de 2024",
       "regulacion": "Límite a la renta de los contratos nuevos en las zonas tensionadas (Ley 12/2023), con 140 municipios desde el 16 de marzo de 2024 y 271 desde octubre.",
-      "datos": "La Generalitat publica cada trimestre el precio medio y el número de contratos con las fianzas depositadas en el Incasòl, separados entre zonas tensionadas y resto de Cataluña.",
-      "fuente": "https://es.ara.cat/economia/inmobiliario/topes-evitan-encarecimiento-alquileres-suben-1-2024_1_5897417.html",
-      "fuente_txt": "ARA, con datos de la Generalitat (Incasòl)"
+      "datos": "La Generalitat publica en datos abiertos el número de contratos y la renta media de los contratos nuevos por municipio y trimestre, a partir de las fianzas depositadas en el Incasòl. Es la serie que usan el gráfico, el mapa y la tabla de esta página.",
+      "fuente": "https://analisi.transparenciacatalunya.cat/d/qww9-bvhh",
+      "fuente_txt": "Generalitat de Cataluña, datos abiertos (Incasòl)"
     },
     {
       "id": "berlin",
@@ -68,26 +77,6 @@
       "fuente2_txt": "Berliner Mieterverein, sobre el informe IBB 2021"
     }
   ],
-  "incaso": {
-    "nota": "Cifras de la Generalitat de Cataluña a partir de las fianzas de alquiler depositadas en el Incasòl, tal como las recogió la prensa (ARA, 2 de noviembre de 2026; NacióDigital, 2026). No se ha podido descargar la serie trimestral completa del Incasòl, por lo que se muestran los datos sueltos publicados y no una serie.",
-    "puntos": [
-      {"clave": "zt_2a", "texto": "Precio medio de los contratos nuevos en las zonas tensionadas, marzo–junio de 2026 frente a dos años antes", "valor": -0.7, "unidad": "%"},
-      {"clave": "resto_2a", "texto": "Precio medio de los contratos nuevos en el resto de Cataluña, mismo periodo", "valor": 11.0, "unidad": "%"},
-      {"clave": "bcn", "texto": "Barcelona ciudad: alquiler medio mensual, marzo–junio de 2026 (la fuente indica un 4,4 % menos)", "valor": 1140.89, "unidad": "€"},
-      {"clave": "zt_1a", "texto": "Zonas tensionadas, primer trimestre de 2026 frente al primero de 2025", "valor": 3.71, "unidad": "%"}
-    ],
-    "contratos": [
-      {"periodo": "1.er trimestre de 2024", "valor": 34496},
-      {"periodo": "3.er trimestre de 2025", "valor": 26962}
-    ],
-    "contratos_nota": "Contratos de larga duración firmados en Cataluña.",
-    "saldo": {"periodo": "2.º trimestre de 2026", "firmados": 26449, "extinguidos": 23937, "neto": 2512, "neto_2024": 4136, "neto_2025": 2285},
-    "temporada": "Los contratos de temporada firmados en el 2.º trimestre de 2026 fueron un 40,5 % menos que en el mismo trimestre de 2025.",
-    "fuente": "https://es.ara.cat/economia/inmobiliario/topes-evitan-encarecimiento-alquileres-suben-1-2024_1_5897417.html",
-    "fuente_txt": "ARA, con datos de la Generalitat (Incasòl)",
-    "fuente2": "https://naciodigital.cat/societat/el-lloguer-a-les-zones-tensionades-puja-un-371-en-un-any-lleugerament-per-sota-de-la-catalunya-sense-topalls.html",
-    "fuente2_txt": "NacióDigital, con datos del Incasòl"
-  },
   "estudios": [
     {
       "titulo": "San Francisco, 1994: control de alquileres en edificios pequeños",

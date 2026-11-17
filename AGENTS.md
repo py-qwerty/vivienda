@@ -40,6 +40,8 @@ scripts/
   municipios.py     # datos por municipio (SERPAVI, renta INE, Catastro, pisos turísticos, zonas tensionadas)
                     # -> data/municipios.json y data/geo_municipios.json; solo biblioteca estándar
   certs/            # raíz de la FNMT, necesaria para descargar del Catastro con urllib
+  regulacion.py     # serie trimestral de contratos nuevos de Cataluña (Incasòl, datos abiertos de la Generalitat)
+                    # y SERPAVI por grupos -> data/regulacion_series.json y data/regulacion_municipios.json
   generar_web.py    # data/ + web/plantilla.html + web/recorrido.js -> web/index.html y web/municipios.json
   esquema.sql
 data/
@@ -63,6 +65,7 @@ web/
 python scripts/descargar.py      # solo si hay que actualizar datos de origen
 python scripts/construir_bd.py   # regenera data/
 python3 scripts/municipios.py    # datos por municipio (descarga ~480 MB; --sin-descarga reutiliza raw/)
+python3 scripts/regulacion.py    # regulación del alquiler (necesita raw/municipios/serpavi.xlsx; --sin-descarga)
 python scripts/generar_web.py    # regenera web/index.html
 python -m http.server 5501 --directory web   # vista local en http://localhost:5501
 ```
@@ -84,9 +87,13 @@ python -m http.server 5501 --directory web   # vista local en http://localhost:5
    Ley 12/2023 calculados año a año (2016–2024), zonas declaradas, concentración de la propiedad (Catastro) y
    pisos turísticos; concentración y precio; propiedad del alquiler; viviendas vacías; estudios; **análisis
    final** (compras de inversión y precio, concentración y tensión) y regulación.
-6. **Por provincia**: mapa con capas (hogares por vivienda, extranjeros, no residentes, pisos turísticos,
+6. **Regulación del alquiler** (id `regulacion`): gráfico trimestral de renta y número de contratos nuevos en
+   Cataluña (fianzas del Incasòl) con dos vistas, Ley 11/2020 (61 municipios, 2020–2022) y zonas tensionadas
+   de 2024; **mapa de municipios regulados** por fecha con ficha y serie de cada uno (Incasòl en Cataluña,
+   SERPAVI fuera); tabla antes/después; cronología; casos (Berlín) y estudios.
+7. **Por provincia**: mapa con capas (hogares por vivienda, extranjeros, no residentes, pisos turísticos,
    viviendas vacías, alquiler).
-7. **Resumen**.
+8. **Resumen**.
 
 Un paso puede incluir otros como apartados mediante `UNIDOS` (`origen` dentro de `hogares`, `costes` dentro
 de `construccion`); los enlaces antiguos redirigen al paso padre.
@@ -102,5 +109,7 @@ de `construccion`); los enlaces antiguos redirigen al paso padre.
   estatal; en SERPAVI entran tarde (Navarra 2021, Gipuzkoa 2022, Álava y Bizkaia 2024).
 - El Catastro mide la concentración dentro de cada municipio (un titular con viviendas en varios municipios
   cuenta por separado en cada uno). No hay alquiler por tipo de propietario en ninguna fuente oficial.
+- Fuera de Cataluña no hay serie oficial de contratos nuevos por municipio descargable (el País Vasco publica la
+  EMAL solo en informes y visor GIS); las zonas declaradas en 2025–2026 aún no se pueden evaluar con SERPAVI.
 - El criterio a) de zona tensionada solo se puede aproximar (sin gastos ni suministros, renta de todos los
   hogares): se muestra como dato continuo, no como criterio cumplido.

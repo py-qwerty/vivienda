@@ -156,7 +156,15 @@ svg.mm #mm-m path { stroke-width: 0.35; cursor: pointer; }
 svg.mm .mm-prov { fill: none; stroke: var(--line-strong); stroke-width: 0.6; pointer-events: none; }
 svg.mm .mm-marco { fill: none; stroke: var(--line-strong); stroke-width: 1; pointer-events: none; }
 svg.mm .mm-hl { fill: none; stroke: var(--ink); stroke-width: 1.4; pointer-events: none; }
-#mm-box { position: relative; }
+#mm-box, #rm-box { position: relative; }
+#rm-box .tip { position: absolute; pointer-events: none; max-width: 320px; }
+.mm-pareja { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .mm-pareja { grid-template-columns: 1fr; } }
+svg.mm #rm-m path { stroke-width: 0.35; }
+svg.mm #rm-m path.rm-r { cursor: pointer; }
+svg.mm .rm-sel { stroke: var(--accent); stroke-width: 2; }
+.rm-elige { display: flex; gap: 8px; align-items: center; font-size: 0.85rem; color: var(--ink-2); }
+.rm-elige select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 4px 8px; max-width: 100%; min-width: 0; flex: 1; }
 #mm-box .tip { position: absolute; pointer-events: none; max-width: 320px; }
 .mm-esc { position: relative; max-width: 420px; margin: 4px 0 18px; }
 .mm-grad { height: 10px; border-radius: 5px; }

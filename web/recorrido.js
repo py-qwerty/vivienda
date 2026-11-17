@@ -292,18 +292,173 @@ function estudiosHTML() {
 }
 
 /* ---- regulación del precio del alquiler ---- */
-const RG_BASE = 2019;
-function rgSeries() {
-  const S = D.regulacion.series, b = S.anos.indexOf(RG_BASE);
-  const g = k => S.grupos[k].eur_m2;
-  const idx = k => g(k).map(v => v == null ? null : 100 * v / g(k)[b]);
-  const vi = k => g(k).map((v, i) => i === 0 || v == null || g(k)[i - 1] == null ? null : varPct(g(k)[i - 1], v));
-  return { S, b, g, idx, vi, i: a => S.anos.indexOf(a) };
+// Serie trimestral de contratos nuevos (fianzas del Incasòl, Generalitat de Cataluña)
+const RG_VISTAS = {
+  "2024": { boton: "Zonas tensionadas (2024)", grupos: [["zt_mar24", "Declarados en marzo de 2024", "var(--s1)"], ["zt_oct24", "Declarados en octubre de 2024", "var(--s2)"], ["cat_no", "Nunca declarados", "var(--s3)"]],
+    bandas: [], marcas: [["2020 T2", "Confinamiento", 2], ["2024 T1", "Mar. 2024", 1], ["2024 T4", "Oct. 2024", 2]] },
+  "2020": { boton: "Ley 11/2020 (2020–2022)", grupos: [["ley2020", "61 municipios de la Ley 11/2020", "var(--s1)"], ["no2020", "Resto de Cataluña", "var(--s3)"]],
+    bandas: [["2020 T3", "2022 T1", "Ley 11/2020 en vigor"]], marcas: [["2024 T1", "Mar. 2024", 1]] },
+};
+let rgVista = "2024";
+function rgT() {
+  const T = D.regulacion.series.trim, P = T.periodos, i = p => P.indexOf(p);
+  const media = v => v.reduce((x, y) => x + y, 0) / v.length;
+  const med = (g, a, b, k = "renta") => media(T.grupos[g][k].slice(i(a), i(b) + 1));
+  const idx = (g, k) => { const b = med(g, "2019 T1", "2019 T4", k); return T.grupos[g][k].map(v => v == null ? null : Math.round(1000 * v / b) / 10); };
+  const cambio = (g, a0, b0, a1, b1, k = "renta") => varPct(med(g, a0, b0, k), med(g, a1, b1, k));
+  return { T, P, i, idx, med, cambio, u0: P[P.length - 4], u1: ult(P) };
+}
+const trimTxt = p => { const [a, q] = p.split(" T"); return `${["primer", "segundo", "tercer", "cuarto"][q - 1]} trimestre de ${a}`; };
+// ventanas de cuatro trimestres antes y después de cada medida
+const RG_VENT = { mar24: ["2023 T2", "2024 T1"], oct24: ["2023 T4", "2024 T3"], pre20: ["2019 T4", "2020 T3"], dur20: ["2021 T2", "2022 T1"], post20: ["2022 T2", "2023 T1"] };
+function rgDatos() {
+  const R = rgT(), U = [R.u0, R.u1], c = (g, w, k) => R.cambio(g, ...RG_VENT[w], ...U, k);
+  return { R, U,
+    mar: { zt: c("zt_mar24", "mar24"), no: c("cat_no", "mar24"), bcn: c("bcn", "mar24"), ztN: c("zt_mar24", "mar24", "contratos"), noN: c("cat_no", "mar24", "contratos"), bcnN: c("bcn", "mar24", "contratos") },
+    oct: { zt: c("zt_oct24", "oct24"), no: c("cat_no", "oct24"), ztN: c("zt_oct24", "oct24", "contratos"), noN: c("cat_no", "oct24", "contratos") },
+    l20: Object.fromEntries(["ley2020", "no2020", "bcn"].map(g => [g, { dur: R.cambio(g, ...RG_VENT.pre20, ...RG_VENT.dur20), post: R.cambio(g, ...RG_VENT.dur20, ...RG_VENT.post20), n: R.cambio(g, ...RG_VENT.pre20, ...RG_VENT.dur20, "contratos") }])) };
+}
+function rgDibujar() {
+  const R = rgT(), V = RG_VISTAS[rgVista], X = R.P.map(p => p.replace(" T", " T"));
+  const cfg = k => ({ tipo: "lineas", alto: 260, x: X,
+    series: V.grupos.map(([g, n, c]) => ({ n, v: R.idx(g, k), c })),
+    y: k === "renta" ? { min: 90, max: 140, ref: 100, ticks: [90, 100, 110, 120, 130, 140], fmt: v => nf0.format(v) } : { min: 40, max: 140, ref: 100, ticks: [40, 60, 80, 100, 120, 140], fmt: v => nf0.format(v) },
+    bandas: V.bandas.map(([a, b, t]) => ({ i0: R.i(a), i1: R.i(b), t })),
+    marcas: V.marcas.map(([p, t, fila]) => ({ i: R.i(p), t, fila })),
+    tipFmt: v => `${nf1.format(v)} (${signoP(v - 100)} desde 2019)`,
+    aria: `${k === "renta" ? "Renta media" : "Número"} de los contratos de alquiler nuevos por trimestre en Cataluña, 2019 = 100` });
+  grafico($("c-rg-r"), cfg("renta")); grafico($("c-rg-n"), cfg("contratos"));
+  for (const b of $("rg-vistas").children) b.setAttribute("aria-pressed", b.dataset.v === rgVista);
+}
+function rgAntesHTML() {
+  const { mar, oct, l20, U } = rgDatos(), T = D.regulacion.series.trim.grupos;
+  const f = v => `${signoP(v)} %`, ventana = w => `${RG_VENT[w][0]} a ${RG_VENT[w][1]}`;
+  return `<section class="lectura" aria-labelledby="rga-t"><h3 id="rga-t">Antes y después de cada medida, contratos nuevos</h3>
+    <p class="note">Media de cuatro trimestres antes de cada medida frente a los cuatro últimos con datos (${U[0]} a ${U[1]}), para evitar el efecto de la estación del año. Renta mensual media de los contratos nuevos registrados en el Incasòl.</p>
+    <div class="tabla"><table class="num"><thead><tr><th scope="col">Zonas tensionadas (Ley 12/2023)</th><th scope="col">Antes</th><th scope="col">Renta</th><th scope="col">Contratos</th></tr></thead><tbody>
+      <tr><th scope="row">Declarados en marzo de 2024 (${T.zt_mar24.municipios} municipios)</th><td>${ventana("mar24")}</td><td>${f(mar.zt)}</td><td>${f(mar.ztN)}</td></tr>
+      <tr><th scope="row">&nbsp;&nbsp;de ellos, Barcelona</th><td>${ventana("mar24")}</td><td>${f(mar.bcn)}</td><td>${f(mar.bcnN)}</td></tr>
+      <tr><th scope="row">Nunca declarados (${T.cat_no.municipios} municipios)</th><td>${ventana("mar24")}</td><td>${f(mar.no)}</td><td>${f(mar.noN)}</td></tr>
+      <tr><th scope="row">Declarados en octubre de 2024 (${T.zt_oct24.municipios} municipios)</th><td>${ventana("oct24")}</td><td>${f(oct.zt)}</td><td>${f(oct.ztN)}</td></tr>
+      <tr><th scope="row">Nunca declarados</th><td>${ventana("oct24")}</td><td>${f(oct.no)}</td><td>${f(oct.noN)}</td></tr>
+    </tbody></table></div>
+    <div class="tabla"><table class="num"><thead><tr><th scope="col">Ley 11/2020 (sep. 2020 – mar. 2022)</th><th scope="col">Renta: antes → último año en vigor</th><th scope="col">Renta: último año en vigor → año siguiente</th><th scope="col">Contratos: antes → último año en vigor</th></tr></thead><tbody>
+      ${[["ley2020", `61 municipios de la ley`], ["bcn", "&nbsp;&nbsp;de ellos, Barcelona"], ["no2020", "Resto de Cataluña"]].map(([g, n]) => `<tr><th scope="row">${n}</th><td>${f(l20[g].dur)}</td><td>${f(l20[g].post)}</td><td>${f(l20[g].n)}</td></tr>`).join("")}
+    </tbody></table></div>
+    <p class="note">Ley 11/2020: antes = ${ventana("pre20")}; último año en vigor = ${ventana("dur20")}; año siguiente = ${ventana("post20")}. El periodo coincide con la pandemia, que bajó los alquileres en las ciudades grandes por su cuenta.</p></section>`;
+}
+
+/* mapa de municipios regulados y ficha de cada uno */
+const RM = { sel: "08019" };
+const RM_CAT = [["2020", "Ley 11/2020 y zona tensionada desde 2024", "var(--r7)"], ["2020s", "Solo Ley 11/2020 (2020–2022)", "var(--r2)"], ["2024", "Zona tensionada desde 2024", "var(--r5)"], ["2025", "Desde 2025", "var(--r4)"], ["2026", "Desde 2026", "var(--r3)"]];
+function rmCat(v) {
+  if (!v) return null;
+  if (v.ley2020) return v.zt ? "2020" : "2020s";
+  return v.zt ? v.zt[0].slice(0, 4) : null;
+}
+const fechaLarga = f => new Date(f).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+function rmMedidas(v) {
+  const l = [];
+  if (v.ley2020) l.push("Ley 11/2020: topes de septiembre de 2020 a marzo de 2022");
+  if (v.zt) l.push(`Zona tensionada${v.zt[1] ? " (parte del municipio)" : ""} desde el ${fechaLarga(v.zt[0])}`);
+  return l;
+}
+function rmTip(c, e) {
+  const v = MM.datos.reg.mun[c], tip = $("rm-tip"), nom = (MM.datos.m[c] || {}).n || c;
+  if (!v) { tip.hidden = true; return; }
+  tip.innerHTML = `<strong>${esc(nom)}</strong>${rmMedidas(v).map(x => `<span class="c">${x}</span>`).join("")}<span class="c">Pulsa para ver su serie</span>`;
+  tip.hidden = false;
+  const box = $("rm-box").getBoundingClientRect(), x = e.clientX - box.left, y = e.clientY - box.top;
+  tip.style.left = Math.max(0, Math.min(box.width - tip.offsetWidth, x + 14)) + "px";
+  tip.style.top = Math.max(0, y - tip.offsetHeight - 12) + "px";
+}
+function rmFicha() {
+  const Rg = MM.datos.reg, v = Rg.mun[RM.sel], nom = (MM.datos.m[RM.sel] || {}).n || RM.sel, el = $("c-rm");
+  $("rm-sel").setAttribute("d", MM.caminos.mun[RM.sel] || "");
+  $("rm-lista").value = RM.sel;
+  $("rm-ft").textContent = nom;
+  $("rm-med").innerHTML = rmMedidas(v).map(x => `<span class="nchip">${x}</span>`).join("");
+  const P = Rg.periodos;
+  if (v.r && v.r.filter(x => x != null).length >= 8) {
+    const b0 = v.r.slice(0, 4).filter(x => x != null), base = b0.length ? b0.reduce((a, b) => a + b, 0) / b0.length : null;
+    const nb = Rg.cat_no.slice(0, 4).reduce((a, b) => a + b, 0) / 4;
+    const ix = (arr, b) => arr.map(x => x == null || !b ? null : Math.round(1000 * x / b) / 10);
+    const marcas = []; if (v.zt) { const a = +v.zt[0].slice(0, 4), m = +v.zt[0].slice(5, 7); marcas.push({ i: P.indexOf(`${a} T${Math.ceil(m / 3)}`), t: "Zona tensionada", fila: 1 }); }
+    $("rm-sub").textContent = "Renta media de los contratos nuevos, 2019 = 100";
+    grafico(el, { tipo: "lineas", alto: 240, x: P,
+      series: [{ n: nom, v: ix(v.r, base), c: C1 }, { n: "Cataluña, municipios nunca declarados", v: ix(Rg.cat_no, nb), c: C3 }],
+      y: { min: 70, max: 160, ref: 100, ticks: [70, 100, 130, 160], fmt: v => nf0.format(v) },
+      bandas: v.ley2020 ? [{ i0: P.indexOf("2020 T3"), i1: P.indexOf("2022 T1"), t: "Ley 11/2020" }] : [], marcas,
+      tipFmt: x => nf1.format(x), tipExtra: i => v.r[i] ? `<span class="tx">${nf0.format(v.r[i])} €/mes · ${nf0.format(v.h[i])} contratos</span>` : "",
+      aria: `Renta media de los contratos nuevos en ${nom} frente a los municipios catalanes nunca declarados, 2019 = 100` });
+    const u = v.r.length - 1, h0 = v.h.slice(0, 4).reduce((a, b) => a + b, 0), h1 = v.h.slice(-4).reduce((a, b) => a + b, 0);
+    $("rm-nota").textContent = `Último trimestre (${P[u]}): ${v.r[u] ? nf0.format(v.r[u]) + " €/mes de media" : "sin dato"}. Contratos nuevos en los cuatro últimos trimestres: ${nf0.format(h1)}, frente a ${nf0.format(h0)} en 2019 (${signoE(varPct(h0, h1))}). Fuente: Generalitat de Cataluña, fianzas depositadas en el Incasòl. Solo trimestres con al menos ${Rg.min_contratos} contratos.`;
+  } else if (v.s && v.s.filter(x => x != null).length >= 3) {
+    const A = Rg.anos, i0 = A.findIndex((_, k) => v.s[k] != null), ix = arr => arr.map(x => x == null ? null : Math.round(1000 * x / arr[i0]) / 10);
+    $("rm-sub").textContent = `Alquiler mediano por m² de los contratos vigentes, ${A[i0]} = 100`;
+    grafico(el, { tipo: "lineas", alto: 240, x: A.slice(i0),
+      series: [{ n: nom, v: ix(v.s).slice(i0), c: C1 }, { n: "España", v: ix(Rg.espana_m2).slice(i0), c: C3 }],
+      y: { ref: 100, fmt: v => nf0.format(v) }, tipFmt: x => nf1.format(x), aria: `Alquiler por metro cuadrado en ${nom} frente a España` });
+    $("rm-nota").textContent = `Ministerio de Vivienda, SERPAVI. La serie llega a ${ult(A)} y la regulación empezó después${v.zt ? ` (${fechaLarga(v.zt[0])})` : ""}: muestra cómo venía el alquiler, no el efecto de la medida. Fuera de Cataluña no hay todavía una serie oficial de contratos nuevos por municipio que cubra el periodo regulado.`;
+  } else {
+    el.innerHTML = ""; $("rm-sub").textContent = "";
+    $("rm-nota").textContent = `No hay serie oficial suficiente para este municipio: ${["01", "20", "48", "31"].includes(RM.sel.slice(0, 2)) ? "el País Vasco y Navarra entran tarde en SERPAVI (Álava y Bizkaia, en 2024) y" : "SERPAVI no tiene datos con suficientes alquileres y,"} fuera de Cataluña, no hay una serie oficial de contratos nuevos por municipio que cubra el periodo regulado.`;
+  }
+}
+async function rmIniciar() {
+  if (!$("rm-box")) return;
+  try {
+    if (!MM.datos) { const r = await fetch("municipios.json"); MM.datos = await r.json(); }
+    if (!$("rm-box") || !MM.datos.reg) return;
+    const G = MM.datos.geo; MM.caminos = MM.caminos || mmCaminos(G);
+    const Rg = MM.datos.reg.mun, svg = $("rm-svg");
+    svg.setAttribute("viewBox", `0 0 ${G.w} ${G.h}`);
+    $("rm-m").innerHTML = Object.entries(MM.caminos.mun).map(([c, d]) => { const k = rmCat(Rg[c]), col = k ? RM_CAT.find(x => x[0] === k)[2] : "var(--surface)";
+      return `<path d="${d}" data-c="${c}" style="fill:${col};stroke:${k ? col : "none"}"${k ? ' class="rm-r"' : ""}></path>`; }).join("");
+    $("rm-p").setAttribute("d", MM.caminos.prov);
+    const [x0, y0, x1, y1] = G.marco; $("rm-marco").setAttribute("d", `M${x0},${y0}H${x1}V${y1}H${x0}Z`);
+    $("rm-carga").hidden = true;
+    const nombre = c => (MM.datos.m[c] || {}).n || c;
+    $("rm-lista").innerHTML = Object.keys(Rg).sort((a, b) => nombre(a).localeCompare(nombre(b), "es")).map(c => `<option value="${c}">${esc(nombre(c))}</option>`).join("");
+    $("rm-lista").addEventListener("change", e => { RM.sel = e.target.value; rmFicha(); });
+    svg.addEventListener("pointermove", e => { const c = e.target.dataset && e.target.dataset.c; if (c && Rg[c]) { rmTip(c, e); $("rm-hl").setAttribute("d", MM.caminos.mun[c]); } else { $("rm-tip").hidden = true; $("rm-hl").setAttribute("d", ""); } });
+    svg.addEventListener("pointerleave", () => { $("rm-tip").hidden = true; $("rm-hl").setAttribute("d", ""); });
+    svg.addEventListener("click", e => { const c = e.target.dataset && e.target.dataset.c; if (c && Rg[c]) { RM.sel = c; rmFicha(); } });
+    rmFicha();
+  } catch (err) {
+    $("rm-carga").textContent = "No se ha podido cargar el mapa de municipios.";
+  }
+}
+function rmMapaHTML() {
+  const Z = D.mun.decl.por_ccaa;
+  setTimeout(rmIniciar);
+  return `<section class="lectura" aria-labelledby="rm-t"><h3 id="rm-t">Dónde se ha limitado el precio del alquiler y desde cuándo</h3>
+    <p class="note">Municipios donde ha habido o hay límites al precio de los contratos de alquiler: los 61 de la Ley catalana 11/2020 y las zonas tensionadas declaradas con la Ley 12/2023 (${Object.entries(Z).sort((a, b) => b[1] - a[1]).map(([c, n]) => `${c}, ${n}`).join("; ")}). Pulsa un municipio para ver su serie.</p>
+    <div class="mm-pareja">
+    <figure class="panel mm-card">
+      <h4 id="rm-tit">Municipios con límites al alquiler, por fecha de la primera medida</h4>
+      <div class="mapbox" id="rm-box">
+        <p class="note" id="rm-carga">Cargando el mapa de municipios…</p>
+        <svg class="map mm" id="rm-svg" viewBox="0 0 800 600" role="img" aria-labelledby="rm-tit">
+          <g id="rm-m"></g><path id="rm-p" class="mm-prov"></path><path id="rm-marco" class="mm-marco"></path><path id="rm-hl" class="mm-hl"></path><path id="rm-sel" class="mm-hl rm-sel"></path>
+        </svg>
+        <div class="tip" id="rm-tip" hidden></div>
+      </div>
+      ${leyendaHTML([...RM_CAT.map(([, n, c]) => ({ n, c })), { n: "Sin límites", c: "var(--surface)" }])}
+      <figcaption>Zonas declaradas según el Ministerio de Vivienda (consulta del ${fechaLarga(D.mun.decl.consulta)}). La nueva declaración catalana de octubre de 2026 aún no figura en esa lista. En el País Vasco, Navarra, Galicia y Asturias las zonas se declararon municipio a municipio entre 2025 y 2026.</figcaption>
+    </figure>
+    <div class="panel mm-card">
+      <label class="rm-elige">Municipio <select id="rm-lista"><option>Barcelona</option></select></label>
+      <h4 id="rm-ft">Barcelona</h4><div class="nchips" id="rm-med"></div>
+      <p class="note" id="rm-sub"></p>
+      <div class="chart" id="c-rm"></div>
+      <p class="note" id="rm-nota"></p>
+    </div></div></section>`;
 }
 function rgHitosHTML() {
   const ESTADO = { vigente: "Vigente", anulada: "Anulada" };
   const fecha = f => `${MES_CORTO[+f.slice(5, 7) - 1]} ${f.slice(0, 4)}`;
-  return `<section class="lectura" aria-labelledby="rgh-t"><h3 id="rgh-t">Cuándo se reguló y dónde</h3>
+  return `<section class="lectura" aria-labelledby="rgh-t"><h3 id="rgh-t">Cronología de las normas</h3>
     <p class="note">En España el precio del alquiler solo se ha limitado en Cataluña (2020–2022 y desde 2024) y, desde 2025, en zonas del País Vasco, Navarra, Galicia y Asturias. Las normas de otros países se muestran más abajo como referencia.</p>
     <ol class="normas">${D.regulacion.hitos.map(n => `<li>
       <span class="nfecha num">${fecha(n.fecha)}</span>
@@ -314,41 +469,19 @@ function rgHitosHTML() {
         <a href="${n.fuente}" target="_blank" rel="noopener">Fuente: ${n.fuente_txt}</a>
       </div></li>`).join("")}</ol></section>`;
 }
-function rgTablaHTML() {
-  const R = rgSeries(), anos = R.S.anos.filter(a => a >= 2018);
-  const f = (k, a) => { const v = R.vi(k)[R.i(a)]; return v == null ? "—" : signoP(v) + " %"; };
-  const dif = a => { const i = R.i(a), x = R.vi("cat_zt")[i], y = R.vi("resto")[i]; return x == null || y == null ? "—" : signoP(x - y); };
-  return `<section class="lectura" aria-labelledby="rgt-t"><h3 id="rgt-t">Variación anual del alquiler mediano por m²</h3>
-    <div class="tabla"><table class="num"><thead><tr><th scope="col">Año</th><th scope="col">Cataluña, zonas declaradas en 2024</th><th scope="col">Resto de Cataluña</th><th scope="col">Resto de España</th><th scope="col">Diferencia: zonas declaradas menos resto de España (puntos)</th></tr></thead>
-    <tbody>${anos.map(a => `<tr><th scope="row">${a}</th><td>${f("cat_zt", a)}</td><td>${f("cat_no", a)}</td><td>${f("resto", a)}</td><td>${dif(a)}</td></tr>`).join("")}</tbody></table></div>
-    <p class="note">Alquiler mediano por m² de los pisos con contrato vigente (SERPAVI), media de los municipios ponderada por contratos. «Resto de España» no incluye Cataluña, País Vasco ni Navarra. Cataluña, zonas declaradas: ${R.S.grupos.cat_zt.municipios[R.S.anos.length - 1]} municipios con dato en ${ult(R.S.anos)}; resto de Cataluña: ${R.S.grupos.cat_no.municipios[R.S.anos.length - 1]}.</p></section>`;
-}
 function rgCasosHTML() {
   return `<section class="lectura" aria-labelledby="rgc-t"><h3 id="rgc-t">Casos estudiados</h3>
     <div class="lect-grid">${D.regulacion.casos.map(c => `<article><h4>${c.lugar}</h4>
       <p><strong>Qué se reguló:</strong> ${c.regulacion}</p><p><strong>Qué datos hay:</strong> ${c.datos}</p>
       <p><a href="${c.fuente}" target="_blank" rel="noopener">${c.fuente_txt}</a>${c.fuente2 ? ` · <a href="${c.fuente2}" target="_blank" rel="noopener">${c.fuente2_txt}</a>` : ""}</p></article>`).join("")}</div></section>`;
 }
-function rgCatHTML() {
-  const I = D.regulacion.incaso, P = Object.fromEntries(I.puntos.map(p => [p.clave, p.valor])), K = I.contratos, S = I.saldo;
-  const caida = varPct(K[0].valor, K[1].valor);
-  return `<section class="lectura" aria-labelledby="rgk-t"><h3 id="rgk-t">Cataluña desde marzo de 2024: contratos nuevos</h3>
-    <p class="note">${I.nota}</p>
-    <div class="lect-grid">
-      <article><h4>Precio de los contratos nuevos</h4><p>Marzo–junio de 2026 frente a dos años antes: <strong>${signoP(P.zt_2a)} %</strong> en las zonas tensionadas y <strong>${signoP(P.resto_2a)} %</strong> en el resto de Cataluña. En el primer trimestre de 2026, las zonas tensionadas estaban un ${nf1.format(P.zt_1a)} % por encima del primer trimestre de 2025.</p></article>
-      <article><h4>Número de contratos de larga duración</h4><p>${nf0.format(K[0].valor)} en el ${K[0].periodo} y ${nf0.format(K[1].valor)} en el ${K[1].periodo}: ${signoE(caida)}. Son trimestres distintos del año y la serie puede tener estacionalidad.</p></article>
-      <article><h4>Saldo de contratos</h4><p>En el ${S.periodo} se firmaron ${nf0.format(S.firmados)} y se extinguieron ${nf0.format(S.extinguidos)}: saldo de +${nf0.format(S.neto)}. El mismo trimestre de 2024 el saldo fue de ${nf0.format(S.neto_2024)}, y el de 2025, ${nf0.format(S.neto_2025)}.</p></article>
-      <article><h4>Contratos de temporada</h4><p>${I.temporada} Los de temporada quedan fuera de los límites de renta en las zonas tensionadas, por lo que se vigila si sustituyen a los de larga duración.</p></article>
-    </div>
-    <p class="note"><a href="${I.fuente}" target="_blank" rel="noopener">${I.fuente_txt}</a> · <a href="${I.fuente2}" target="_blank" rel="noopener">${I.fuente2_txt}</a>. Cifras de prensa que reproducen datos de la Generalitat: sin carácter oficial en esta web hasta contrastarlas con la serie del Incasòl.</p></section>`;
-}
 function rgEstudiosHTML() {
   return `<section class="lectura" aria-labelledby="rge-t"><h3 id="rge-t">Qué dicen los estudios</h3>
     <div class="lect-grid">${D.regulacion.estudios.map(e => `<article><h4>${e.titulo}</h4><p>${e.texto} <a href="${e.fuente}" target="_blank" rel="noopener">${e.fuente_txt}</a>. <em>Sin carácter oficial.</em></p></article>`).join("")}
       <article class="ancho"><h4>Qué permiten concluir los datos y qué no</h4>
-        <p><strong>Permiten ver</strong> que en las zonas tensionadas catalanas el precio de los contratos nuevos se ha mantenido casi igual desde 2024, mientras que en el resto de Cataluña ha subido, y que el número de contratos de larga duración es menor que en 2024.</p>
-        <p><strong>No permiten concluir</strong> cuánto de esa diferencia se debe a la regulación: las zonas declaradas ya tenían precios más altos y subidas mayores (así se eligieron), los contratos de temporada pueden sustituir a los de larga duración, y SERPAVI mide contratos vigentes, no los que se firman cada año. Tampoco se puede saber qué habría pasado sin la regulación.</p>
-        <p><strong>Cambiaría la lectura</strong> con la serie trimestral completa del Incasòl por municipio, con una comparación entre municipios parecidos dentro y fuera de las zonas, y con SERPAVI de 2025 y 2026 cuando se publique.</p></article>
+        <p><strong>Permiten ver</strong> que, desde 2024, la renta de los contratos nuevos casi no ha cambiado en los municipios catalanes declarados zona tensionada, mientras que en los nunca declarados ha seguido subiendo a un ritmo parecido al de antes. También que se registran menos contratos nuevos, más en los municipios declarados que en el resto, aunque la caída había empezado en 2021. Con la Ley 11/2020 (2020–2022) la renta bajó en los municipios regulados, pero en plena pandemia, y volvió a subir con fuerza tras la anulación.</p>
+        <p><strong>No permiten concluir</strong> cuánto de esas diferencias se debe a la regulación: los municipios declarados se eligieron por tener precios altos y subidas mayores, la renta media no corrige por tipo de vivienda, los contratos de temporada pueden sustituir a los de larga duración y no se sabe qué habría pasado sin la regulación. Tampoco si los contratos que faltan son viviendas que salen del alquiler, inquilinos que se mudan menos o contratos fuera del registro.</p>
+        <p><strong>Cambiaría la lectura</strong> con una comparación entre municipios parecidos a ambos lados del límite (por ejemplo, los que quedaron justo por debajo de los criterios), con datos de oferta (viviendas anunciadas, vendidas o pasadas a temporada) y, fuera de Cataluña, con series oficiales de contratos nuevos por municipio que cubran el periodo regulado.</p></article>
     </div></section>`;
 }
 
@@ -977,24 +1110,25 @@ const PASOS = [
 
   { id: "regulacion", corto: "Regulación del alquiler", eyebrow: "Componente 5 · Regulación del precio del alquiler",
     q: "Regulación del precio del alquiler: dónde se ha aplicado y qué muestran los datos",
-    resp: d => { const I = D.regulacion.incaso, P = Object.fromEntries(I.puntos.map(p => [p.clave, p.valor]));
-      return `El precio del alquiler se ha limitado en Cataluña (2020–2022 y desde marzo de 2024) y, desde 2025, en zonas del País Vasco, Navarra, Galicia y Asturias. Solo Cataluña lleva tiempo suficiente para medir algo. En las zonas tensionadas catalanas el precio medio de los contratos nuevos varió un <strong>${signoP(P.zt_2a)} %</strong> en dos años; en el resto de Cataluña, un <strong>${signoP(P.resto_2a)} %</strong>.`; },
-    pie: `Alquiler mediano por m² de los pisos con contrato vigente (SERPAVI, Ministerio de Vivienda), media de municipios ponderada por contratos, con ${RG_BASE} = 100. Misma escala en las tres líneas. La franja marca el periodo en que estuvo en vigor la Ley 11/2020; la línea de 2024 (marzo), la primera declaración de zonas tensionadas.`,
-    expl: d => { const R = rgSeries(), j = R.i(2024), a = R.i(2023);
-      const c = k => R.idx(k)[j] - 100;
-      return `Entre ${RG_BASE} y 2024 el alquiler mediano por m² subió un ${pctE(c("cat_zt"))} en las zonas catalanas declaradas, un ${pctE(c("cat_no"))} en el resto de Cataluña y un ${pctE(c("resto"))} en el resto de España. En 2024 la subida fue de ${nf1.format(varPct(R.g("cat_zt")[a], R.g("cat_zt")[j]))} % en las zonas declaradas y de ${nf1.format(varPct(R.g("resto")[a], R.g("resto")[j]))} % en el resto de España. Este dato mide contratos vigentes, no nuevos, y 2024 solo incluye parte del año con límites: el efecto sobre los alquileres nuevos aparece en los datos de la Generalitat que se muestran más abajo.`; },
-    lectura: d => rgHitosHTML() + rgTablaHTML() + rgCasosHTML() + rgCatHTML() + rgEstudiosHTML(),
-    det: () => `<p><strong>Fuentes:</strong> BOE y sentencias del Tribunal Constitucional (hitos); Ministerio de Vivienda, SERPAVI 2011–${D.mun.ult} (alquiler mediano por m² y contratos de vivienda colectiva) y zonas tensionadas declaradas; Generalitat de Cataluña, fianzas depositadas en el Incasòl (recogidas por prensa); Tribunal Constitucional Federal alemán y banco público IBB (Berlín).</p>
-      <p><strong>Cómo se calcula el gráfico:</strong> para cada año, media de los alquileres medianos por m² de los municipios, ponderada por su número de contratos. Grupos: municipios catalanes declarados zona tensionada (desde marzo y octubre de 2024), resto de municipios catalanes y resto de España sin País Vasco ni Navarra (entran tarde en SERPAVI).</p>
-      <p><strong>Qué no dice:</strong> SERPAVI mide contratos vigentes con datos de Hacienda, no los alquileres que se firman cada año, y responde despacio a un tope que solo afecta a contratos nuevos. Los grupos no son iguales de partida (las zonas declaradas se eligieron por tener precios altos y subidas mayores). Cataluña 2020–2022 no se puede evaluar con estos datos. Las cifras de Berlín y los estudios son de prensa o académicos y no tienen carácter oficial.</p>`,
-    chart: (d, el) => { const R = rgSeries(), X = R.S.anos;
-      el.innerHTML = `<h4>Alquiler mediano por m², ${RG_BASE} = 100</h4><div class="chart" id="c-reg"></div>`;
-      grafico($("c-reg"), { tipo: "lineas", alto: 300, x: X,
-        series: [{ n: "Cataluña, zonas declaradas", v: R.idx("cat_zt"), c: C1 }, { n: "Resto de Cataluña", v: R.idx("cat_no"), c: C2 }, { n: "Resto de España", v: R.idx("resto"), c: C3 }],
-        y: { min: 90, max: 150, ref: 100, ticks: [90, 100, 110, 120, 130, 140, 150], fmt: v => nf0.format(v) },
-        bandas: [{ i0: X.indexOf(2020), i1: X.indexOf(2021), t: "Ley 11/2020 en vigor" }],
-        marcas: [{ i: X.indexOf(2024), t: "Mar. 2024", fila: 1 }],
-        tipFmt: v => `${nf1.format(v)} (${signoP(v - 100)} desde ${RG_BASE})`, aria: "Alquiler mediano por metro cuadrado en Cataluña y en el resto de España, 2019 igual a 100" }); } },
+    resp: d => { const { mar, U } = rgDatos();
+      return `El precio del alquiler se ha limitado en Cataluña (2020–2022 y desde marzo de 2024) y, desde 2025, en municipios del País Vasco, Navarra, Galicia y Asturias. Solo Cataluña publica una serie oficial de contratos nuevos por municipio. En los municipios declarados en marzo de 2024 la renta de los contratos nuevos varió un <strong>${signoP(mar.zt)} %</strong> desde el año anterior a los límites, frente a un <strong>${signoP(mar.no)} %</strong> en los catalanes nunca declarados; el número de contratos, un <strong>${signoP(mar.ztN)} %</strong> frente a un ${signoP(mar.noN)} %.`; },
+    pie: "Contratos de alquiler nuevos registrados cada trimestre en Cataluña (fianzas depositadas en el Incasòl, Generalitat de Cataluña). Renta mensual media ponderada por contratos y número de contratos, cada grupo con su media de 2019 = 100. Misma escala en todas las líneas.",
+    expl: d => { const { mar, oct, l20 } = rgDatos();
+      return rgVista === "2024"
+        ? `Antes de los límites, la renta de los contratos nuevos subía a un ritmo parecido en todos los grupos. Desde 2024 se separan: en los municipios declarados en marzo varió un ${signoP(mar.zt)} % y en los de octubre un ${signoP(oct.zt)} %, mientras que en los nunca declarados subió un ${signoP(mar.no)} %. A la vez, se firman menos contratos: ${signoP(mar.ztN)} % en los declarados en marzo, ${signoP(mar.noN)} % en los nunca declarados. Los contratos ya venían bajando desde 2021 en todos los grupos.`
+        : `Con la Ley 11/2020 en vigor, la renta de los contratos nuevos bajó un ${nf1.format(Math.abs(l20.ley2020.dur))} % en los 61 municipios regulados y ${l20.no2020.dur >= 0 ? `subió un ${nf1.format(l20.no2020.dur)} %` : `bajó un ${nf1.format(Math.abs(l20.no2020.dur))} %`} en el resto de Cataluña. Tras la anulación subió un ${nf1.format(l20.ley2020.post)} % en un año en los municipios regulados y un ${nf1.format(l20.no2020.post)} % en el resto. El periodo coincide con la pandemia, que redujo la demanda en las ciudades grandes, así que no se puede atribuir la diferencia solo a la ley.`; },
+    lectura: d => rmMapaHTML() + rgAntesHTML() + rgHitosHTML() + rgCasosHTML() + rgEstudiosHTML(),
+    det: () => `<p><strong>Fuentes:</strong> Generalitat de Cataluña, fianzas de alquiler depositadas en el Incasòl (datos abiertos, renta media y número de contratos por municipio y trimestre, ${D.regulacion.series.trim.periodos[0]} a ${ult(D.regulacion.series.trim.periodos)}); BOE (anexo de la Ley 11/2020 y sentencia 37/2022); Ministerio de Vivienda, zonas tensionadas declaradas y SERPAVI 2011–${D.mun.ult}; Tribunal Constitucional Federal alemán y banco público IBB (Berlín).</p>
+      <p><strong>Cómo se calcula:</strong> para cada trimestre, media de la renta media de los municipios ponderada por su número de contratos, y suma de contratos. Grupos fijos de municipios: declarados con vigencia desde el 16 de marzo de 2024, desde el 10 de octubre de 2024 y nunca declarados; para 2020, los 61 del anexo de la Ley 11/2020 y el resto. Cuando la fuente deja en blanco la renta de un trimestre, se obtiene de los periodos acumulados que publica (por ejemplo, enero–marzo = enero–junio menos abril–junio).</p>
+      <p><strong>Qué no dice:</strong> la renta media no corrige por tamaño ni calidad de la vivienda: si cambia el tipo de pisos que se alquilan, cambia la media. Los municipios declarados se eligieron por tener precios altos y subidas fuertes, así que los grupos no son iguales de partida. Los contratos de temporada y los de habitaciones no siempre depositan fianza en el Incasòl. Un contrato con renta por encima del límite también deposita fianza: el dato no mide el cumplimiento. Que bajen los contratos registrados puede deberse a menos oferta, a menos rotación de inquilinos o a contratos fuera del registro.</p>`,
+    chart: (d, el) => {
+      el.innerHTML = `<div class="seg seg-mini" role="group" aria-label="Medida que se compara" id="rg-vistas">${Object.entries(RG_VISTAS).map(([k, v]) => `<button type="button" data-v="${k}" aria-pressed="${k === rgVista}">${v.boton}</button>`).join("")}</div>
+        <div class="duo"><div><h4>Renta media de los contratos nuevos, 2019 = 100</h4><div class="chart" id="c-rg-r"></div></div>
+        <div><h4>Número de contratos nuevos, 2019 = 100</h4><div class="chart" id="c-rg-n"></div></div></div>`;
+      rgDibujar();
+      $("rg-vistas").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; rgVista = b.dataset.v; rgDibujar();
+        const ex = document.querySelector("#paso-gen > p.expl"); if (ex) ex.innerHTML = PASOS.find(p => p.id === "regulacion").expl(d); });
+    } },
 
   { id: "mapa", corto: "Por provincia", eyebrow: "Por provincia" },
 
@@ -1008,7 +1142,7 @@ const PASOS = [
       ["Mayor en zonas concretas", "Compradores no residentes y pisos turísticos", `${pct(D.capas.no_residentes.nacional)} de las compras y ${pct(D.capas.turisticas.nacional)} de las viviendas en España, pero hasta ${pct(d.top("no_residentes").v)} de las compras en ${nombre(d.top("no_residentes").cod)}.`],
       ["Menor que tras la crisis", "Empresas compradoras", `${pct(d.eU[1])} de las compras en ${d.eU[0]}, frente al ${pct(d.eMax[1])} de ${d.eMax[0]}.`],
       ["Por municipio", "Tensión del alquiler extendida", `En ${D.mun.ult}, el ${pctE(100 * D.mun.cumplen[D.mun.ult] / D.mun.evaluables[D.mun.ult])} de los municipios con datos cumplía el criterio legal de subida del alquiler. ${D.mun.grupos.si.mas10 <= D.mun.grupos.no.mas10 ? "No es mayor" : "Es algo mayor"} donde hay más viviendas de grandes propietarios.`],
-      ["Cataluña", "Regulación del precio del alquiler", (() => { const P = Object.fromEntries(D.regulacion.incaso.puntos.map(p => [p.clave, p.valor])); return `Desde marzo de 2024 el precio de los contratos nuevos varió un ${signoP(P.zt_2a)} % en dos años en las zonas tensionadas y un ${signoP(P.resto_2a)} % en el resto de Cataluña. Los datos no permiten separar cuánto se debe a la regulación y cuánto a otras causas.`; })()],
+      ["Cataluña", "Regulación del precio del alquiler", (() => { const { mar } = rgDatos(); return `En los municipios catalanes declarados zona tensionada en marzo de 2024, la renta de los contratos nuevos varió un ${signoP(mar.zt)} % desde el año anterior a los límites; en los nunca declarados, un ${signoP(mar.no)} %. Se firman menos contratos en ambos grupos. Los datos no permiten separar cuánto se debe a la regulación.`; })()],
       ["Propiedad del alquiler", "Particulares con varias viviendas", (() => { const P = propAlquiler(); return `Tienen el ${pct(P.pct.varias)} de las viviendas en alquiler; las empresas privadas, el ${pct(P.pct.empresas)}, y quienes alquilan una sola vivienda, el ${pct(P.pct.uno)}.`; })()],
     ],
     det: () => `<p><strong>Lo que estos datos no miden:</strong> los plazos para conceder licencias y aprobar suelo, la normativa de cada comunidad y ayuntamiento, el coste de los materiales desde 2024, por qué están vacías las viviendas vacías y cuántas compras se hacen para revender. Todos influyen y no hay una estadística oficial actualizada que permita medirlos con el mismo detalle.</p>` },

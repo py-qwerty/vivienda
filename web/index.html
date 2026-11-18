@@ -1,6 +1,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>En proporción</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1c5cab">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -155,6 +159,11 @@ dl.quien dd { margin: 0; color: var(--ink-2); }
 .dv-eje { border-top: 0; padding-top: 0; }
 .dv-ticks { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-right: 70px; }
 @media (max-width: 600px) { .dv-fila, .dv-cab { grid-template-columns: 1fr; gap: 6px; } .dv-cab > span:first-child { display: none; } }
+details.rg-det { max-width: none; margin: 0 0 8px; }
+details.rg-det > summary { padding: 4px 0; }
+.tabla table.rg2 td, .tabla table.rg2 th { white-space: normal; vertical-align: top; text-align: left; }
+.tabla table.rg2 thead th { min-width: 180px; }
+.rg-cab { border-top: 2px solid var(--line-strong); padding-top: 18px; }
 .rm-sub { margin: 0; font-size: 0.88rem; color: var(--ink-2); }
 #rm-nota p { margin: 6px 0 0; }
 .leyenda i.esc { height: 0; width: 18px; border-radius: 0; border-top: 2px dashed var(--ink-2); background: none !important; }
@@ -1295,9 +1304,41 @@ function rgDibujar() {
   grafico($("c-rg-r"), cfg("renta")); grafico($("c-rg-n"), cfg("contratos"));
   for (const b of $("rg-vistas").children) b.setAttribute("aria-pressed", b.dataset.v === rgVista);
 }
+function rgDosLeyesHTML() {
+  const L20 = "https://www.boe.es/buscar/act.php?id=BOE-A-2020-11363", L23 = "https://www.boe.es/buscar/act.php?id=BOE-A-2023-12203";
+  const fila = (t, a, b) => `<tr><th scope="row">${t}</th><td>${a}</td><td>${b}</td></tr>`;
+  return `<section class="lectura" aria-labelledby="rg2-t"><h3 id="rg2-t">Dos regulaciones distintas</h3>
+    <p class="note">En Cataluña el precio del alquiler se ha limitado dos veces, con leyes distintas. La de 2024 no es una ley nueva: es la ley estatal de vivienda de 2023, que Cataluña empezó a aplicar al declarar sus zonas tensionadas.</p>
+    <div class="lect-grid">
+      <article><h4>2020–2022: ley catalana 11/2020</h4>
+        <p>Ley del Parlament de Cataluña, en vigor del <strong>22 de septiembre de 2020</strong> al <strong>10 de marzo de 2022</strong>, cuando el Tribunal Constitucional la anuló porque fijar la renta de un alquiler es legislación civil, que corresponde al Estado.</p>
+        <p>Se aplicaba en <strong>61 municipios</strong> y a <strong>todos los propietarios</strong>. Un contrato nuevo no podía superar el <strong>índice de precios de la Generalitat</strong> para un piso parecido de la zona, ni la renta del contrato anterior: valía el más bajo de los dos. Por eso podía <strong>bajar</strong> alquileres que estaban por encima del índice.</p></article>
+      <article><h4>Desde 2024: ley estatal 12/2023</h4>
+        <p>Ley de las Cortes Generales de mayo de 2023. Se aplica donde una comunidad declara una zona tensionada: en Cataluña, <strong>140 municipios desde el 16 de marzo de 2024</strong> y <strong>131 más desde el 10 de octubre de 2024</strong>.</p>
+        <p>Para los <strong>particulares</strong>, el único tope es la <strong>renta del contrato anterior</strong>: si ya estaba por encima del índice, se puede mantener. Solo los <strong>grandes tenedores</strong> (en Cataluña, 5 viviendas o más en la zona) deben ajustarse al <strong>índice estatal</strong>. Sobre todo <strong>congela</strong> los alquileres en su nivel anterior.</p></article>
+    </div>
+    <div class="tabla"><table class="rg2"><thead><tr><th scope="col"></th><th scope="col">Ley 11/2020 (catalana)</th><th scope="col">Ley 12/2023 (estatal)</th></tr></thead><tbody>
+      ${fila("Vigencia", "Sep. 2020 – mar. 2022 (anulada)", "En Cataluña desde mar. 2024 (vigente)")}
+      ${fila("Zonas", "61 municipios, fijados por la propia ley", "Las declara la comunidad: 271 municipios catalanes en 2024")}
+      ${fila("Tope para particulares", "Índice de la Generalitat o renta anterior, el más bajo", "Renta del contrato anterior")}
+      ${fila("Tope para grandes tenedores", "El mismo que para particulares", "Índice estatal de referencia")}
+      ${fila("Índice de precios", "De la Generalitat (fianzas del Incasòl)", "Del Estado (datos de Hacienda)")}
+      ${fila("Margen para subir", "±5 % sobre el índice según características del piso, o más si hubo obras de mejora el último año", "Hasta un 10 % más si hubo rehabilitación, mejora energética o de accesibilidad, o si el contrato es de 10 años o más")}
+      ${fila("Excepción", "Propietarios con ingresos bajos: solo el tope de la renta anterior", "—")}
+      ${fila("Prórroga para el inquilino", "No", "Hasta 3 años más en la zona")}
+      ${fila("Incentivos fiscales", "No", "Reducción en el IRPF del propietario, del 50 % al 90 %")}
+      ${fila("Sanciones", "Sí, en la ley catalana de vivienda", "No las fija la ley estatal")}
+    </tbody></table></div>
+    <p class="note">Fuentes: <a href="${L20}" target="_blank" rel="noopener">BOE, Ley 11/2020</a> (art. 1 a 7 y anexo) y <a href="${L23}" target="_blank" rel="noopener">BOE, Ley 12/2023</a> (art. 3 y 18, y cambios en la Ley de Arrendamientos Urbanos y el IRPF). Fuera de Cataluña, la ley estatal se aplica desde 2025 en zonas del País Vasco, Navarra, Galicia y Asturias.</p>
+  </section>`;
+}
+function rgImpactoCabHTML() {
+  return `<section class="lectura rg-cab" aria-labelledby="rgi-t"><h3 id="rgi-t">Qué ha pasado con los alquileres</h3>
+    <p class="note">A partir de aquí, datos: el alquiler de los contratos que se firman cada trimestre en Cataluña y cuántos se firman, comparando los municipios con límites con los que nunca los han tenido. Elige qué regulación quieres ver.</p></section>`;
+}
 function rgLeyHTML() {
   const BOE = "https://www.boe.es/buscar/act.php?id=BOE-A-2023-12203", a = (t, h = "") => `<a href="${BOE}${h}" target="_blank" rel="noopener">${t}</a>`;
-  return `<section class="lectura" aria-labelledby="rgl-t"><h3 id="rgl-t">Qué dice la ley de zonas tensionadas</h3>
+  return `<details class="rg-det"><summary>Detalle de la ley estatal de zonas tensionadas (Ley 12/2023)</summary><section class="lectura" aria-labelledby="rgl-t"><h3 id="rgl-t">Qué dice la ley de zonas tensionadas</h3>
     <p class="note">Resumen de la Ley 12/2023, de 24 de mayo, por el derecho a la vivienda (artículos 3 y 18) y de los cambios que introduce en la Ley de Arrendamientos Urbanos y en el IRPF (disposiciones finales primera y segunda). Es un resumen descriptivo; el texto que vale es el del ${a("BOE")}.</p>
     <div class="lect-grid">
       <article><h4>Quién declara una zona y durante cuánto tiempo</h4>
@@ -1327,7 +1368,7 @@ function rgLeyHTML() {
         <p>No hay reducción si el contrato incumple el límite de renta de la zona. Se aplica a contratos firmados desde la entrada en vigor de la ley.</p></article>
       <article class="ancho"><h4>Qué no regula la ley</h4>
         <p><strong>Contratos de temporada y alquiler de habitaciones:</strong> los límites se refieren a la vivienda habitual, así que estos contratos quedan fuera. Cataluña aprobó en 2025 una ley propia para regularlos, recurrida por el PP. <strong>Contratos ya firmados:</strong> su renta no cambia por la declaración; solo les afecta el límite general a la actualización anual en toda España (2 % en 2023, 3 % en 2024 y, desde 2025, el índice que publica el INE). <strong>Precio de compra:</strong> no se limita. <strong>Sanciones:</strong> la ley estatal no fija un régimen propio para quien supere el límite; depende de las comunidades y de que el inquilino reclame.</p></article>
-    </div></section>`;
+    </div></section></details>`;
 }
 function rgPeriodosHTML() {
   const R = rgT(), P = R.P, lim = [P[0], ...RG_CORTES, null];
@@ -2166,13 +2207,14 @@ const PASOS = [
   { id: "regulacion", corto: "Regulación del alquiler", eyebrow: "Componente 5 · Regulación del precio del alquiler",
     q: "Regulación del precio del alquiler: dónde se ha aplicado y qué muestran los datos",
     resp: d => { const { mar, U } = rgDatos();
-      return `El precio del alquiler se ha limitado en Cataluña (2020–2022 y desde marzo de 2024) y, desde 2025, en municipios del País Vasco, Navarra, Galicia y Asturias. Solo Cataluña publica una serie oficial de contratos nuevos por municipio. En los municipios declarados en marzo de 2024 la renta de los contratos nuevos varió un <strong>${signoP(mar.zt)} %</strong> desde el año anterior a los límites, frente a un <strong>${signoP(mar.no)} %</strong> en los catalanes nunca declarados; el número de contratos, un <strong>${signoP(mar.ztN)} %</strong> frente a un ${signoP(mar.noN)} %.`; },
+      return `En Cataluña el precio del alquiler se ha limitado con dos leyes distintas: la catalana 11/2020, de 2020 a 2022, anulada por el Tribunal Constitucional, y la estatal 12/2023, aplicada desde marzo de 2024 en las zonas tensionadas. Desde 2025 la ley estatal también se aplica en municipios del País Vasco, Navarra, Galicia y Asturias. En los municipios declarados en marzo de 2024 la renta de los contratos nuevos varió un <strong>${signoP(mar.zt)} %</strong> desde el año anterior a los límites, frente a un <strong>${signoP(mar.no)} %</strong> en los catalanes nunca declarados; el número de contratos, un <strong>${signoP(mar.ztN)} %</strong> frente a un ${signoP(mar.noN)} %.`; },
     pie: "Izquierda: alquiler mensual medio de los contratos firmados cada trimestre en cada grupo de municipios (media de los municipios ponderada por su número de contratos). Derecha: número de contratos firmados cada trimestre, en porcentaje de la media trimestral de 2019 de ese grupo (100 = igual que en 2019). Las líneas discontinuas son la media de cada grupo en cada periodo: sin límites (hasta 2020 T3), Ley 11/2020 (2020 T4–2022 T1), sin límites (2022 T2–2024 T1) y zonas tensionadas (desde 2024 T2; los municipios declarados en octubre de 2024 entran algo más tarde). Fuente: fianzas de alquiler depositadas en el Incasòl (Generalitat de Cataluña).",
     expl: d => { const { mar, oct, l20 } = rgDatos();
       return rgVista === "2024"
         ? `Antes de los límites, la renta de los contratos nuevos subía a un ritmo parecido en todos los grupos. Desde 2024 se separan: en los municipios declarados en marzo varió un ${signoP(mar.zt)} % y en los de octubre un ${signoP(oct.zt)} %, mientras que en los nunca declarados subió un ${signoP(mar.no)} %. A la vez, se firman menos contratos: ${signoP(mar.ztN)} % en los declarados en marzo, ${signoP(mar.noN)} % en los nunca declarados. Los contratos ya venían bajando desde 2021 en todos los grupos.`
         : `Con la Ley 11/2020 en vigor, la renta de los contratos nuevos bajó un ${nf1.format(Math.abs(l20.ley2020.dur))} % en los 61 municipios regulados y ${l20.no2020.dur >= 0 ? `subió un ${nf1.format(l20.no2020.dur)} %` : `bajó un ${nf1.format(Math.abs(l20.no2020.dur))} %`} en el resto de Cataluña. Tras la anulación subió un ${nf1.format(l20.ley2020.post)} % en un año en los municipios regulados y un ${nf1.format(l20.no2020.post)} % en el resto. El periodo coincide con la pandemia, que redujo la demanda en las ciudades grandes, así que no se puede atribuir la diferencia solo a la ley.`; },
-    lectura: d => rgLeyHTML() + rgPeriodosHTML() + rgCantidadHTML() + rmMapaHTML() + rgAntesHTML() + rgHitosHTML() + rgCasosHTML() + rgEstudiosHTML(),
+    intro: d => rgDosLeyesHTML() + rgLeyHTML() + rgHitosHTML() + rgImpactoCabHTML(),
+    lectura: d => rgPeriodosHTML() + rgCantidadHTML() + rmMapaHTML() + rgAntesHTML() + rgCasosHTML() + rgEstudiosHTML(),
     det: () => `<p><strong>Fuentes:</strong> Generalitat de Cataluña, fianzas de alquiler depositadas en el Incasòl (datos abiertos, renta media y número de contratos por municipio y trimestre, ${D.regulacion.series.trim.periodos[0]} a ${ult(D.regulacion.series.trim.periodos)}); BOE (anexo de la Ley 11/2020 y sentencia 37/2022); Ministerio de Vivienda, zonas tensionadas declaradas y SERPAVI 2011–${D.mun.ult}; Tribunal Constitucional Federal alemán y banco público IBB (Berlín).</p>
       <p><strong>Cómo se calcula:</strong> para cada trimestre, media de la renta media de los municipios ponderada por su número de contratos, y suma de contratos. Grupos fijos de municipios: declarados con vigencia desde el 16 de marzo de 2024, desde el 10 de octubre de 2024 y nunca declarados; para 2020, los 61 del anexo de la Ley 11/2020 y el resto. Cuando la fuente deja en blanco la renta de un trimestre, se obtiene de los periodos acumulados que publica (por ejemplo, enero–marzo = enero–junio menos abril–junio).</p>
       <p><strong>Qué no dice:</strong> la renta media no corrige por tamaño ni calidad de la vivienda: si cambia el tipo de pisos que se alquilan, cambia la media. Los municipios declarados se eligieron por tener precios altos y subidas fuertes, así que los grupos no son iguales de partida. Los contratos de temporada y los de habitaciones no siempre depositan fianza en el Incasòl. Un contrato con renta por encima del límite también deposita fianza: el dato no mide el cumplimiento. Que bajen los contratos registrados puede deberse a menos oferta, a menos rotación de inquilinos o a contratos fuera del registro.</p>`,
@@ -2267,6 +2309,7 @@ function mostrarPaso(id) {
       h += coberturaHTML();
       h += `<footer class="sources" id="fuentes"></footer>`;
     } else {
+      if (p.intro) h += p.intro(d);
       h += `<figure class="panel chartcard"><div class="chart" id="c-paso"></div>${p.pie != null ? `<figcaption>${p.pie}</figcaption>` : ""}</figure>`;
       h += `<p class="expl">${p.expl(d)}</p>`;
       if (p.lectura) h += p.lectura(d);
